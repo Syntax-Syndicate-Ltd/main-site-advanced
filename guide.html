@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Guide Engine — Syntax Syndicate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/global.css"/>
+
+<style>
+:root {
+  --white:#ffffff;--tint:#f0f4ff;--tint-2:#e4eaf8;--border:#d0d7e8;--border-2:#b8c2d8;
+  --text:#0a0e1a;--text-2:#3d4a66;--text-3:#7985a0;
+  --accent:#4169e1;--accent-hi:#2a52cc;--accent-bg:rgba(65,105,225,0.08);--accent-bg2:rgba(65,105,225,0.15);
+  --carbon-black:#0a0e1a;--gunmetal:#1a2035;--iron-grey:#3d4a66;--pale-slate:#d0d7e8;--platinum:#f0f4ff;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --max:900px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--tint);color:var(--text);line-height:1.6;}
+
+
+/* Layout */
+.container{max-width:var(--max);margin:100px auto 40px;padding:0 20px;}
+.header{text-align:center;margin-bottom:40px;}
+.header h1{font-size:2rem;font-weight:700;letter-spacing:-.02em;margin-bottom:12px;color:var(--carbon-black);}
+.header p{font-size:1rem;color:var(--text-2);max-width:500px;margin:0 auto;}
+
+.card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:32px;box-shadow:0 12px 48px rgba(10,14,26,.05);}
+
+/* Generator Form */
+.input-group{position:relative;display:flex;gap:12px;margin-bottom:20px;}
+.input-main{flex:1;padding:16px 20px;font-size:1.05rem;border:1px solid var(--border);border-radius:12px;outline:none;font-family:var(--font);transition:border-color .2s,box-shadow .2s;}
+.input-main:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-bg);}
+.btn-gen{padding:0 28px;background:var(--carbon-black);color:#fff;font-weight:600;border:none;border-radius:12px;cursor:pointer;font-size:1rem;font-family:var(--font);transition:background .2s;}
+.btn-gen:hover{background:var(--gunmetal);}
+.btn-gen:disabled{opacity:0.6;cursor:not-allowed;}
+
+.presets{display:flex;gap:8px;flex-wrap:wrap;}
+.preset-tag{font-size:.8rem;font-weight:500;padding:6px 14px;background:var(--tint);border:1px solid var(--border);border-radius:100px;cursor:pointer;color:var(--text-2);transition:all .2s;}
+.preset-tag:hover{background:var(--accent-bg);color:var(--accent);border-color:rgba(65,105,225,.3);}
+
+/* Roadmap Result */
+#resultArea{display:none;margin-top:40px;}
+.result-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.rh-title{font-size:1.4rem;font-weight:700;color:var(--carbon-black);}
+.rh-meta{font-family:var(--mono);font-size:.7rem;color:var(--accent);background:var(--accent-bg);padding:4px 10px;border-radius:6px;border:1px solid rgba(65,105,225,.2);}
+
+.roadmap-timeline{position:relative;padding-left:30px;display:flex;flex-direction:column;gap:32px;}
+.roadmap-timeline::before{content:'';position:absolute;left:8px;top:10px;bottom:10px;width:2px;background:var(--border);}
+
+.rm-step{position:relative;}
+.rm-step::before{content:'';position:absolute;left:-30px;top:6px;width:18px;height:18px;background:var(--white);border:4px solid var(--accent);border-radius:50%;z-index:2;}
+.rm-title{font-size:1.1rem;font-weight:700;color:var(--carbon-black);margin-bottom:8px;}
+.rm-desc{font-size:.9rem;color:var(--text-2);line-height:1.6;margin-bottom:12px;}
+.rm-resources{display:flex;gap:10px;flex-wrap:wrap;}
+.rm-res-link{font-size:.8rem;font-weight:600;padding:6px 14px;background:var(--tint);border:1px solid var(--border);border-radius:8px;text-decoration:none;color:var(--carbon-black);display:flex;align-items:center;gap:6px;}
+.rm-res-link:hover{background:var(--white);border-color:var(--accent);color:var(--accent);}
+
+/* Premium Lock */
+.premium-lock{display:none;text-align:center;padding:40px 20px;}
+.pl-icon{font-size:3rem;margin-bottom:16px;}
+.pl-title{font-size:1.2rem;font-weight:700;margin-bottom:8px;}
+.pl-desc{font-size:.95rem;color:var(--text-2);margin-bottom:24px;}
+.btn-premium{display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-weight:700;border-radius:8px;text-decoration:none;box-shadow:0 8px 24px rgba(245,158,11,.2);}
+
+.loader{display:none;text-align:center;padding:40px;color:var(--text-3);font-family:var(--mono);font-size:.85rem;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:.5;}50%{opacity:1;}}
+
+@media(max-width:600px){.input-group{flex-direction:column;}.btn-gen{padding:14px;}}
+</style>
+</head>
+<body>
+
+<div id="navbar-placeholder"></div>
+
+<div class="container">
+  <div class="header">
+    <h1>AI Guide Engine</h1>
+    <p>Tell us what you want to build or become. We'll generate a step-by-step learning roadmap tailored for you.</p>
+  </div>
+
+  <div class="card" id="mainCard">
+    <!-- Non-Premium Lock -->
+    <div class="premium-lock" id="premiumLock">
+      <div class="pl-icon">⚡</div>
+      <div class="pl-title">Premium Feature</div>
+      <div class="pl-desc">The AI Guide Engine dynamically generates personalized roadmaps. Upgrade to Premium to unlock it.</div>
+      <a href="upgrade.html" class="btn-premium">Upgrade to Premium</a>
+    </div>
+
+    <!-- Active Engine -->
+    <div id="engineActive" style="display:none;">
+      <div class="input-group">
+        <input type="text" id="goalInput" class="input-main" placeholder="e.g., I want to become a Web3 Smart Contract Developer..."/>
+        <button class="btn-gen" id="btnGen" onclick="generateRoadmap()">Generate Roadmap</button>
+      </div>
+      <div class="presets">
+        <div class="preset-tag" onclick="setGoal('Full Stack React Developer')">Full Stack React</div>
+        <div class="preset-tag" onclick="setGoal('Machine Learning Engineer')">Machine Learning</div>
+        <div class="preset-tag" onclick="setGoal('Backend with Node & Go')">Backend Node/Go</div>
+        <div class="preset-tag" onclick="setGoal('UI/UX Designer')">UI/UX Design</div>
+      </div>
+    </div>
+
+    <div class="loader" id="loader">⚙️ Synthesizing your roadmap...</div>
+
+    <!-- Results Area -->
+    <div id="resultArea">
+      <div class="result-header">
+        <div>
+          <div class="rh-title" id="resTitle">Your Roadmap</div>
+          <div style="font-size:.85rem;color:var(--text-2);margin-top:4px;">Generated based on your goals</div>
+        </div>
+        <div class="rh-meta">⚡ AI GENERATED</div>
+      </div>
+      
+      <div class="roadmap-timeline" id="timeline">
+        <!-- Injected via JS -->
+      </div>
+
+      <div style="margin-top:40px;text-align:center;">
+        <button class="btn-gen" style="background:var(--white);color:var(--carbon-black);border:1px solid var(--border);" onclick="resetEngine()">Start Over</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/navbar.js"></script>
+<script>
+Auth.onAuthChange((user, profile) => {
+  const isPremium = profile && ['premium','team','superadmin'].includes(profile.role);
+  if (isPremium) {
+    document.getElementById('engineActive').style.display = 'block';
+  } else {
+    document.getElementById('premiumLock').style.display = 'block';
+  }
+});
+
+function setGoal(txt) {
+  document.getElementById('goalInput').value = txt;
+}
+
+function resetEngine() {
+  document.getElementById('resultArea').style.display = 'none';
+  document.getElementById('engineActive').style.display = 'block';
+  document.getElementById('goalInput').value = '';
+}
+
+function generateRoadmap() {
+  const goal = document.getElementById('goalInput').value.trim();
+  if (!goal) return window.alert("Please enter a goal first!");
+
+  document.getElementById('engineActive').style.display = 'none';
+  document.getElementById('loader').style.display = 'block';
+
+  // Mocking AI generation delay & logic
+  setTimeout(() => {
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('resultArea').style.display = 'block';
+    document.getElementById('resTitle').innerText = 'Roadmap: ' + goal;
+
+    let steps = [];
+    if (goal.toLowerCase().includes('react') || goal.toLowerCase().includes('front')) {
+      steps = [
+        { t:'Internet Fundamentals & HTML/CSS', d:'Understand how the web works. Build semantic HTML pages and style them with modern CSS (Flexbox/Grid).', r:['MDN Web Docs','CSS Tricks'] },
+        { t:'JavaScript Essentials', d:'Master ES6+, async/await, closures, and DOM manipulation.', r:['Javascript.info','Eloquent JS'] },
+        { t:'React Concepts', d:'Components, hooks (useState, useEffect), props, and context API.', r:['React Docs','Frontend Masters'] },
+        { t:'State Management & Routing', d:'Learn Redux Toolkit or Zustand, and React Router for SPAs.', r:['Redux Docs'] },
+        { t:'Build & Deploy', d:'Build 3 complex projects and deploy on Netlify/Vercel.', r:['Syntax Syndicate Portfolio Guide'] }
+      ];
+    } else {
+      steps = [
+        { t:'Foundations', d:'Learn the absolute basics of the language/tooling required for your goal.', r:['Official Docs'] },
+        { t:'Intermediate Concepts', d:'Understand core architectural patterns and standard libraries.', r:['Syntax Library','Youtube'] },
+        { t:'Advanced Data Handling', d:'Learn how to securely manage state, data, or models efficiently.', r:['Advanced Guides'] },
+        { t:'Real World Build', d:'Implement a fully working clone of a popular app.', r:['Syntax Projects'] }
+      ];
+    }
+
+    const timeline = document.getElementById('timeline');
+    timeline.innerHTML = steps.map((s, i) => `
+      <div class="rm-step">
+        <div class="rm-title">Phase ${i+1}: ${s.t}</div>
+        <div class="rm-desc">${s.d}</div>
+        <div class="rm-resources">
+          ${s.r.map(res => `<a href="#" class="rm-res-link">📚 ${res}</a>`).join('')}
+        </div>
+      </div>
+    `).join('');
+  }, 2000);
+}
+</script>
+</body>
+</html>

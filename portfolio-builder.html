@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Portfolio Builder — Syntax Syndicate</title>
+<meta name="description" content="Build and host a stunning developer portfolio with 6 premium templates."/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/portfolio-builder.css"/>
+</head>
+<body>
+
+<nav class="pb-nav">
+  <a href="index.html" class="pb-nav-logo"><div class="pb-nav-badge">SS</div> Syntax Syndicate</a>
+  <div class="pb-nav-links" style="display:flex;gap:20px;margin-left:20px">
+    <a href="archives/premium-library.html" class="pb-nav-link" style="text-decoration:none;color:var(--gray-600);font-size:0.85rem;font-weight:600">PDF Library ▾</a>
+    <a href="opportunities.html" class="pb-nav-link" style="text-decoration:none;color:var(--gray-600);font-size:0.85rem;font-weight:600">Opportunities ▾</a>
+    <a href="resources/index.html" class="pb-nav-link" style="text-decoration:none;color:var(--gray-600);font-size:0.85rem;font-weight:600">Resources ▾</a>
+    <a href="#" class="pb-nav-link" style="text-decoration:none;color:var(--gray-600);font-size:0.85rem;font-weight:600">More ▾</a>
+  </div>
+  <div class="pb-spacer"></div>
+  <div style="display:flex;align-items:center;gap:24px;margin-right:20px">
+    <span style="font-size:1.2rem;color:var(--gray-600);cursor:pointer">🔔</span>
+    <span style="font-size:0.85rem;font-weight:600;color:var(--gray-700)">Syntax</span>
+  </div>
+  <button class="pb-btn" onclick="PB.autoFill(window._profile,window._user)" id="btnAutoFill" style="display:none;background:var(--accent);color:#fff;border:none">⚡ Auto-Fill</button>
+  <button class="pb-btn pb-btn-primary" onclick="PB.save()" id="btnSave" style="display:none">💾 Save</button>
+  <a href="profile.html" class="pb-btn pb-btn-primary">Dashboard</a>
+</nav>
+
+<div class="pb-layout">
+  <div class="pb-sidebar">
+    <div class="pb-panel-header">
+      <h2>Choose Template</h2>
+      <p>Select a design for your portfolio</p>
+    </div>
+    <div class="pb-tpl-grid" id="pbTplGrid"></div>
+
+    <!-- Publish Toggle -->
+    <div class="pb-toggle" id="publishArea" style="display:none">
+      <label>Publish Portfolio</label>
+      <div class="pb-switch" id="publishSwitch" onclick="PB.togglePublish()"></div>
+    </div>
+    <div style="padding:0 20px 10px;display:none" id="linkArea">
+      <input type="text" class="pb-fi" id="portfolioLink" readonly style="font-family:var(--mono);font-size:.72rem;display:none" onclick="navigator.clipboard.writeText(this.value);SS.showToast('Copied!','success')"/>
+    </div>
+
+    <div class="pb-panel-header" style="border-top:1px solid var(--border)">
+      <h2>Portfolio Sections</h2>
+      <p>Fill in your details below</p>
+    </div>
+    <div class="pb-sections" id="pbSections"></div>
+  </div>
+
+  <div class="pb-preview">
+    <div class="pb-preview-frame" id="pbPreview">
+      <div style="text-align:center;padding:80px 40px;color:#64748b">
+        <div style="font-size:2rem;margin-bottom:8px">🌐</div>
+        <div style="font-size:1rem;font-weight:600">Your portfolio preview will appear here</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Premium Lock -->
+<div class="pb-lock" id="premiumLock" style="display:none">
+  <div class="pb-lock-icon">🔒</div>
+  <div class="pb-lock-title">Premium Feature</div>
+  <div class="pb-lock-desc">Upgrade to Premium to build and host your developer portfolio with professional templates.</div>
+  <a href="upgrade.html" class="pb-lock-btn">Upgrade to Premium →</a>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/db.js"></script>
+<script src="js/portfolio-builder.js"></script>
+<script>
+(async function(){
+  try{
+    const user=await Auth.requireAuth();
+    const profile=Auth.getProfile();
+    if(!profile){window.location.href='login.html';return;}
+    const isPremium=['premium','team','superadmin'].includes(profile.role);
+    if(!isPremium){document.getElementById('premiumLock').style.display='flex';return;}
+    window._profile=profile; window._user=user;
+    document.getElementById('btnSave').style.display='';
+    document.getElementById('btnAutoFill').style.display='';
+    document.getElementById('publishArea').style.display='';
+    document.getElementById('linkArea').style.display='block';
+    PB.uid=profile.id;
+    PB.init();
+    // Auto-fill from profile on first load
+    PB.autoFill(profile,user);
+    // Try loading saved portfolio
+    const saved=await DB.getPortfolio(profile.id);
+    if(saved&&saved.data){PB.data=saved.data;PB.template=saved.template||'midnight';PB.isPublished=!!saved.is_published;PB.renderTemplateSelector();PB.renderSections();PB.renderPreview();PB.updatePublishUI();}
+  }catch(e){console.error(e);}
+})();
+</script>
+</body>
+</html>

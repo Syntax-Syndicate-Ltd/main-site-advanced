@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Details — Syntax Syndicate</title>
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/opportunities.css">
+</head>
+<body>
+
+<div id="navbar-placeholder"></div>
+
+<!-- DETAIL PAGE -->
+<div class="detail-page">
+  <div style="max-width:1200px;margin:0 auto;padding:0 24px">
+    <a href="javascript:history.back()" class="detail-back">
+      <i class="bi bi-chevron-left"></i> Back to Opportunities
+    </a>
+
+    <!-- LOADING STATE -->
+    <div id="loading-state" style="text-align:center;padding:80px 0">
+      <div style="font-size:48px;margin-bottom:16px">⏳</div>
+      <p style="color:var(--opp-text3)">Loading details...</p>
+    </div>
+
+    <!-- ERROR STATE -->
+    <div id="error-state" style="display:none;text-align:center;padding:80px 0">
+      <div style="font-size:48px;margin-bottom:16px">❌</div>
+      <h3 style="color:var(--opp-text);margin-bottom:8px;font-family:var(--opp-font-d)">Post Not Found</h3>
+      <p style="color:var(--opp-text3);margin-bottom:24px">The post you're looking for doesn't exist or has been removed.</p>
+      <a href="browse.html" class="opp-btn opp-btn-primary">← Browse Opportunities</a>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="detail-content" style="display:none" class="detail-grid">
+      <!-- LEFT MAIN -->
+      <div class="detail-main">
+        <div class="detail-hero" id="detail-hero"></div>
+
+        <div class="detail-body">
+          <div class="detail-header">
+            <div class="detail-badge-row" id="detail-badges"></div>
+            <h1 class="detail-title" id="detail-title">—</h1>
+            <div class="detail-company" id="detail-company">—</div>
+            <div class="detail-meta-row" id="detail-meta"></div>
+          </div>
+
+          <div class="detail-section" id="detail-desc-section">
+            <h3>About this Opportunity</h3>
+            <p id="detail-description">—</p>
+          </div>
+
+          <div class="detail-section" id="detail-req-section" style="display:none">
+            <h3>Requirements</h3>
+            <div id="detail-requirements"></div>
+          </div>
+
+          <div class="detail-section" id="detail-ben-section" style="display:none">
+            <h3>Benefits</h3>
+            <div id="detail-benefits"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT SIDEBAR -->
+      <div>
+        <div class="detail-sidebar-card">
+          <h3>Quick Info</h3>
+          <div class="detail-sidebar-info" id="detail-sidebar-info"></div>
+          <a href="#" id="apply-btn" target="_blank" rel="noopener noreferrer" class="opp-btn opp-btn-primary opp-btn-lg" style="width:100%;justify-content:center">
+            Apply Now →
+          </a>
+          <div style="margin-top:12px;text-align:center;font-size:12px;color:var(--opp-text3)">
+            Opens application in a new tab
+          </div>
+          <div style="height:1px;background:var(--opp-border);margin:16px 0"></div>
+          <a href="browse.html" class="opp-btn opp-btn-secondary" style="width:100%;justify-content:center">← More Opportunities</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="footer-placeholder"></div>
+<div class="toast-container"></div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/navbar.js"></script>
+<script src="../js/footer.js"></script>
+
+<script>
+  if (window.Navbar) Navbar.init('main');
+  if (window.Footer) Footer.init();
+
+  /* ── Helpers ── */
+  function timeAgo(ts) {
+    if (!ts) return '';
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    const diff = Math.floor((Date.now() - d) / 1000);
+    if (diff < 60) return 'Just now';
+    if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+    if (diff < 604800) return Math.floor(diff/86400) + 'd ago';
+    return d.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+  }
+  function formatDate(ts) {
+    if (!ts) return '—';
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    return d.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+  }
+
+  const CAT_CFG = {
+    ss_jobs:        { icon:'💼', label:'Job',        badgeClass:'badge-jobs',        emoji:'🏢' },
+    ss_internships: { icon:'🎓', label:'Internship', badgeClass:'badge-internships',  emoji:'📚' },
+    ss_hackathons:  { icon:'⚡', label:'Hackathon',  badgeClass:'badge-hackathons',   emoji:'⚡' },
+    ss_techEvents:  { icon:'💡', label:'Tech Event', badgeClass:'badge-techEvents',   emoji:'💡' },
+    ss_seminars:    { icon:'🎤', label:'Seminar',    badgeClass:'badge-seminars',     emoji:'🎤' },
+    ss_courses:     { icon:'📖', label:'Course',     badgeClass:'badge-courses',      emoji:'🎒' },
+  };
+
+  // Get URL params
+  const params = new URLSearchParams(location.search);
+  const id = params.get('id');
+  const type = params.get('type');
+
+  if (!id || !type) {
+    showError();
+  } else {
+    loadPost(id, type);
+  }
+
+  async function loadPost(id, col) {
+    try {
+      const snap = await db.collection(col).doc(id).get();
+      if (!snap.exists) return showError();
+      const data = { id: snap.id, _collection: col, ...snap.data() };
+      renderPost(data);
+    } catch (err) {
+      console.error(err);
+      showError();
+    }
+  }
+
+  function renderPost(post) {
+    const config = CAT_CFG[post._collection] || { icon:'📄', label:post._collection, badgeClass:'', emoji:'📄' };
+    const company = post.company || post.organizer || post.instructor || post.platform || '';
+    const loc = post.location || post.venue || '';
+
+    document.title = `${post.title} — Syntax Syndicate`;
+
+    // Hero
+    const heroEl = document.getElementById('detail-hero');
+    if (post.imagePath) {
+      heroEl.innerHTML = `<img src="${post.imagePath}" alt="${post.title}" onerror="this.parentElement.innerHTML='<span class=detail-emoji>${config.emoji}</span>'">`;
+    } else {
+      heroEl.innerHTML = `<span class="detail-emoji">${config.emoji}</span>`;
+    }
+
+    // Badges
+    document.getElementById('detail-badges').innerHTML = `
+      <span class="badge ${config.badgeClass}">${config.icon} ${config.label}</span>
+      <span style="font-size:13px;color:var(--opp-text3)">${timeAgo(post.postedAt)}</span>
+    `;
+
+    // Title & company
+    document.getElementById('detail-title').textContent = post.title || 'Untitled';
+    document.getElementById('detail-company').textContent = company;
+
+    // Meta row
+    const metas = [];
+    if (loc) metas.push({ icon:'📍', label:loc });
+    if (post.experienceLevel) metas.push({ icon:'📊', label:post.experienceLevel });
+    if (post.duration) metas.push({ icon:'⏱', label:post.duration });
+    if (post.mode) metas.push({ icon:'🌐', label:post.mode });
+    if (post.prizePool) metas.push({ icon:'🏆', label:`Prize: ${post.prizePool}` });
+    if (post.deadline) metas.push({ icon:'📅', label:`Deadline: ${post.deadline}` });
+    if (post.eventDate) metas.push({ icon:'📅', label:`Date: ${post.eventDate}` });
+    if (post.speaker) metas.push({ icon:'🎤', label:`Speaker: ${post.speaker}` });
+
+    document.getElementById('detail-meta').innerHTML = metas.map(m =>
+      `<div class="detail-meta-item">${m.icon} <span>${m.label}</span></div>`
+    ).join('');
+
+    // Description
+    if (post.description) {
+      document.getElementById('detail-description').textContent = post.description;
+    } else {
+      document.getElementById('detail-desc-section').style.display = 'none';
+    }
+
+    // Requirements
+    if (post.requirements) {
+      document.getElementById('detail-req-section').style.display = 'block';
+      document.getElementById('detail-requirements').innerHTML = formatTextToList(post.requirements);
+    }
+
+    // Benefits
+    if (post.benefits) {
+      document.getElementById('detail-ben-section').style.display = 'block';
+      document.getElementById('detail-benefits').innerHTML = formatTextToList(post.benefits);
+    }
+
+    // Sidebar info
+    const sidebarItems = [];
+    sidebarItems.push(['Type', `${config.icon} ${config.label}`]);
+    if (company) sidebarItems.push(['Organization', company]);
+    if (loc) sidebarItems.push(['Location', loc]);
+    if (post.experienceLevel) sidebarItems.push(['Experience', post.experienceLevel]);
+    if (post.duration) sidebarItems.push(['Duration', post.duration]);
+    if (post.prizePool) sidebarItems.push(['Prize Pool', post.prizePool]);
+    if (post.mode) sidebarItems.push(['Mode', post.mode]);
+    if (post.deadline) sidebarItems.push(['Deadline', post.deadline]);
+    if (post.eventDate) sidebarItems.push(['Event Date', post.eventDate]);
+    if (post.speaker) sidebarItems.push(['Speaker', post.speaker]);
+    sidebarItems.push(['Posted', formatDate(post.postedAt)]);
+
+    document.getElementById('detail-sidebar-info').innerHTML = sidebarItems.map(([k, v]) =>
+      `<div class="sidebar-info-item"><span>${k}</span><span>${v}</span></div>`
+    ).join('');
+
+    // Apply button with auth gate + click tracking
+    const applyBtn = document.getElementById('apply-btn');
+    if (post.applyLink) {
+      const btnLabel = ['ss_hackathons','ss_techEvents','ss_seminars'].includes(post._collection) ? 'Register Now →' : 'Apply Now →';
+      applyBtn.textContent = btnLabel;
+      applyBtn.removeAttribute('href');
+      applyBtn.style.cursor = 'pointer';
+      applyBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const user = firebase.auth().currentUser;
+        if (!user) {
+          window.location.href = '../login.html?redirect=' + encodeURIComponent(window.location.href);
+          return;
+        }
+        // Track apply click
+        try {
+          await db.collection('users').doc(user.uid).update({
+            apply_clicks: firebase.firestore.FieldValue.increment(1)
+          });
+        } catch(e) { console.warn('Could not track click:', e); }
+        window.open(post.applyLink, '_blank', 'noopener,noreferrer');
+      });
+    } else {
+      applyBtn.style.display = 'none';
+    }
+
+    // Show content
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('detail-content').style.display = 'grid';
+  }
+
+  function formatTextToList(text) {
+    const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+    if (lines.length <= 1) return `<p style="font-size:14px;color:var(--opp-text2);line-height:1.8">${text}</p>`;
+    return `<ul>${lines.map(l => `<li>${l.replace(/^[-•*]\s*/, '')}</li>`).join('')}</ul>`;
+  }
+
+  function showError() {
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('error-state').style.display = 'block';
+  }
+</script>
+</body>
+</html>

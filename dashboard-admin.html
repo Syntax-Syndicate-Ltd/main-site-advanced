@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin Area - Syntax Syndicate</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --white:      #ffffff;
+  --tint:       #f0f4ff;
+  --border:     #d0d7e8;
+  --text:       #0a0e1a;
+  --text-2:     #3d4a66;
+  --accent:     #4169e1;
+  --accent-red: #e63946;
+  --carbon-black: #0a0e1a;
+  --font: 'DM Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body { font-family:var(--font); background:var(--tint); color:var(--text); line-height:1.6; }
+
+nav { background:var(--white); border-bottom:1px solid var(--border); padding:16px 40px; display:flex; justify-content:space-between; align-items:center; }
+.logo { font-size:1.2rem; font-weight:700; color:var(--carbon-black); text-decoration:none; }
+.nav-right { display:flex; gap:16px; align-items:center; }
+.btn-logout { background:var(--carbon-black); color:white; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600; font-family:var(--font); }
+
+.container { max-width:1200px; margin:40px auto; padding:0 20px; display:flex; flex-direction:column; gap:24px; }
+
+.header-card { background:var(--white); border:1px solid var(--border); border-radius:16px; padding:24px 32px; display:flex; justify-content:space-between; align-items:center; }
+.title-group h1 { font-size:1.4rem; font-weight:700; margin-bottom:4px; }
+.title-group p { font-size:.85rem; color:var(--text-2); font-family:var(--mono); }
+
+.card { background:var(--white); border:1px solid var(--border); border-radius:16px; padding:32px; overflow-x:auto;}
+.card-title { font-size:1.1rem; font-weight:700; margin-bottom:16px; border-bottom:1px solid var(--border); padding-bottom:12px; }
+
+table { width:100%; border-collapse:collapse; min-width:600px; }
+th { text-align:left; font-family:var(--mono); font-size:.7rem; text-transform:uppercase; color:var(--text-2); padding:12px; border-bottom:1px solid var(--border); }
+td { padding:12px; border-bottom:1px solid var(--border); font-size:.9rem; }
+tr:last-child td { border-bottom:none; }
+
+.badge { display:inline-block; padding:4px 8px; border-radius:6px; font-size:.7rem; font-weight:700; font-family:var(--mono); text-transform:uppercase; }
+.badge.admin { background:rgba(65,105,225,0.1); color:var(--accent); }
+.badge.user { background:var(--tint); color:var(--text-2); border:1px solid var(--border); }
+.badge.company { background:#e8f5e9; color:#2e7d32; border:1px solid #c8e6c9; }
+
+.btn-sm-del { background:rgba(230,57,70,0.1); color:var(--accent-red); border:1px solid rgba(230,57,70,0.2); padding:6px 10px; border-radius:6px; cursor:pointer; font-weight:600; font-size:.7rem; transition:background .2s; }
+.btn-sm-del:hover { background:rgba(230,57,70,0.2); }
+
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">Syntax Syndicate <span style="font-size:0.8rem;color:#e63946;">| Admin Panel</span></a>
+  <div class="nav-right">
+    <button class="btn-logout" onclick="Auth.logout()">Logout</button>
+  </div>
+</nav>
+
+<div class="container" style="display:none;" id="app">
+  <div class="header-card">
+    <div class="title-group">
+      <h1>Admin Control Center</h1>
+      <p>Logged in as <span id="adminName">...</span></p>
+    </div>
+  </div>
+  
+  <div class="card">
+    <div class="card-title">All Registered Users & Companies</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Name / Company</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status / Joined</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="usersTableBody">
+        <tr><td colspan="5" style="text-align:center;">Loading data...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  let currentUser = null;
+
+  async function init() {
+    try {
+      const user = await Auth.requireAuth(['admin', 'superadmin', 'team']);
+      currentUser = Auth.getProfile();
+      
+      document.getElementById('app').style.display = 'flex';
+      document.getElementById('adminName').innerText = currentUser.email;
+
+      loadUsers();
+    } catch(e) {
+      console.error(e);
+    }
+  }
+
+  async function loadUsers() {
+    try {
+      const snapshot = await db.collection('users').orderBy('created_at', 'desc').get();
+      const tbody = document.getElementById('usersTableBody');
+      tbody.innerHTML = '';
+      
+      if(snapshot.empty) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No users found.</td></tr>';
+        return;
+      }
+
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const roleBadge = data.role === 'company' ? 'company' : (data.role === 'admin' || data.role === 'superadmin' ? 'admin' : 'user');
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${data.name || 'N/A'}</strong></td>
+          <td>${data.email}</td>
+          <td><span class="badge ${roleBadge}">${data.role || 'user'}</span></td>
+          <td>${data.is_active !== false ? 'Active' : 'Disabled'}</td>
+          <td>
+            ${data.role !== 'admin' && data.role !== 'superadmin' ? `<button class="btn-sm-del" onclick="deleteUser('${doc.id}')">Remove</button>` : ''}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } catch(e) {
+      console.error(e);
+      document.getElementById('usersTableBody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:red;">Error loading users. Check firestore rules.</td></tr>';
+    }
+  }
+
+  async function deleteUser(uid) {
+    if(confirm('Are you sure you want to remove this user from the database? This is irreversible from the frontend.')) {
+      try {
+        await db.collection('users').doc(uid).delete();
+        alert('User removed successfully.');
+        loadUsers();
+      } catch(e) {
+        alert('Failed to delete user.');
+        console.error(e);
+      }
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>

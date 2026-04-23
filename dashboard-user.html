@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>User Dashboard - Syntax Syndicate</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/global.css"/>
+
+<style>
+:root {
+  --white:      #ffffff;
+  --tint:       #f0f4ff;
+  --border:     #d0d7e8;
+  --text:       #0a0e1a;
+  --text-2:     #3d4a66;
+  --accent:     #4169e1;
+  --carbon-black: #0a0e1a;
+  --font: 'DM Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body { font-family:var(--font); background:var(--tint); color:var(--text); line-height:1.6; }
+
+
+.container { max-width:1100px; margin:40px auto; padding:0 20px; display:grid; grid-template-columns:300px 1fr; gap:32px; }
+
+.sidebar { background:var(--white); border:1px solid var(--border); border-radius:16px; padding:24px; height:fit-content; }
+.avatar { width:80px; height:80px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; color:white; font-size:2rem; font-weight:700; margin-bottom:16px; }
+.name { font-size:1.2rem; font-weight:700; margin-bottom:4px; }
+.email { font-size:.85rem; color:var(--text-2); font-family:var(--mono); margin-bottom:16px; }
+.role-badge { display:inline-block; padding:4px 10px; background:rgba(65,105,225,0.1); color:var(--accent); border-radius:100px; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:24px; }
+
+.menu-item { display:block; padding:10px 12px; color:var(--text-2); text-decoration:none; font-weight:500; border-radius:8px; margin-bottom:4px; transition:background .2s; }
+.menu-item:hover, .menu-item.active { background:var(--tint); color:var(--accent); }
+
+.main-content { display:flex; flex-direction:column; gap:24px; }
+.card { background:var(--white); border:1px solid var(--border); border-radius:16px; padding:32px; }
+.card-title { font-size:1.1rem; font-weight:700; margin-bottom:16px; border-bottom:1px solid var(--border); padding-bottom:12px; }
+
+.stats-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; }
+.stat-box { background:var(--tint); padding:20px; border-radius:12px; border:1px solid var(--border); text-align:center; }
+.stat-val { font-size:1.8rem; font-weight:700; color:var(--carbon-black); }
+.stat-label { font-size:.75rem; color:var(--text-2); text-transform:uppercase; letter-spacing:1px; font-weight:600; margin-top:4px; }
+
+.form-group { margin-bottom:16px; }
+.form-label { display:block; font-size:.8rem; font-weight:600; margin-bottom:6px; color:var(--text-2); }
+.form-input { width:100%; padding:12px 16px; border:1px solid var(--border); border-radius:10px; font-family:var(--font); outline:none; transition:border-color .2s; }
+.form-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(65,105,225,0.1); }
+.btn-save { background:var(--accent); color:white; border:none; padding:12px 24px; border-radius:8px; cursor:pointer; font-weight:600; font-family:var(--font); margin-top:16px; }
+
+</style>
+</head>
+<body>
+
+<div id="navbar-placeholder" data-type="dashboard"></div>
+
+<div class="container" style="display:none;" id="app">
+  <div class="sidebar">
+    <div class="avatar" id="avatarText">U</div>
+    <div class="name" id="userName">Loading...</div>
+    <div class="email" id="userEmail">loading@email.com</div>
+    <div class="role-badge">Member</div>
+    
+    <div style="margin-top:24px;">
+      <a href="#" class="menu-item active" onclick="switchTab('overview', this); return false;">Overview</a>
+      <a href="#" class="menu-item" onclick="switchTab('share', this); return false;">Share Resource</a>
+      <a href="#" class="menu-item">Saved Resources</a>
+      <a href="#" class="menu-item">Settings</a>
+    </div>
+  </div>
+  
+  <div class="main-content">
+    <div class="card">
+      <div class="card-title">My Progress</div>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-val" id="statBooks">0</div>
+          <div class="stat-label">Resources Read</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="statProjects">0</div>
+          <div class="stat-label">Projects Built</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="statApply">0</div>
+          <div class="stat-label">Applications</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">Edit Profile</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-input" id="editName" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">College / University</label>
+          <input type="text" class="form-input" id="editCollege" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Branch / Major</label>
+          <input type="text" class="form-input" id="editBranch" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mobile</label>
+          <input type="text" class="form-input" id="editMobile" />
+        </div>
+      </div>
+    </div>
+    
+  <!-- SHARE TAB -->
+  <div class="card" id="tab-share" style="display:none">
+    <div class="card-title">Share a Resource 📄</div>
+    <p style="font-size:0.85rem;color:var(--text-2);margin-bottom:16px;">Contribute to the free library. Resources are subject to admin review.</p>
+    <div style="display:grid;gap:16px;">
+      <div class="form-group">
+        <label class="form-label">Title *</label>
+        <input type="text" class="form-input" id="shareTitle" placeholder="e.g. Master React in 10 Days" />
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="form-group">
+          <label class="form-label">Type</label>
+          <select id="shareType" class="form-input">
+            <option value="pdf">PDF</option>
+            <option value="cheatsheet">Cheatsheet</option>
+            <option value="guide">Guide</option>
+            <option value="course">Course</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Domain</label>
+          <input type="text" class="form-input" id="shareDomain" placeholder="e.g. Web Dev" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Google Drive Link *</label>
+        <input type="url" class="form-input" id="shareUrl" placeholder="https://drive.google.com/..." />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-input" id="shareDesc" rows="3" placeholder="Resource description..."></textarea>
+      </div>
+    </div>
+    <button class="btn-save" id="btnShare" onclick="submitSharedResource()">Submit for Approval</button>
+  </div>
+  
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/navbar.js"></script>
+<script>
+  let currentUser = null;
+
+  async function init() {
+    try {
+      const user = await Auth.requireAuth(); // Require ANY logged in user for this panel
+      currentUser = Auth.getProfile();
+      if(currentUser.role === 'company') {
+        window.location.href = '/dashboard-company.html';
+        return;
+      }
+      
+      document.getElementById('app').style.display = 'grid';
+      
+      document.getElementById('userName').innerText = currentUser.name || user.displayName || 'No Name';
+      document.getElementById('userEmail').innerText = user.email;
+      document.getElementById('avatarText').innerText = (currentUser.name || user.displayName || 'U').charAt(0).toUpperCase();
+      
+      document.getElementById('statBooks').innerText = currentUser.books_read || 0;
+      document.getElementById('statProjects').innerText = currentUser.projects_done || 0;
+      document.getElementById('statApply').innerText = currentUser.apply_clicks || 0;
+      
+      document.getElementById('editName').value = currentUser.name || user.displayName || '';
+      document.getElementById('editCollege').value = currentUser.college || '';
+      document.getElementById('editBranch').value = currentUser.branch || '';
+      document.getElementById('editMobile').value = currentUser.mobile || '';
+    } catch(e) {
+      console.error(e);
+    }
+  }
+
+  async function saveProfile() {
+    if(!currentUser) return;
+    const btn = document.querySelector('.btn-save');
+    btn.innerText = "Saving...";
+    try {
+      await db.collection('users').doc(currentUser.id).update({
+        name: document.getElementById('editName').value,
+        college: document.getElementById('editCollege').value,
+        branch: document.getElementById('editBranch').value,
+        mobile: document.getElementById('editMobile').value
+      });
+      alert('Profile updated successfully!');
+      window.location.reload();
+    } catch(e) {
+      alert('Error updating profile');
+    }
+    btn.innerText = "Save Changes";
+  }
+
+  function switchTab(tab, el) {
+    document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+    el.classList.add('active');
+    
+    // Hide all
+    for(let c of document.querySelector('.main-content').children) {
+      c.style.display = 'none';
+    }
+    
+    // Show target
+    if(tab === 'overview') {
+      document.querySelector('.main-content').children[0].style.display = 'block';
+      document.querySelector('.main-content').children[1].style.display = 'block';
+    } else if(tab === 'share') {
+      document.getElementById('tab-share').style.display = 'block';
+    }
+  }
+
+  async function submitSharedResource() {
+    const title = document.getElementById('shareTitle').value.trim();
+    const url = document.getElementById('shareUrl').value.trim();
+    if(!title || !url) return alert('Title and URL are required');
+    
+    const btn = document.getElementById('btnShare');
+    btn.innerText = "Submitting...";
+    btn.disabled = true;
+    
+    try {
+      await db.collection('pending_content').add({
+        status: 'pending',
+        type: 'library_resource',
+        target_collection: 'pdfs',
+        data: {
+          title,
+          type: document.getElementById('shareType').value,
+          domain: document.getElementById('shareDomain').value.trim(),
+          access: 'free', // Users can only submit free
+          url: url,
+          description: document.getElementById('shareDesc').value.trim()
+        },
+        poster_name: currentUser.name || firebase.auth().currentUser.displayName || 'Anonymous User',
+        company_name: 'Community User',
+        posted_by: currentUser.id,
+        created_at: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      alert('Resource submitted for review! Thank you.');
+      document.getElementById('shareTitle').value = '';
+      document.getElementById('shareUrl').value = '';
+      document.getElementById('shareDesc').value = '';
+    } catch(e) {
+      alert('Error: ' + e.message);
+    }
+    btn.innerText = "Submit for Approval";
+    btn.disabled = false;
+  }
+
+  init();
+</script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Resume Builder — Syntax Syndicate</title>
+<meta name="description" content="Build a professional, ATS-friendly resume with 15 customizable sections and 8 premium templates."/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/resume-builder.css"/>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="rb-nav">
+  <a href="index.html" class="rb-nav-logo">
+    <span class="rb-nav-badge">SS</span> Syntax Syndicate
+  </a>
+  <span class="rb-nav-tag">Resume Builder</span>
+  <div class="rb-spacer"></div>
+  <button class="rb-btn" onclick="RB.load()" id="btnLoad" style="display:none">↓ Load Saved</button>
+  <button class="rb-btn rb-btn-primary" onclick="RB.save()" id="btnSave" style="display:none">💾 Save</button>
+  <button class="rb-btn" onclick="RB.printResume()">🖨 Print / PDF</button>
+  <a href="profile.html" class="rb-btn">← Profile</a>
+</nav>
+
+<!-- LAYOUT -->
+<div class="rb-layout">
+  <!-- SIDEBAR -->
+  <div class="rb-sidebar">
+    <div class="rb-panel-header">
+      <h2>Choose Template</h2>
+      <p>Select a design for your resume</p>
+    </div>
+    <div class="rb-tpl-grid" id="tplGrid"></div>
+    <div class="rb-panel-header" style="border-top:1px solid var(--border)">
+      <h2>Resume Sections</h2>
+      <p>Click to expand, drag ⠿ to reorder</p>
+    </div>
+    <div class="rb-sections" id="sectionsList"></div>
+    <div class="rb-add-section" onclick="RB.showPicker()">+ Add Section</div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="rb-preview">
+    <div class="rb-paper" id="resumePaper">
+      <div style="text-align:center;padding:80px 40px;color:#94a3b8">
+        <div style="font-size:2rem;margin-bottom:8px">📄</div>
+        <div style="font-size:1rem;font-weight:600">Your resume preview will appear here</div>
+      </div>
+    </div>
+    <!-- Premium Lock -->
+    <div class="rb-lock" id="premiumLock" style="display:none">
+      <div class="rb-lock-icon">🔒</div>
+      <div class="rb-lock-title">Premium Feature</div>
+      <div class="rb-lock-desc">Upgrade to Premium to access the Resume Builder with professional templates and save functionality.</div>
+      <a href="upgrade.html" class="rb-lock-btn">Upgrade to Premium →</a>
+    </div>
+  </div>
+</div>
+
+<!-- Section Picker Modal -->
+<div class="rb-picker-overlay" id="sectionPicker" onclick="if(event.target===this)RB.closePicker()">
+  <div class="rb-picker">
+    <h3>Add a Section</h3>
+    <div class="rb-picker-grid"></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/db.js"></script>
+<script src="js/resume-builder.js"></script>
+<script>
+(async function(){
+  try {
+    const user = await Auth.requireAuth();
+    const profile = Auth.getProfile();
+    if(!profile){ window.location.href='login.html'; return; }
+    const isPremium = ['premium','team','superadmin'].includes(profile.role);
+    if(!isPremium){
+      document.getElementById('premiumLock').style.display='flex';
+      return;
+    }
+    document.getElementById('btnSave').style.display='';
+    document.getElementById('btnLoad').style.display='';
+    RB.uid = profile.id;
+    // Pre-fill contact from profile
+    RB.init();
+    const contactSec = RB.sections.find(s=>s.type==='contact');
+    if(contactSec){
+      contactSec.data.name = profile.name || '';
+      contactSec.data.email = user.email || '';
+      contactSec.data.phone = profile.mobile || '';
+      contactSec.data.location = profile.location || '';
+      contactSec.data.linkedin = profile.linkedin || '';
+      contactSec.data.github = profile.github || '';
+      contactSec.data.portfolio = profile.portfolio_link || '';
+      RB.renderSections();
+      RB.renderPreview();
+    }
+    // Try loading saved resume
+    const saved = await DB.getResume(profile.id);
+    if(saved && saved.sections){
+      RB.sections = saved.sections;
+      RB.template = saved.template || 'minimal';
+      RB.renderTemplateSelector();
+      RB.renderSections();
+      RB.renderPreview();
+    }
+  }catch(e){ console.error(e); }
+})();
+</script>
+</body>
+</html>

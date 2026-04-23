@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Developer's Hub — Syntax Syndicate</title>
+<meta name="description" content="Join the Syntax Syndicate developer community. Share posts, discover projects, and connect with fellow developers."/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+<link rel="stylesheet" href="../css/global.css"/>
+<link rel="stylesheet" href="../css/components.css"/>
+<link rel="stylesheet" href="../css/devhub.css"/>
+</head>
+<body class="dh-page">
+
+<!-- NAV -->
+<div id="navbar-placeholder" data-type="main"></div>
+
+<!-- HERO -->
+<div class="dh-hero">
+  <div class="dh-hero-inner">
+    <div class="dh-hero-badge">
+      <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      Developer's Hub
+    </div>
+    <h1>Where Developers <em>Connect</em></h1>
+    <p>Share your work, discover projects, collaborate on ideas, and grow together.</p>
+  </div>
+</div>
+
+<!-- SUBNAV -->
+<div class="dh-subnav">
+  <div class="dh-subnav-inner">
+    <a href="feed.html" class="dh-subnav-link active">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </a>
+    <a href="projects.html" class="dh-subnav-link">
+      <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      <span>Projects</span>
+    </a>
+    <a href="snippets.html" class="dh-subnav-link">
+      <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      <span>Snippets</span>
+    </a>
+    <a href="ideas.html" class="dh-subnav-link">
+      <svg viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/></svg>
+      <span>Ideas</span>
+    </a>
+  </div>
+</div>
+
+<!-- 3-COLUMN SOCIAL LAYOUT -->
+<div class="dh-social-layout">
+
+  <!-- ═══ LEFT SIDEBAR ═══ -->
+  <div class="dh-left">
+
+    <!-- User Identity Card -->
+    <div class="dh-identity" id="identityCard" style="display:none;">
+      <div class="dh-identity-cover"></div>
+      <div class="dh-identity-body">
+        <div class="dh-identity-avatar" id="identAvatar">?</div>
+        <div class="dh-identity-name" id="identName">User</div>
+        <div class="dh-identity-role" id="identRole">Member</div>
+        <div class="dh-identity-stats">
+          <div class="dh-identity-stat"><strong id="identPosts">0</strong><span>Posts</span></div>
+          <div class="dh-identity-stat"><strong id="identProjects">0</strong><span>Projects</span></div>
+          <div class="dh-identity-stat"><strong id="identSnippets">0</strong><span>Snippets</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <div class="dh-left-nav">
+      <a href="feed.html" class="dh-left-link active">
+        <div class="dh-left-link-icon" style="background:#edf1ff;">🏠</div>
+        Home Feed
+      </a>
+      <a href="projects.html" class="dh-left-link">
+        <div class="dh-left-link-icon" style="background:#ecfdf5;">🖥️</div>
+        Projects
+      </a>
+      <a href="snippets.html" class="dh-left-link">
+        <div class="dh-left-link-icon" style="background:#f4f0ff;">📝</div>
+        Code Snippets
+      </a>
+      <a href="ideas.html" class="dh-left-link">
+        <div class="dh-left-link-icon" style="background:#fef8ec;">💡</div>
+        Ideas Hub
+      </a>
+      <a href="../profile.html" class="dh-left-link" id="leftProfileLink" style="display:none;">
+        <div class="dh-left-link-icon" style="background:#fdf0f0;">👤</div>
+        My Profile
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══ CENTER FEED ═══ -->
+  <div class="dh-center">
+
+    <!-- Compose -->
+    <div class="dh-compose" id="composeBox" style="display:none;">
+      <div class="dh-compose-row">
+        <div class="avatar" id="composeAvatar">?</div>
+        <div class="dh-compose-body">
+          <textarea class="dh-compose-textarea" id="composeText" placeholder="What's happening in your dev world?" maxlength="2000"></textarea>
+          <div class="dh-compose-extra" id="composeImageRow">
+            <input type="url" id="composeImage" placeholder="Paste an image URL..."/>
+          </div>
+          <div class="dh-compose-extra" id="composeLinkRow">
+            <input type="url" id="composeLink" placeholder="Paste a link URL..."/>
+          </div>
+          <div class="dh-compose-actions">
+            <div class="dh-compose-tools">
+              <button class="dh-compose-tool" onclick="document.getElementById('composeImageRow').classList.toggle('show')" title="Image">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              </button>
+              <button class="dh-compose-tool" onclick="document.getElementById('composeLinkRow').classList.toggle('show')" title="Link">
+                <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              </button>
+              <button class="dh-compose-tool" onclick="document.getElementById('composeText').focus()" title="Snippet">
+                <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              </button>
+            </div>
+            <button class="dh-create-btn" id="postBtn" onclick="publishPost()">Post</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Login Prompt -->
+    <div class="dh-login-prompt" id="loginPrompt">
+      <div style="width:52px;height:52px;border-radius:50%;background:var(--accent-bg);border:1px solid rgba(65,105,225,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+        <svg viewBox="0 0 24 24" width="22" height="22" stroke="var(--accent)" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <p style="font-weight:600;color:var(--carbon-black);font-size:.95rem;margin-bottom:4px;">Join the conversation</p>
+      <p>Log in to share posts, like content, and connect with developers.</p>
+      <a href="../login.html" class="dh-create-btn" style="margin-top:8px;text-decoration:none;">Get Started</a>
+    </div>
+
+    <!-- Feed Filter -->
+    <div class="dh-filter-bar" id="feedFilter">
+      <button class="dh-filter-tab active" onclick="setFeedTab('all', this)">For You</button>
+      <button class="dh-filter-tab" onclick="setFeedTab('following', this)" id="followingTab" style="display:none;">Following</button>
+      <button class="dh-filter-tab" onclick="setFeedTab('all', this)">Latest</button>
+    </div>
+
+    <!-- Feed -->
+    <div id="feedContainer">
+      <div class="empty-state">
+        <div class="empty-state-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="empty-state-title">Loading feed...</div>
+      </div>
+    </div>
+
+    <div class="dh-load-more" id="loadMoreBox" style="display:none;">
+      <button onclick="loadMorePosts()">Load more</button>
+    </div>
+  </div>
+
+  <!-- ═══ RIGHT SIDEBAR ═══ -->
+  <div class="dh-right">
+
+    <!-- Search -->
+    <div class="search-bar" style="border-radius:100px;">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Search DevHub..." style="font-size:.82rem;"/>
+    </div>
+
+    <!-- Trending -->
+    <div class="dh-widget">
+      <div class="dh-widget-title">
+        <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        Trending Topics
+      </div>
+      <div class="dh-tag-list">
+        <span class="dh-tag-item">#React</span>
+        <span class="dh-tag-item">#Firebase</span>
+        <span class="dh-tag-item">#Python</span>
+        <span class="dh-tag-item">#WebDev</span>
+        <span class="dh-tag-item">#AI</span>
+        <span class="dh-tag-item">#DSA</span>
+        <span class="dh-tag-item">#OpenSource</span>
+        <span class="dh-tag-item">#Hackathon</span>
+      </div>
+    </div>
+
+    <!-- Community Stats -->
+    <div class="dh-widget">
+      <div class="dh-widget-title">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Community Stats
+      </div>
+      <div class="dh-stat-row"><span>Total Posts</span><strong id="statPosts">—</strong></div>
+      <div class="dh-stat-row"><span>Projects</span><strong id="statProjects">—</strong></div>
+      <div class="dh-stat-row"><span>Snippets</span><strong id="statSnippets">—</strong></div>
+      <div class="dh-stat-row"><span>Ideas</span><strong id="statIdeas">—</strong></div>
+    </div>
+
+    <!-- Footer-like links -->
+    <div style="padding:8px 4px;font-size:.68rem;color:var(--text-3);line-height:1.8;">
+      <a href="../index.html" style="color:var(--text-3);text-decoration:none;margin-right:8px;">Home</a>
+      <a href="../resources/index.html" style="color:var(--text-3);text-decoration:none;margin-right:8px;">Resources</a>
+      <a href="../opportunities/browse.html" style="color:var(--text-3);text-decoration:none;margin-right:8px;">Opportunities</a>
+      <a href="../archives/free-library.html" style="color:var(--text-3);text-decoration:none;margin-right:8px;">Library</a>
+      <br/>
+      <span style="color:var(--pale-slate-2);">© 2026 Syntax Syndicate</span>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div id="footer-placeholder"></div>
+
+<!-- SCRIPTS -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/db.js"></script>
+<script src="../js/navbar.js"></script>
+<script src="../js/footer.js"></script>
+<script src="../js/devhub.js"></script>
+<script>
+let feedPosts = [];
+let lastDoc = null;
+const FEED_LIMIT = 15;
+
+// ── AUTH STATE ──
+Auth.onAuthChange(async (user, profile) => {
+  if (user && profile) {
+    document.getElementById('composeBox').style.display = 'block';
+    document.getElementById('loginPrompt').style.display = 'none';
+    document.getElementById('composeAvatar').textContent = SS.getInitials(profile.name || '');
+    document.getElementById('followingTab').style.display = '';
+    document.getElementById('leftProfileLink').style.display = '';
+
+    // Identity card
+    const card = document.getElementById('identityCard');
+    card.style.display = 'block';
+    document.getElementById('identAvatar').textContent = SS.getInitials(profile.name || '');
+    document.getElementById('identName').textContent = profile.name || 'Developer';
+    const roleMap = {superadmin:'Admin', team:'Team', premium:'Premium', user:'Member', institute_admin:'Institute'};
+    document.getElementById('identRole').textContent = roleMap[profile.role] || 'Member';
+
+    // Load user's stats
+    try {
+      const [posts, projects, snippets] = await Promise.all([
+        DB.queryDocs('devhub_posts', [['author_uid','==',user.uid]], null, 'desc', 500),
+        DB.queryDocs('projects', [['author_uid','==',user.uid]], null, 'desc', 500),
+        DB.queryDocs('snippets', [['author_uid','==',user.uid]], null, 'desc', 500)
+      ]);
+      document.getElementById('identPosts').textContent = posts.length;
+      document.getElementById('identProjects').textContent = projects.length;
+      document.getElementById('identSnippets').textContent = snippets.length;
+    } catch(e) {}
+  } else {
+    document.getElementById('composeBox').style.display = 'none';
+    document.getElementById('loginPrompt').style.display = 'block';
+    document.getElementById('followingTab').style.display = 'none';
+    document.getElementById('identityCard').style.display = 'none';
+    document.getElementById('leftProfileLink').style.display = 'none';
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => { loadFeed(); loadSidebarStats(); });
+
+// ── FEED ──
+async function loadFeed(append = false) {
+  try {
+    let ref = db.collection('devhub_posts').orderBy('created_at', 'desc').limit(FEED_LIMIT);
+    if (lastDoc && append) ref = ref.startAfter(lastDoc);
+    const snap = await ref.get();
+    const posts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    lastDoc = snap.docs[snap.docs.length - 1] || null;
+    if (!append) feedPosts = posts; else feedPosts = [...feedPosts, ...posts];
+    renderFeed(feedPosts);
+    document.getElementById('loadMoreBox').style.display = posts.length >= FEED_LIMIT ? '' : 'none';
+  } catch(e) {
+    console.error('Feed error:', e);
+    document.getElementById('feedContainer').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+        <div class="empty-state-title">No posts yet</div>
+        <div class="empty-state-desc">Be the first to share something!</div>
+      </div>`;
+  }
+}
+
+function renderFeed(posts) {
+  const c = document.getElementById('feedContainer');
+  if (!posts.length) { c.innerHTML = `<div class="empty-state"><div class="empty-state-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="empty-state-title">No posts yet</div><div class="empty-state-desc">Be the first to share something!</div></div>`; return; }
+  c.innerHTML = posts.map(p => DevHub.renderPostCard(p)).join('');
+}
+
+function loadMorePosts() { loadFeed(true); }
+
+function setFeedTab(mode, el) {
+  document.querySelectorAll('#feedFilter .dh-filter-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  lastDoc = null; feedPosts = []; loadFeed();
+}
+
+async function publishPost() {
+  const content = document.getElementById('composeText').value.trim();
+  if (!content) { SS.showToast('Write something first', 'error'); return; }
+  const btn = document.getElementById('postBtn'); btn.disabled = true; btn.textContent = 'Posting...';
+  try {
+    await DevHub.createPost(content, document.getElementById('composeImage').value, document.getElementById('composeLink').value);
+    document.getElementById('composeText').value = '';
+    document.getElementById('composeImage').value = '';
+    document.getElementById('composeLink').value = '';
+    document.getElementById('composeImageRow').classList.remove('show');
+    document.getElementById('composeLinkRow').classList.remove('show');
+    lastDoc = null; await loadFeed();
+  } catch(e) { SS.showToast('Error posting', 'error'); }
+  btn.disabled = false; btn.textContent = 'Post';
+}
+
+async function loadSidebarStats() {
+  try {
+    const [p, pr, sn, id] = await Promise.all([
+      db.collection('devhub_posts').get(), db.collection('projects').get(),
+      db.collection('snippets').get(), db.collection('ideas').get()
+    ]);
+    document.getElementById('statPosts').textContent = p.size;
+    document.getElementById('statProjects').textContent = pr.size;
+    document.getElementById('statSnippets').textContent = sn.size;
+    document.getElementById('statIdeas').textContent = id.size;
+  } catch(e) {}
+}
+</script>
+</body>
+</html>

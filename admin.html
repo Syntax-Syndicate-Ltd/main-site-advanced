@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — Syntax Syndicate</title>
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/opportunities.css">
+<style>
+/* ── ADMIN LAYOUT ── */
+.admin-layout { display: flex; min-height: 100vh; background: var(--opp-bg); }
+
+.admin-sidebar {
+  width: 248px; background: var(--opp-white); border-right: 1px solid var(--opp-border);
+  position: fixed; top: 0; bottom: 0; left: 0; overflow-y: auto; overflow-x: hidden;
+  display: flex; flex-direction: column; z-index: 200; box-shadow: var(--opp-shadow-xs);
+}
+.sidebar-logo {
+  display: flex; align-items: center; gap: 10px;
+  padding: 20px 18px 16px; border-bottom: 1px solid var(--opp-border);
+  font-family: var(--opp-font-d); font-weight: 800; font-size: 15px; color: var(--opp-text); flex-shrink: 0;
+}
+.sidebar-logo-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--opp-primary) 0%, #3b6ef0 100%);
+  display: flex; align-items: center; justify-content: center; font-size: 15px; color: #fff; flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(24,71,194,0.25);
+}
+.sidebar-section-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--opp-text3); padding: 16px 18px 6px;
+}
+.sidebar-link {
+  display: flex; align-items: center; gap: 11px; padding: 10px 14px; margin: 1px 8px;
+  border-radius: var(--opp-r-sm); font-size: 13.5px; color: var(--opp-text2); font-weight: 500;
+  transition: var(--opp-tr); cursor: pointer; text-decoration: none;
+  border: none; background: none; font-family: var(--opp-font); width: calc(100% - 16px);
+}
+.sidebar-link:hover { background: var(--opp-bg); color: var(--opp-text); }
+.sidebar-link.active { background: var(--opp-primary-light); color: var(--opp-primary); font-weight: 600; }
+.sidebar-bottom { margin-top: auto; border-top: 1px solid var(--opp-border); padding-top: 4px; }
+
+.admin-main { flex: 1; margin-left: 248px; padding: 32px 36px; min-height: 100vh; }
+.admin-header { margin-bottom: 28px; }
+.admin-header h1 { font-family: var(--opp-font-d); font-size: 24px; font-weight: 800; color: var(--opp-text); margin-bottom: 3px; }
+.admin-header p { font-size: 13px; color: var(--opp-text3); }
+
+.admin-section { display: none; }
+.admin-section.active { display: block; animation: fadeUp 0.22s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+/* Stats */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-bottom: 28px; }
+.stat-card { background: var(--opp-white); border: 1.5px solid var(--opp-border); border-radius: var(--opp-r-lg); padding: 20px; transition: var(--opp-tr); }
+.stat-card:hover { border-color: var(--opp-primary); box-shadow: var(--opp-shadow-sm); }
+.stat-icon { font-size: 22px; margin-bottom: 10px; }
+.stat-value { font-family: var(--opp-font-d); font-size: 30px; font-weight: 800; color: var(--opp-text); line-height: 1; }
+.stat-label { font-size: 12px; color: var(--opp-text3); font-weight: 500; margin-top: 4px; }
+
+/* Forms */
+.form-card { background: var(--opp-white); border: 1.5px solid var(--opp-border); border-radius: var(--opp-r-xl); padding: 24px; margin-bottom: 20px; }
+.form-card h2 { font-family: var(--opp-font-d); font-size: 17px; font-weight: 700; color: var(--opp-text); margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--opp-border); }
+.form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.form-grid .form-group.full { grid-column: 1/-1; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: 12.5px; font-weight: 600; color: var(--opp-text); }
+.form-input, .form-textarea, .form-select {
+  width: 100%; padding: 10px 13px; background: var(--opp-bg); border: 1.5px solid var(--opp-border);
+  border-radius: var(--opp-r-sm); color: var(--opp-text); font-size: 14px; outline: none;
+  transition: var(--opp-tr); font-family: var(--opp-font);
+}
+.form-textarea { resize: vertical; min-height: 90px; }
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+  border-color: var(--opp-primary); background: var(--opp-white); box-shadow: 0 0 0 3px rgba(24,71,194,0.08);
+}
+
+/* Posts table */
+.posts-table-wrap { background: var(--opp-white); border: 1.5px solid var(--opp-border); border-radius: var(--opp-r-xl); overflow: hidden; }
+.posts-filter-bar { display: flex; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--opp-border); flex-wrap: wrap; align-items: center; }
+.posts-table { width: 100%; border-collapse: collapse; }
+.posts-table th { padding: 11px 16px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--opp-text3); border-bottom: 1px solid var(--opp-border); text-align: left; background: var(--opp-bg); white-space: nowrap; }
+.posts-table td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid var(--opp-border); color: var(--opp-text2); }
+.posts-table tr:last-child td { border-bottom: none; }
+.posts-table tr:hover td { background: var(--opp-bg); }
+.table-actions { display: flex; gap: 6px; }
+
+/* Quick actions */
+.quick-actions { background: var(--opp-white); border: 1.5px solid var(--opp-border); border-radius: var(--opp-r-xl); padding: 24px; }
+.quick-actions h3 { font-family: var(--opp-font-d); font-size: 17px; font-weight: 700; margin-bottom: 16px; }
+.quick-actions-grid { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* Sidebar overlay mobile */
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 199; }
+.sidebar-overlay.open { display: block; }
+.admin-menu-toggle { display: none; position: fixed; top: 14px; left: 14px; z-index: 201; background: var(--opp-white); border: 1px solid var(--opp-border); border-radius: var(--opp-r-sm); padding: 8px 10px; cursor: pointer; box-shadow: var(--opp-shadow-sm); font-family: var(--opp-font); font-size: 13px; }
+
+@media (max-width: 768px) {
+  .admin-sidebar { transform: translateX(-100%); transition: transform 0.25s ease; }
+  .admin-sidebar.open { transform: translateX(0); }
+  .admin-main { margin-left: 0; padding: 70px 12px 40px; }
+  .admin-menu-toggle { display: flex; align-items: center; gap: 6px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .form-grid { grid-template-columns: 1fr; }
+  .form-grid .form-group.full { grid-column: 1; }
+  .admin-header h1 { font-size: 20px; }
+  .posts-table { font-size: 12px; }
+  .posts-table th, .posts-table td { padding: 8px 10px; }
+  .table-actions { flex-wrap: wrap; }
+  .quick-actions-grid { flex-direction: column; }
+}
+
+/* ── MODALS ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(10,14,26,0.5); z-index: 1000;
+  align-items: center; justify-content: center; backdrop-filter: blur(4px); padding: 20px;
+}
+.modal-overlay.active { display: flex; animation: fadeIn .2s; }
+@keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+.modal-content {
+  background: var(--white); border-radius: 16px; width: 100%; max-width: 500px;
+  max-height: 90vh; overflow-y: auto; padding: 28px; position: relative;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.15);
+}
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid var(--opp-border); padding-bottom: 16px; }
+.modal-title { font-size: 1.25rem; font-weight: 700; color: var(--text); }
+.modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--opp-text3); transition: color .2s; line-height: 1; }
+.modal-close:hover { color: var(--accent-red); }
+</style>
+</head>
+<body>
+
+<!-- Mobile Sidebar Toggle -->
+<button class="admin-menu-toggle" id="sidebar-toggle">☰ Menu</button>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<!-- ===== ADMIN LAYOUT ===== -->
+<div class="admin-layout">
+<nav class="admin-sidebar" id="admin-sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">⚡</div>
+    Syntax Syndicate
+  </div>
+
+  <div class="sidebar-section-label">Overview</div>
+  <a class="sidebar-link active" data-section="dashboard" href="#">📊 Dashboard</a>
+
+  <div class="sidebar-section-label">Add Content</div>
+  <a class="sidebar-link" data-section="add-job" href="#">💼 Add Job</a>
+  <a class="sidebar-link" data-section="add-internship" href="#">🎓 Add Internship</a>
+  <a class="sidebar-link" data-section="add-hackathon" href="#">⚡ Add Hackathon</a>
+  <a class="sidebar-link" data-section="add-techevent" href="#">💡 Add Tech Event</a>
+  <a class="sidebar-link" data-section="add-seminar" href="#">🎤 Add Seminar</a>
+  <a class="sidebar-link" data-section="add-course" href="#">📖 Add Course</a>
+  <a class="sidebar-link" data-section="add-ad" href="#">📢 Add Ad</a>
+  <a class="sidebar-link" data-section="add-roadmap" href="#">🗺️ Add Roadmap</a>
+  <a class="sidebar-link" data-section="add-cheatsheet" href="#">📋 Add Cheatsheet</a>
+  <a class="sidebar-link" data-section="add-pdf" href="#">📄 Add PDF/Resource</a>
+  <a class="sidebar-link" data-section="add-premium-project" href="#">💎 Add Premium Proj</a>
+
+  <div class="sidebar-section-label">Manage</div>
+  <a class="sidebar-link" data-section="approvals" href="#">⏳ Approvals</a>
+  <a class="sidebar-link" data-section="manage" href="#">📋 Manage Posts</a>
+  <a class="sidebar-link" data-section="manage-roadmaps" href="#">🗺️ Manage Roadmaps</a>
+  <a class="sidebar-link" data-section="manage-cheatsheets" href="#">📋 Manage Cheatsheets</a>
+  <a class="sidebar-link" data-section="manage-pdfs" href="#">📄 Manage PDFs</a>
+  <a class="sidebar-link" data-section="manage-premium-projects" href="#">💎 Manage Premium Projs</a>
+  <a class="sidebar-link" data-section="pdf-analytics" href="#">📊 PDF Analytics</a>
+  <a class="sidebar-link" data-section="messages" href="#">📩 Messages</a>
+  <a class="sidebar-link" data-section="notifications" href="#">🔔 Notifications</a>
+  <a class="sidebar-link" data-section="users" href="#">👥 Users</a>
+
+  <div class="sidebar-bottom">
+    <div style="padding:0 16px 12px;font-size:12px;color:var(--opp-text3)" id="admin-email">Loading...</div>
+    <a href="index.html" class="sidebar-link">🏠 View Site</a>
+    <button class="sidebar-link" id="logout-btn" style="color:var(--opp-danger)">🚪 Logout</button>
+  </div>
+</nav>
+
+<!-- ===== ADMIN MAIN CONTENT ===== -->
+<main class="admin-main">
+
+  <!-- DASHBOARD -->
+  <div class="admin-section active" id="section-dashboard">
+    <div class="admin-header">
+      <h1>Dashboard ⚡</h1>
+      <p>Welcome to your admin panel. Manage all content from here.</p>
+    </div>
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-value" id="stat-total">—</div><div class="stat-label">Total Posts</div></div>
+      <div class="stat-card"><div class="stat-icon">💼</div><div class="stat-value" id="stat-jobs">—</div><div class="stat-label">Jobs</div></div>
+      <div class="stat-card"><div class="stat-icon">🎓</div><div class="stat-value" id="stat-internships">—</div><div class="stat-label">Internships</div></div>
+      <div class="stat-card"><div class="stat-icon">⚡</div><div class="stat-value" id="stat-hackathons">—</div><div class="stat-label">Hackathons</div></div>
+      <div class="stat-card"><div class="stat-icon">💡</div><div class="stat-value" id="stat-techevents">—</div><div class="stat-label">Tech Events</div></div>
+      <div class="stat-card"><div class="stat-icon">🎤</div><div class="stat-value" id="stat-seminars">—</div><div class="stat-label">Seminars</div></div>
+      <div class="stat-card"><div class="stat-icon">📖</div><div class="stat-value" id="stat-courses">—</div><div class="stat-label">Courses</div></div>
+      <div class="stat-card"><div class="stat-icon">📢</div><div class="stat-value" id="stat-ads">—</div><div class="stat-label">Active Ads</div></div>
+      <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="stat-users">—</div><div class="stat-label">Registered Users</div></div>
+    </div>
+    <div class="quick-actions">
+      <h3>Quick Actions</h3>
+      <div class="quick-actions-grid">
+        <button class="opp-btn opp-btn-primary" onclick="document.querySelector('[data-section=add-job]').click()">+ Add Job</button>
+        <button class="opp-btn opp-btn-secondary" onclick="document.querySelector('[data-section=add-internship]').click()">+ Add Internship</button>
+        <button class="opp-btn opp-btn-secondary" onclick="document.querySelector('[data-section=add-hackathon]').click()">+ Add Hackathon</button>
+        <button class="opp-btn opp-btn-secondary" onclick="document.querySelector('[data-section=manage]').click()">Manage Posts</button>
+        <button class="opp-btn opp-btn-secondary" onclick="document.querySelector('[data-section=approvals]').click()">⏳ Pending Approvals</button>
+        <button class="opp-btn opp-btn-secondary" onclick="document.querySelector('[data-section=users]').click()">👥 View Users</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD JOB -->
+  <div class="admin-section" id="section-add-job">
+    <div class="admin-header"><h1>Add Job</h1><p>Post a new job listing</p></div>
+    <div class="form-card">
+      <h2>💼 New Job Listing</h2>
+      <form id="form-job">
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Job Title *</label><input type="text" name="title" class="form-input" required></div>
+          <div class="form-group"><label class="form-label">Company *</label><input type="text" name="company" class="form-input" required></div>
+          <div class="form-group"><label class="form-label">Location *</label><input type="text" name="location" class="form-input" required></div>
+          <div class="form-group"><label class="form-label">Experience Level</label>
+            <select name="experienceLevel" class="form-select"><option value="">Select</option><option>Entry Level</option><option>Junior</option><option>Mid Level</option><option>Senior</option><option>Lead</option></select>
+          </div>
+          <div class="form-group full"><label class="form-label">Description *</label><textarea name="description" class="form-textarea" rows="5" required></textarea></div>
+          <div class="form-group full"><label class="form-label">Requirements</label><textarea name="requirements" class="form-textarea" rows="4"></textarea></div>
+          <div class="form-group full"><label class="form-label">Benefits</label><textarea name="benefits" class="form-textarea" rows="3"></textarea></div>
+          <div class="form-group full"><label class="form-label">Image URL</label><input type="text" name="imagePath" class="form-input"></div>
+          <div class="form-group full"><label class="form-label">Apply Link *</label><input type="url" name="applyLink" class="form-input" required></div>
+        </div>
+        <div style="margin-top:24px;display:flex;gap:12px">
+          <button type="submit" class="opp-btn opp-btn-primary opp-btn-lg">✅ Publish Job</button>
+          <button type="reset" class="opp-btn opp-btn-secondary">Clear</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ADD INTERNSHIP -->
+  <div class="admin-section" id="section-add-internship">
+    <div class="admin-header"><h1>Add Internship</h1><p>Post a new internship opportunity</p></div>
+    <div class="form-card">
+      <h2>🎓 New Internship</h2>
+      <form id="form-internship">
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Title *</label><input type="text" name="title" class="form-input" required></div>
+          <div class="form-group"><label class="form-label">Company *</label><input type="text" name="company" class="form-input" required></div>
+          <div class="form-group"><label class="form-label">Location</label><input type="text" name="location" class="form-input"></div>
+          <div class="form-group"><label class="form-label">Duration</label><input type="text" name="duration" class="form-input" placeholder="e.g. 3 months"></div>
+          <div class="form-group"><label class="form-label">Experience Level</label>
+            <select name="experienceLevel" class="form-select"><option value="">Select</option><option>Entry Level</option><option>Junior</option><option>Mid Level</option></select>
+          </div>
+          <div class="form-group full"><label class="form-label">Description *</label><textarea name="description" class="form-textarea" rows="5" required></textarea></div>
+          <div class="form-group full"><label class="form-label">Requirements</label><textarea name="requirements" class="form-textarea" rows="4"></textarea></div>
+          <div class="form-group full"><label class="form-label">Benefits / Stipend</label><textarea name="benefits" class="form-textarea" rows="3"></textarea></div>
+          <div class="form-group full"><label class="form-label">Image URL</label><input type="text" name="imagePath" class="form-input"></div>
+          <div class="form-group full"><label class="form-label">Apply Link *</label><input type="url" name="applyLink" class="form-input" required></div>
+        </div>
+        <div style="margin-top:24px;display:flex;gap:12px">
+          <button type="submit" class="opp-btn opp-btn-primary opp-btn-lg">✅ Publish Internship</button>
+          <button type="reset" class="opp-btn opp-btn-secondary">Clear</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ADD HACKATHON -->
+  <div class="admin-section" id="section-add-hackathon">
+    <div class="admin-header"><h1>Add Hackathon</h1><p>Post a new hackathon</p></div>
+    <div class="form-card">
+      <h2>⚡ New Hackathon</h2>
+      <form id="form-hackathon">
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Hackathon Name *</label><input type="text" name="title" class="form-input" required></div>
+          <div class="form-group"><label class="form-label">Organizer *</label><input type="text" name="organizer" class="form-input" required></div>
+          <div class="form-group"><label class="form-label">Mode</label>
+            <select name="mode" class="form-select"><option>Online</option><option>Offline</option><option>Hybrid</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">Prize Pool</label><input type="text" name="prizePool" class="form-input" placeholder="e.g. ₹5 Lakhs"></div>
+          <div class="form-group"><label class="form-label">Deadline</label><input type="date" name="deadline" class="form-input"></div>
+          <div class="form-group full"><label class="form-label">Description *</label><textarea name="description" class="form-textarea" rows="5" required></textarea></div>
+          <div class="form-group full"><label class="form-label">Image URL</label><input type="text" name="imagePath" class="form-input"></div>
+          <div class="form-group full"><label class="form-label">Registration Link *</label><input type="url" name="applyLink" class="form-input" required></div>
+        </div>
+        <div style="margin-top:24px;display:flex;gap:12px">
+          <button type="submit" class="opp-btn opp-btn-primary opp-btn-lg">✅ Publish Hackathon</button>
+          <button type="reset" class="opp-btn opp-btn-secondary">Clear</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ADD TECH EVENT -->
+  <div class="admin-section" id="section-add-techevent">
+    <div class="admin-header"><h1>Add Tech Event</h1><p>Post a new tech event</p></div>
+    <div class="form-card">
+      <h2>💡 New Tech Event</h2>
+      <form id="form-techevent">
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Event Name *</label><input type="text" name="title" class="form-input" required></div>
+          <div class="form-group"><label class="form-label">Speaker / Host</label><input type="text" name="speaker" class="form-input"></div>
+          <div class="form-group"><label class="form-label">Venue *</label><input type="text" name="venue" class="form-input" required></div>
+          <div class="form-group"><label class="form-label">Event Date</label><input type="date" name="eventDate" class="form-input"></div>
+          <div class="form-group full"><label class="form-label">Description *</label><textarea name="description" class="form-textarea" rows="5" required></textarea></div>
+          <div class="form-group full"><label class="form-label">Image URL</label><input type="text" name="imagePath" class="form-input"></div>
+          <div class="form-group full"><label class="form-label">Registration Link</label><input type="url" name="applyLink" class="form-input"></div>
+        </div>
+        <div style="margin-top:24px;display:flex;gap:12px">
+          <button type="submit" class="opp-btn opp-btn-primary opp-btn-lg">✅ Publish Event</button>
+          <button type="reset" class="opp-btn opp-btn-secondary">Clear</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ADD SEMINAR -->
+  <div class="admin-section" id="section-add-seminar">
+    <div class="admin-header"><h1>Add Seminar</h1><p>Post a new seminar</p></div>
+    <div class="form-card">
+      <h2>🎤 New Seminar</h2>
+      <form id="form-seminar">
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Seminar Title *</label><input type="text" name="title" class="form-input" required></div>
+          <div class="form-group"><label class="form-label">Speaker / Host</label><input type="text" name="speaker" class="form-input"></div>
+          <div class="form-group"><label class="form-label">Venue *</label><input type="text" name="venue" class="form-input" required></div>
+          <div class="form-group"><label class="form-label">Date</label><input type="date" name="eventDate" class="form-input"></div>
+          <div class="form-group full"><label class="form-label">Description *</label><textarea name="description" class="form-textarea" rows="5" required></textarea></div>
+          <div class="form-group full"><label class="form-label">Image URL</label><input type="text" name="imagePath" class="form-input"></div>
+          <div class="form-group full"><label class="form-label">Registration Link</label><input type="url" name="applyLink" class="form-input"></div>
+        </div>
+        <div style="margin-top:24px;display:flex;gap:12px">
+          <button type="submit" class="opp-btn opp-btn-primary opp-btn-lg">✅ Publish Seminar</button>
+          <button type="reset" class="opp-btn opp-btn-secondary">Clear</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ADD COURSE -->
+  <div class="admin-section" id="section-add-course">
+    <div class="admin-header"><h1>Add Course</h1><p>Add a new online or offline course</p></div>
+    <div class="form-card">
+      <h2>📖 New Course</h2>
+      <form id="form-course">
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Course Title *</label><input type="text" name="title" class="form-input" required></div>
+          <div class="form-group"><label class="form-label">Instructor</label><input type="text" name="instructor" class="form-input"></div>
+          <div class="form-group"><label class="form-label">Platform</label><input type="text" name="platform" class="form-input" placeholder="e.g. Udemy, Coursera"></div>
+          <div class="form-group"><label class="form-label">Level</label>
+            <select name="level" class="form-select"><option value="">Select</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>All Levels</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">Duration</label><input type="text" name="duration" class="form-input" placeholder="e.g. 40 hours"></div>
+          <div class="form-group"><label class="form-label">Price</label><input type="text" name="price" class="form-input" placeholder="e.g. Free, ₹499"></div>
+          <div class="form-group full"><label class="form-label">Description *</label><textarea name="description" class="form-textarea" rows="5" required></textarea></div>
+          <div class="form-group full"><label class="form-label">Image URL</label><input type="text" name="imagePath" class="form-input"></div>
+          <div class="form-group full"><label class="form-label">Enroll Link *</label><input type="url" name="applyLink" class="form-input" required></div>
+        </div>
+        <div style="margin-top:24px;display:flex;gap:12px">
+          <button type="submit" class="opp-btn opp-btn-primary opp-btn-lg">✅ Publish Course</button>
+          <button type="reset" class="opp-btn opp-btn-secondary">Clear</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ADD ROADMAP -->
+  <div class="admin-section" id="section-add-roadmap">
+    <div class="admin-header"><h1>Add Roadmap 🗺️</h1><p>Create a step-by-step learning roadmap with videos and resources</p></div>
+    <div class="form-card">
+      <h2>🗺️ Roadmap Details</h2>
+      <form id="form-roadmap-info">
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Title *</label><input type="text" id="rm-title" class="form-input" required placeholder="e.g. Frontend Developer Roadmap"></div>
+          <div class="form-group"><label class="form-label">Domain</label><input type="text" id="rm-domain" class="form-input" placeholder="e.g. Web Development"></div>
+          <div class="form-group"><label class="form-label">Role</label><input type="text" id="rm-role" class="form-input" placeholder="e.g. Frontend Developer"></div>
+          <div class="form-group"><label class="form-label">Level</label>
+            <select id="rm-level" class="form-select"><option value="beginner">Beginner</option><option value="intermediate">Intermediate</option><option value="advanced">Advanced</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">Estimated Time</label><input type="text" id="rm-time" class="form-input" placeholder="e.g. 3-6 months"></div>
+          <div class="form-group"><label class="form-label">Cover Emoji</label><input type="text" id="rm-emoji" class="form-input" value="🗺️" maxlength="4"></div>
+          <div class="form-group full"><label class="form-label">Description</label><textarea id="rm-desc" class="form-textarea" rows="3" placeholder="Short summary of what this roadmap covers..."></textarea></div>
+          <div class="form-group full"><label class="form-label">Tags (comma-separated)</label><input type="text" id="rm-tags" class="form-input" placeholder="html, css, javascript, react"></div>
+          <div class="form-group"><label class="form-label" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="rm-featured"> Featured on homepage</label></div>
+        </div>
+      </form>
+    </div>
+
+    <div class="form-card" style="margin-top:16px">
+      <h2 style="display:flex;align-items:center;justify-content:space-between">📝 Roadmap Steps <button type="button" class="opp-btn opp-btn-primary opp-btn-sm" onclick="addRoadmapStep()">+ Add Step</button></h2>
+      <div id="rm-steps-container" style="margin-top:16px;display:flex;flex-direction:column;gap:16px">
+        <!-- Steps added dynamically -->
+      </div>
+    </div>
+
+    <div style="margin-top:24px;display:flex;gap:12px">
+      <button type="button" class="opp-btn opp-btn-primary opp-btn-lg" onclick="publishRoadmap()">✅ Publish Roadmap</button>
+      <button type="button" class="opp-btn opp-btn-secondary" onclick="clearRoadmapForm()">Clear</button>
+    </div>
+  </div>
+
+  <!-- ADD CHEATSHEET -->
+  <div class="admin-section" id="section-add-cheatsheet">
+    <div class="admin-header"><h1>Add Cheatsheet 📋</h1><p>Create a reference cheatsheet with code snippets and tips</p></div>
+    <div class="form-card">
+      <h2>📋 Cheatsheet Details</h2>
+      <form id="form-cs-info">
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Title *</label><input type="text" id="cs-title" class="form-input" required placeholder="e.g. Python Cheatsheet"></div>
+          <div class="form-group"><label class="form-label">Domain</label><input type="text" id="cs-domain" class="form-input" placeholder="e.g. Python"></div>
+          <div class="form-group"><label class="form-label">Cover Emoji</label><input type="text" id="cs-emoji" class="form-input" value="📋" maxlength="4"></div>
+          <div class="form-group"><label class="form-label">Download URL (PDF)</label><input type="url" id="cs-download" class="form-input" placeholder="https://..."></div>
+          <div class="form-group full"><label class="form-label">Description</label><textarea id="cs-desc" class="form-textarea" rows="3" placeholder="What this cheatsheet covers..."></textarea></div>
+          <div class="form-group full"><label class="form-label">Tags (comma-separated)</label><input type="text" id="cs-tags" class="form-input" placeholder="python, data-types, loops"></div>
+          <div class="form-group"><label class="form-label" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="cs-featured"> Featured on homepage</label></div>
+        </div>
+      </form>
+    </div>
+
+    <div class="form-card" style="margin-top:16px">
+      <h2 style="display:flex;align-items:center;justify-content:space-between">📝 Sections <button type="button" class="opp-btn opp-btn-primary opp-btn-sm" onclick="addCheatsheetSection()">+ Add Section</button></h2>
+      <div id="cs-sections-container" style="margin-top:16px;display:flex;flex-direction:column;gap:16px">
+        <!-- Sections added dynamically -->
+      </div>
+    </div>
+
+    <div style="margin-top:24px;display:flex;gap:12px">
+      <button type="button" class="opp-btn opp-btn-primary opp-btn-lg" onclick="publishCheatsheet()">✅ Publish Cheatsheet</button>
+      <button type="button" class="opp-btn opp-btn-secondary" onclick="clearCheatsheetForm()">Clear</button>
+    </div>
+  </div>
+
+  <!-- ADD PDF/RESOURCE -->
+  <div class="admin-section" id="section-add-pdf">
+    <div class="admin-header"><h1>Add PDF / Resource 📄</h1><p>Upload a resource to the Free or Premium Library</p></div>
+    <div class="form-card">
+      <form id="form-pdf-info">
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Title *</label><input type="text" id="pdf-title" class="form-input" required placeholder="e.g. Master React in 10 Days"></div>
+          <div class="form-group"><label class="form-label">Type</label>
+            <select id="pdf-type" class="form-select">
+              <option value="pdf">PDF</option><option value="cheatsheet">Cheatsheet</option><option value="guide">Guide</option><option value="course">Course</option><option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Domain</label><input type="text" id="pdf-domain" class="form-input" placeholder="e.g. Web Dev"></div>
+          <div class="form-group"><label class="form-label">Access Level</label>
+            <select id="pdf-access" class="form-select" onchange="togglePdfAccessField()">
+              <option value="free">Free (Google Drive Link)</option>
+              <option value="premium">Premium (Native File Path)</option>
+            </select>
+          </div>
+          <div class="form-group full" id="pdf-url-container"><label class="form-label">Google Drive Link *</label><input type="url" id="pdf-url" class="form-input" placeholder="https://drive.google.com/..." required></div>
+          <div class="form-group full" id="pdf-path-container" style="display:none;"><label class="form-label">Backend File Path *</label><input type="text" id="pdf-path" class="form-input" placeholder="/assets/premium/react-guide.pdf"></div>
+          <div class="form-group full"><label class="form-label">Description</label><textarea id="pdf-desc" class="form-textarea" rows="3" placeholder="Resource description..."></textarea></div>
+          <div class="form-group full"><label class="form-label">Tags (comma-separated)</label><input type="text" id="pdf-tags" class="form-input" placeholder="react, frontend, quickstart"></div>
+        </div>
+      </form>
+    </div>
+    <div style="margin-top:24px;display:flex;gap:12px">
+      <button type="button" class="opp-btn opp-btn-primary opp-btn-lg" onclick="publishPdf()">✅ Publish Resource</button>
+      <button type="button" class="opp-btn opp-btn-secondary" onclick="clearPdfForm()">Clear</button>
+    </div>
+  </div>
+
+  <!-- ADD PREMIUM PROJECT -->
+  <div class="admin-section" id="section-add-premium-project">
+    <div class="admin-header"><h1>Add Premium Project 💎</h1><p>Upload a premium project for the library</p></div>
+    <div class="form-card">
+      <form id="form-premium-project">
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Project Title *</label><input type="text" name="title" class="form-input" required></div>
+          <div class="form-group"><label class="form-label">Price / Access Level</label>
+            <select name="access" class="form-select">
+              <option value="premium">Premium Only</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Demo URL</label><input type="url" name="demo_link" class="form-input" placeholder="https://..."></div>
+          <div class="form-group"><label class="form-label">GitHub URL</label><input type="url" name="github_link" class="form-input" placeholder="https://github.com/..."></div>
+          <div class="form-group full"><label class="form-label">Cover Image URL *</label><input type="text" name="image_url" class="form-input" required></div>
+          <div class="form-group full"><label class="form-label">Description *</label><textarea name="description" class="form-textarea" rows="4" required></textarea></div>
+          <div class="form-group"><label class="form-label">Tags (comma-separated)</label><input type="text" name="tags" class="form-input" placeholder="react, node.js, fast"></div>
+          <div class="form-group"><label class="form-label">Features (comma-separated)</label><input type="text" name="features" class="form-input" placeholder="OAuth, Stripe"></div>
+        </div>
+        <div style="margin-top:24px;display:flex;gap:12px">
+          <button type="submit" class="opp-btn opp-btn-primary opp-btn-lg">✅ Publish Premium Project</button>
+          <button type="reset" class="opp-btn opp-btn-secondary">Clear</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ADD AD -->
+  <div class="admin-section" id="section-add-ad">
+    <div class="admin-header"><h1>Add Advertisement</h1><p>Create a sponsored ad placement</p></div>
+    <div class="form-card">
+      <h2>📢 New Advertisement</h2>
+      <form id="form-ad">
+        <div class="form-grid">
+          <div class="form-group full"><label class="form-label">Ad Title *</label><input type="text" name="title" class="form-input" required></div>
+          <div class="form-group full"><label class="form-label">Image URL</label><input type="text" name="imagePath" class="form-input"></div>
+          <div class="form-group full"><label class="form-label">Redirect URL *</label><input type="url" name="redirectLink" class="form-input" required></div>
+          <div class="form-group full"><label class="form-label">Placement</label>
+            <select name="placement" class="form-select"><option value="top">Top Banner</option><option value="betweenCards">Between Cards</option><option value="popup">Popup</option></select>
+          </div>
+        </div>
+        <div style="margin-top:24px;display:flex;gap:12px">
+          <button type="submit" class="opp-btn opp-btn-primary opp-btn-lg">✅ Publish Ad</button>
+          <button type="reset" class="opp-btn opp-btn-secondary">Clear</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- APPROVAL QUEUE -->
+  <div class="admin-section" id="section-approvals">
+    <div class="admin-header"><h1>Approval Queue ⏳</h1><p>Review and approve content submitted by institutes</p></div>
+    <div class="posts-table-wrap">
+      <div class="posts-filter-bar">
+        <button class="opp-btn opp-btn-secondary opp-btn-sm" id="refresh-approvals-btn">🔄 Refresh Approvals</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="posts-table">
+          <thead><tr><th>Title</th><th>Type</th><th>Company</th><th>Submitted At</th><th>Actions</th></tr></thead>
+          <tbody id="approvals-tbody">
+            <tr><td colspan="5" style="text-align:center;padding:40px;color:var(--opp-text3)">Loading queue...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANAGE POSTS -->
+  <div class="admin-section" id="section-manage">
+    <div class="admin-header"><h1>Manage Posts</h1><p>Edit or delete existing content</p></div>
+    <div class="posts-table-wrap">
+      <div class="posts-filter-bar">
+        <select class="filter-select" id="manage-filter" style="min-width:200px">
+          <option value="all">All Types</option>
+          <option value="ss_jobs">💼 Jobs</option>
+          <option value="ss_internships">🎓 Internships</option>
+          <option value="ss_hackathons">⚡ Hackathons</option>
+          <option value="ss_techEvents">💡 Tech Events</option>
+          <option value="ss_seminars">🎤 Seminars</option>
+          <option value="ss_courses">📖 Courses</option>
+          <option value="ss_ads">📢 Ads</option>
+        </select>
+        <button class="opp-btn opp-btn-secondary opp-btn-sm" id="refresh-posts-btn">🔄 Refresh</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="posts-table">
+          <thead><tr><th>Title</th><th>Type</th><th>Company / Org</th><th>Posted</th><th>Actions</th></tr></thead>
+          <tbody id="posts-tbody">
+            <tr><td colspan="5" style="text-align:center;padding:40px;color:var(--opp-text3)">Click refresh to load posts</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANAGE ROADMAPS -->
+  <div class="admin-section" id="section-manage-roadmaps">
+    <div class="admin-header"><h1>Manage Roadmaps 🗺️</h1><p>Edit or delete existing roadmaps</p></div>
+    <div class="posts-table-wrap">
+      <div class="posts-filter-bar">
+        <button class="opp-btn opp-btn-secondary opp-btn-sm" onclick="loadManageRoadmaps()">🔄 Refresh</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="posts-table">
+          <thead><tr><th>Title</th><th>Domain</th><th>Level</th><th>Steps</th><th>Posted By</th><th>Actions</th></tr></thead>
+          <tbody id="roadmaps-tbody"><tr><td colspan="6" style="text-align:center;padding:40px;color:var(--opp-text3)">Click refresh to load</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANAGE CHEATSHEETS -->
+  <div class="admin-section" id="section-manage-cheatsheets">
+    <div class="admin-header"><h1>Manage Cheatsheets 📋</h1><p>Edit or delete existing cheatsheets</p></div>
+    <div class="posts-table-wrap">
+      <div class="posts-filter-bar">
+        <button class="opp-btn opp-btn-secondary opp-btn-sm" onclick="loadManageCheatsheets()">🔄 Refresh</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="posts-table">
+          <thead><tr><th>Title</th><th>Domain</th><th>Sections</th><th>Posted By</th><th>Actions</th></tr></thead>
+          <tbody id="cheatsheets-tbody"><tr><td colspan="5" style="text-align:center;padding:40px;color:var(--opp-text3)">Click refresh to load</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANAGE PDFS -->
+  <div class="admin-section" id="section-manage-pdfs">
+    <div class="admin-header"><h1>Manage PDFs 📄</h1><p>Edit or delete library resources</p></div>
+    <div class="posts-table-wrap">
+      <div class="posts-filter-bar">
+        <button class="opp-btn opp-btn-secondary opp-btn-sm" onclick="loadManagePdfs()">🔄 Refresh</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="posts-table">
+          <thead><tr><th>Title</th><th>Type</th><th>Access</th><th>Posted By</th><th>Actions</th></tr></thead>
+          <tbody id="pdfs-tbody"><tr><td colspan="5" style="text-align:center;padding:40px;color:var(--opp-text3)">Click refresh to load</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANAGE PREMIUM PROJECTS -->
+  <div class="admin-section" id="section-manage-premium-projects">
+    <div class="admin-header"><h1>Manage Premium Projects 💎</h1><p>Edit or delete premium projects from the premium library</p></div>
+    <div class="posts-table-wrap">
+      <div class="posts-filter-bar">
+        <button class="opp-btn opp-btn-secondary opp-btn-sm" onclick="loadManagePremiumProjects()">🔄 Refresh</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="posts-table">
+          <thead><tr><th>Title</th><th>Demo</th><th>Github</th><th>Posted By</th><th>Actions</th></tr></thead>
+          <tbody id="premium-projects-tbody"><tr><td colspan="5" style="text-align:center;padding:40px;color:var(--opp-text3)">Click refresh to load</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <!-- CONTACT MESSAGES -->
+  <div class="admin-section" id="section-messages">
+    <div class="admin-header"><h1>Contact Messages 📩</h1><p>Messages from the contact form</p></div>
+    <div class="posts-table-wrap">
+      <div class="posts-filter-bar">
+        <button class="opp-btn opp-btn-secondary opp-btn-sm" onclick="loadMessages()">🔄 Refresh</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="posts-table">
+          <thead><tr><th>Name</th><th>Email</th><th>Subject</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="messages-tbody"><tr><td colspan="6" style="text-align:center;padding:40px;color:var(--opp-text3)">Click refresh to load</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- USERS -->
+  <div class="admin-section" id="section-users">
+    <div class="admin-header"><h1>Users 👥</h1><p>All registered users</p></div>
+    <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
+      <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="users-total">—</div><div class="stat-label">Total Users</div></div>
+      <div class="stat-card"><div class="stat-icon">⚡</div><div class="stat-value" id="users-admins">—</div><div class="stat-label">Admins</div></div>
+      <div class="stat-card"><div class="stat-icon">🖱️</div><div class="stat-value" id="users-clicks">—</div><div class="stat-label">Total Apply Clicks</div></div>
+    </div>
+    <div class="posts-table-wrap">
+      <div class="posts-filter-bar">
+        <input type="text" id="users-search" class="form-input" placeholder="Search by name, email or role…" style="flex:1;max-width:360px">
+        <button class="opp-btn opp-btn-secondary opp-btn-sm" id="refresh-users-btn">🔄 Refresh</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="posts-table">
+          <thead><tr><th>User</th><th>Email</th><th>Role</th><th>Apply Clicks</th><th>Joined</th><th>Actions</th></tr></thead>
+          <tbody id="users-tbody">
+            <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--opp-text3)">Loading users…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF ANALYTICS -->
+  <div class="admin-section" id="section-pdf-analytics">
+    <div class="admin-header"><h1>PDF Analytics 📊</h1><p>See which resources perform best based on ratings and reads</p></div>
+    <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+      <div class="stat-card"><div class="stat-icon">📄</div><div class="stat-value" id="pa-total">—</div><div class="stat-label">Total PDFs</div></div>
+      <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-value" id="pa-avg">—</div><div class="stat-label">Avg Rating</div></div>
+      <div class="stat-card"><div class="stat-icon">👁</div><div class="stat-value" id="pa-reads">—</div><div class="stat-label">Total Reads</div></div>
+      <div class="stat-card"><div class="stat-icon">💬</div><div class="stat-value" id="pa-reviews">—</div><div class="stat-label">Total Reviews</div></div>
+    </div>
+    <div class="form-card">
+      <h2>🏆 Top Rated Resources</h2>
+      <div style="overflow-x:auto">
+        <table class="posts-table">
+          <thead><tr><th>#</th><th>Title</th><th>Rating</th><th>Reviews</th><th>Reads</th></tr></thead>
+          <tbody id="pa-top-tbody"><tr><td colspan="5" style="text-align:center;padding:40px;color:var(--opp-text3)">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="form-card" style="margin-top:16px">
+      <h2>📉 Lowest Rated Resources</h2>
+      <div style="overflow-x:auto">
+        <table class="posts-table">
+          <thead><tr><th>#</th><th>Title</th><th>Rating</th><th>Reviews</th><th>Reads</th></tr></thead>
+          <tbody id="pa-bottom-tbody"><tr><td colspan="5" style="text-align:center;padding:40px;color:var(--opp-text3)">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATIONS -->
+  <div class="admin-section" id="section-notifications">
+    <div class="admin-header"><h1>Notifications 🔔</h1><p>Send broadcast or targeted notifications to users</p></div>
+    <div class="form-card">
+      <h2>📢 Send Notification</h2>
+      <div class="form-grid">
+        <div class="form-group full"><label class="form-label">Target</label>
+          <select id="notif-target" class="form-select" onchange="toggleNotifUserSelect()">
+            <option value="all">All Users (Broadcast)</option>
+            <option value="user">Specific User</option>
+          </select>
+        </div>
+        <div class="form-group full" id="notif-user-wrap" style="display:none">
+          <label class="form-label">Select User</label>
+          <select id="notif-user-select" class="form-select"><option value="">Loading users...</option></select>
+        </div>
+        <div class="form-group full"><label class="form-label">Title *</label><input type="text" id="notif-title" class="form-input" placeholder="e.g. New Resource Added!"></div>
+        <div class="form-group full"><label class="form-label">Message *</label><textarea id="notif-message" class="form-textarea" rows="3" placeholder="Notification body text..."></textarea></div>
+        <div class="form-group full"><label class="form-label">Link URL (optional)</label><input type="text" id="notif-link" class="form-input" placeholder="e.g. archives/free-library.html"></div>
+      </div>
+      <div style="margin-top:16px">
+        <button class="opp-btn opp-btn-primary opp-btn-lg" onclick="sendAdminNotification()">🔔 Send Notification</button>
+      </div>
+    </div>
+    <div class="form-card" style="margin-top:16px">
+      <h2>📜 Recent Notifications Sent</h2>
+      <div style="overflow-x:auto">
+        <table class="posts-table">
+          <thead><tr><th>Title</th><th>Target</th><th>Sent At</th></tr></thead>
+          <tbody id="notif-log-tbody"><tr><td colspan="3" style="text-align:center;padding:40px;color:var(--opp-text3)">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal-content" style="max-width:600px;">
+    <div class="modal-header">
+      <h2 class="modal-title">✏️ Edit Post</h2>
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
+    </div>
+    <div id="edit-modal-body">
+      <!-- Form populated by admin.js -->
+    </div>
+  </div>
+</div>
+
+<div class="toast-container"></div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/db.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Developer Profile — Syntax Syndicate</title>
+<meta name="description" content="View a developer's public profile on Syntax Syndicate — projects, snippets, and contributions."/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../css/global.css"/>
+<link rel="stylesheet" href="../css/components.css"/>
+<link rel="stylesheet" href="../css/devhub.css"/>
+</head>
+<body class="dh-page">
+<div id="navbar-placeholder" data-type="main"></div>
+
+<!-- PROFILE CONTENT -->
+<div style="max-width:1100px;margin:28px auto 60px;padding:0 var(--pad);">
+
+  <!-- HERO CARD -->
+  <div class="dh-profile-hero" id="profileHero" style="display:none;">
+    <div class="dh-profile-cover"></div>
+    <div class="dh-profile-info">
+      <div class="dh-profile-avatar" id="heroAvatar">?</div>
+      <div class="dh-profile-text">
+        <div class="dh-profile-name" id="heroName">Loading...</div>
+        <div style="font-size:1.1rem;color:var(--text-2);font-weight:500;margin-top:4px;" id="heroHeadline"></div>
+        <div class="dh-profile-detail" id="heroDetail" style="margin-top:8px;">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span id="heroCollege">—</span>
+          <span id="heroLocation" style="margin-left:12px;color:var(--text-3);"></span>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:12px;" id="heroSocials"></div>
+        <div class="dh-profile-stats" id="profileStatsContainer" style="margin-top:16px;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+      <div class="dh-profile-actions" id="profileActions" style="display:none;">
+        <button class="dh-follow-btn" id="followBtn" onclick="toggleFollow()">Follow</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB BAR -->
+  <div style="margin-top:24px;">
+    <div class="dh-filter-bar" style="width:fit-content;">
+      <button class="dh-filter-tab active" onclick="switchTab('posts', this)">Posts</button>
+      <button class="dh-filter-tab" onclick="switchTab('projects', this)">Projects</button>
+      <button class="dh-filter-tab" onclick="switchTab('snippets', this)">Snippets</button>
+      <button class="dh-filter-tab" onclick="switchTab('contributions', this)">Contributions</button>
+      <button class="dh-filter-tab" onclick="switchTab('about', this)">About</button>
+    </div>
+  </div>
+
+  <!-- Posts -->
+  <div class="tab-content active" id="tab-posts" style="margin-top:20px;">
+    <div id="userPostsContainer" style="display:flex;flex-direction:column;gap:16px;">
+      <div class="empty-state"><div class="empty-state-title">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- Projects -->
+  <div class="tab-content" id="tab-projects" style="margin-top:20px;">
+    <div class="dh-projects-grid" id="userProjectsContainer">
+      <div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-title">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- Snippets -->
+  <div class="tab-content" id="tab-snippets" style="margin-top:20px;">
+    <div id="userSnippetsContainer" style="display:flex;flex-direction:column;gap:16px;">
+      <div class="empty-state"><div class="empty-state-title">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- Contributions -->
+  <div class="tab-content" id="tab-contributions" style="margin-top:20px;">
+    <div id="userContributionsContainer" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;">
+      <div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-title">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- About -->
+  <div class="tab-content" id="tab-about" style="margin-top:20px;">
+    <div class="dh-widget" style="padding:28px;">
+      <div style="margin-bottom:24px;display:none;" id="aboutBioBox">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:8px;">About Me</h3>
+        <div style="font-size:0.9rem;color:var(--text-2);line-height:1.6;white-space:pre-wrap;" id="aboutBio"></div>
+      </div>
+      <div style="margin-bottom:24px;display:none;" id="aboutSkillsBox">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:12px;">Skills</h3>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;" id="aboutSkills"></div>
+      </div>
+      <h3 style="font-size:1rem;font-weight:700;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:10px;">Details</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;" id="aboutGrid">
+        <div id="gridEmail"><div style="font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:4px;font-family:var(--mono);display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Email</div><div style="font-size:.88rem;color:var(--text);" id="aboutEmail">—</div></div>
+        <div id="gridMobile"><div style="font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:4px;font-family:var(--mono);display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> Mobile</div><div style="font-size:.88rem;color:var(--text);" id="aboutMobile">—</div></div>
+        <div id="gridCollege"><div style="font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:4px;font-family:var(--mono);display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg> College</div><div style="font-size:.88rem;color:var(--text);" id="aboutCollege">—</div></div>
+        <div id="gridBranch"><div style="font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:4px;font-family:var(--mono);display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Branch</div><div style="font-size:.88rem;color:var(--text);" id="aboutBranch">—</div></div>
+        <div id="gridLevel"><div style="font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:4px;font-family:var(--mono);display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Level</div><div style="font-size:.88rem;color:var(--text);" id="aboutLevel">—</div></div>
+        <div id="gridPortfolio" style="grid-column:1/-1;"><div style="font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:4px;font-family:var(--mono);display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Portfolio</div><div style="font-size:.88rem;" id="aboutPortfolio">—</div></div>
+        <div><div style="font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:4px;font-family:var(--mono);display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Member Since</div><div style="font-size:.88rem;color:var(--text);" id="aboutJoined">—</div></div>
+        <div><div style="font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:4px;font-family:var(--mono);display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Platform Role</div><div id="aboutRole">—</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading -->
+<div id="loadingState" style="text-align:center;padding:80px 20px;">
+  <div class="empty-state-icon" style="margin:0 auto 16px;">
+    <svg viewBox="0 0 24 24" width="28" height="28" stroke="var(--accent)" fill="none" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+  </div>
+  <div style="font-size:1rem;font-weight:600;color:var(--carbon-black);">Loading profile...</div>
+</div>
+
+<div id="footer-placeholder"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/db.js"></script>
+<script src="../js/navbar.js"></script>
+<script src="../js/footer.js"></script>
+<script src="../js/devhub.js"></script>
+<script>
+let profileUid = null, profileData = null, isOwnProfile = false, isFollowingUser = false;
+
+document.addEventListener('DOMContentLoaded', async () => {
+  profileUid = SS.getQueryParam('uid');
+  if (!profileUid) {
+    document.getElementById('loadingState').innerHTML = '<div class="empty-state"><div class="empty-state-title">No profile specified</div><div class="empty-state-desc">Use ?uid=... to view a profile.</div></div>';
+    return;
+  }
+  try {
+    profileData = await DB.getUserProfile(profileUid);
+    if (!profileData) { document.getElementById('loadingState').innerHTML = '<div class="empty-state"><div class="empty-state-title">Profile not found</div></div>'; return; }
+    document.title = `${profileData.name||'Developer'} — Syntax Syndicate`;
+    renderProfile(); loadUserContent();
+    Auth.onAuthChange(async (user) => {
+      if (user) {
+        isOwnProfile = user.uid === profileUid;
+        if (!isOwnProfile) { document.getElementById('profileActions').style.display='flex'; isFollowingUser = await DevHub.isFollowing(profileUid); updateFollowBtn(); }
+      }
+    });
+  } catch(e) { document.getElementById('loadingState').innerHTML = '<div class="empty-state"><div class="empty-state-title">Error loading profile</div></div>'; }
+});
+
+function renderProfile() {
+  document.getElementById('loadingState').style.display='none';
+  document.getElementById('profileHero').style.display='block';
+  const name = profileData.name||'Anonymous';
+  document.getElementById('heroAvatar').textContent = SS.getInitials(name);
+  let nameHTML = SS.sanitizeHTML(name);
+  const role = profileData.role||'user';
+  if (role!=='user') { const bc=role==='premium'?'badge-premium':(['superadmin','team'].includes(role)?'badge-admin':'badge-accent'); const lb=role==='superadmin'?'Admin':role==='team'?'Team':role==='premium'?'Premium Member':role; nameHTML+=` <span class="badge ${bc}" style="${role==='premium'?'background:linear-gradient(135deg,#f9d423,#ff4e50);color:#fff;border:none;padding:4px 10px;':''}">${lb}</span>`; }
+  document.getElementById('heroName').innerHTML = nameHTML;
+  document.getElementById('heroHeadline').textContent = profileData.headline || '';
+  if (profileData.location) document.getElementById('heroLocation').innerHTML = `📍 ${SS.sanitizeHTML(profileData.location)}`;
+  
+  // Socials
+  let socialsHTML = '';
+  if (profileData.github) socialsHTML += `<a href="${profileData.github}" target="_blank" class="badge badge-admin" style="text-decoration:none;">GitHub</a>`;
+  if (profileData.linkedin) socialsHTML += `<a href="${profileData.linkedin}" target="_blank" class="badge badge-accent" style="text-decoration:none;background:#0077b5;color:#fff;">LinkedIn</a>`;
+  document.getElementById('heroSocials').innerHTML = socialsHTML;
+
+  // Bio & Skills
+  if (profileData.bio) {
+    document.getElementById('aboutBioBox').style.display = 'block';
+    document.getElementById('aboutBio').textContent = profileData.bio;
+  }
+  if (profileData.skills) {
+    document.getElementById('aboutSkillsBox').style.display = 'block';
+    document.getElementById('aboutSkills').innerHTML = profileData.skills.split(',').map(s => 
+      `<span style="background:var(--accent-bg);color:var(--accent-hi);padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;">${s.trim()}</span>`
+    ).join('');
+  }
+
+  // Privacy Details
+  document.getElementById('gridEmail').style.display = profileData.privacy_email ? 'block' : 'none';
+  document.getElementById('aboutEmail').textContent = profileData.email || '—';
+  
+  document.getElementById('gridMobile').style.display = profileData.privacy_mobile ? 'block' : 'none';
+  document.getElementById('aboutMobile').textContent = profileData.mobile || '—';
+  
+  const showEdu = profileData.privacy_education !== false; // default true if not set
+  document.getElementById('gridCollege').style.display = showEdu ? 'block' : 'none';
+  document.getElementById('gridBranch').style.display = showEdu ? 'block' : 'none';
+  document.getElementById('gridLevel').style.display = showEdu ? 'block' : 'none';
+  document.getElementById('heroCollege').textContent = showEdu ? [profileData.college,profileData.branch,profileData.level].filter(Boolean).join(' · ')||(profileData.college?'': 'Developer') : 'Hidden';
+
+  document.getElementById('aboutCollege').textContent = profileData.college||'—';
+  document.getElementById('aboutBranch').textContent = profileData.branch||'—';
+  document.getElementById('aboutLevel').textContent = profileData.level||'—';
+
+  document.getElementById('gridPortfolio').style.display = profileData.portfolio_link ? 'block' : 'none';
+  if (profileData.portfolio_link) document.getElementById('aboutPortfolio').innerHTML = `<a href="${SS.sanitizeHTML(profileData.portfolio_link)}" target="_blank" style="color:var(--accent);text-decoration:none;">${SS.sanitizeHTML(profileData.portfolio_link)}</a>`;
+  
+  document.getElementById('aboutJoined').textContent = profileData.created_at ? SS.formatDate(profileData.created_at) : '—';
+  const rm={superadmin:'badge-admin',team:'badge-admin',premium:'badge-premium',institute_admin:'badge-accent',user:'badge-green'};
+  const rl={superadmin:'Superadmin',team:'Team',premium:'Premium Member',institute_admin:'Institute Admin',user:'Free Member'};
+  document.getElementById('aboutRole').innerHTML = `<span class="badge ${rm[role]||'badge-green'}" style="padding:4px 12px;${role==='premium'?'background:linear-gradient(135deg,#f9d423,#ff4e50);color:#fff;':''}">${rl[role]||'Member'}</span>`;
+  
+  loadProfileStats();
+}
+
+async function loadProfileStats() {
+  try {
+    const [pr,sn,fl,fg, contribs] = await Promise.all([
+      DB.queryDocs('projects',[['author_uid','==',profileUid]]),
+      DB.queryDocs('snippets',[['author_uid','==',profileUid]]),
+      DevHub.getFollowerCount(profileUid),
+      DevHub.getFollowingCount(profileUid),
+      DB.queryDocs('pdfs',[['posted_by','==',profileUid]])
+    ]);
+    
+    let statsHTML = `
+      <span class="dh-profile-stat"><strong>${pr.length}</strong>Projects</span>
+      <span class="dh-profile-stat"><strong>${sn.length}</strong>Snippets</span>
+      <span class="dh-profile-stat"><strong>${contribs.length}</strong>Contributions</span>
+      <span class="dh-profile-stat" onclick="showFollowersModal()" style="cursor:pointer;"><strong>${fl}</strong>Followers</span>
+      <span class="dh-profile-stat" onclick="showFollowingModal()" style="cursor:pointer;"><strong>${fg}</strong>Following</span>
+    `;
+
+    if (profileData.privacy_stats) {
+      statsHTML += `
+        <span class="dh-profile-stat" style="color:var(--accent-hi);"><strong>${profileData.books_read||0}</strong>Reads</span>
+        <span class="dh-profile-stat" style="color:var(--accent-hi);"><strong>${profileData.apply_clicks||0}</strong>Apps</span>
+      `;
+    }
+
+    document.getElementById('profileStatsContainer').innerHTML = statsHTML;
+  } catch(e){ console.error(e); }
+}
+
+async function loadUserContent() {
+  const fetchAndRender = async (col, containerId, renderer, emptyMsg) => {
+    try {
+      const docs = await DB.queryDocs(col, [['author_uid','==',profileUid]], null, null, 1000);
+      const filtered = docs.filter(d => !d.is_hidden).sort((a,b) => (b.created_at?.toMillis?.()||0) - (a.created_at?.toMillis?.()||0));
+      const c = document.getElementById(containerId);
+      if(!c) return;
+      c.innerHTML = filtered.length ? filtered.map(d => renderer(d)).join('') : `<div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-title">${emptyMsg}</div></div>`;
+    } catch(e) { console.error('Error fetching ' + col, e); }
+  };
+  
+  await fetchAndRender('devhub_posts', 'userPostsContainer', p => window.DevHub.renderPostCard(p), 'No posts yet');
+  await fetchAndRender('projects', 'userProjectsContainer', p => window.DevHub.renderProjectCard(p), 'No projects yet');
+  await fetchAndRender('snippets', 'userSnippetsContainer', p => window.DevHub.renderSnippetBlock(p), 'No snippets yet');
+
+  try {
+     const pdfs = await DB.queryDocs('pdfs', [['posted_by','==',profileUid]], null, null, 1000);
+     const filteredPdfs = pdfs.filter(d => !d.is_hidden).sort((a,b) => (b.created_at?.toMillis?.()||0) - (a.created_at?.toMillis?.()||0));
+     const c = document.getElementById('userContributionsContainer');
+     if (c) {
+       c.innerHTML = filteredPdfs.length ? filteredPdfs.map(d => {
+         return `
+           <a class="dh-snippet" href="../archives/viewer.html?id=${d.id}" target="_blank" style="text-decoration:none;display:block;padding:20px;border-left:4px solid var(--accent);background:var(--white);">
+             <div style="font-weight:700;color:var(--text);font-size:1.05rem;display:flex;align-items:center;gap:10px;">
+               <svg style="width:20px;height:20px;fill:var(--danger);" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+               ${SS.sanitizeHTML(d.title || 'Untitled Resource')}
+             </div>
+             ${d.description ? `<div style="font-size:0.85rem;color:var(--text-2);margin-top:8px;">${SS.sanitizeHTML(d.description)}</div>` : ''}
+             <div style="margin-top:14px;display:flex;gap:10px;">
+               <span class="badge badge-accent">${d.type || 'Resource'}</span>
+               <span class="badge badge-green">${d.access || 'Free'}</span>
+               <span style="font-size:0.75rem;color:var(--text-3);line-height:24px;">Uploaded ${SS.formatDateRelative(d.created_at)}</span>
+             </div>
+           </a>
+         `;
+       }).join('') : `<div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-title">No contributions yet</div></div>`;
+     }
+  } catch(e){}
+}
+
+function switchTab(name, el) {
+  document.querySelectorAll('.dh-filter-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.getElementById(`tab-${name}`).classList.add('active');
+}
+
+async function toggleFollow() {
+  if (!Auth.getUser()){SS.showToast('Log in to follow','error');return;}
+  const btn=document.getElementById('followBtn'); btn.disabled=true;
+  try { if(isFollowingUser){await DevHub.unfollowUser(profileUid);isFollowingUser=false;}else{await DevHub.followUser(profileUid);isFollowingUser=true;} updateFollowBtn(); loadProfileStats(); } catch(e){}
+  btn.disabled=false;
+}
+
+function updateFollowBtn() {
+  const btn=document.getElementById('followBtn');
+  btn.textContent=isFollowingUser?'Following':'Follow';
+  btn.classList.toggle('following',isFollowingUser);
+}
+
+async function showFollowersModal() {
+  SS.showModal('<div style="text-align:center;padding:20px;color:var(--text-3);">Loading followers...</div>', { title: 'Followers' });
+  try {
+    const followers = await DevHub.getFollowers(profileUid);
+    if (!followers.length) {
+      document.querySelector('.modal-body').innerHTML = '<div style="text-align:center;padding:40px;"><div style="font-size:1.5rem;margin-bottom:8px;">👥</div><div style="color:var(--text-3);">No followers yet</div></div>';
+      return;
+    }
+    const profiles = await Promise.all(followers.map(f => DB.getUserProfile(f.follower_uid || f.uid).catch(() => null)));
+    const html = profiles.filter(Boolean).map(p => `
+      <a href="profile.html?uid=${p.uid||p.id}" onclick="SS.closeModal()" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);text-decoration:none;color:inherit;">
+        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#4169e1,#6366f1);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.7rem;font-weight:800;font-family:var(--mono);">${SS.getInitials(p.name||'U')}</div>
+        <div><div style="font-weight:700;font-size:.88rem;">${SS.sanitizeHTML(p.name||'User')}</div><div style="font-size:.72rem;color:var(--text-3);">${p.headline||p.college||''}</div></div>
+      </a>
+    `).join('');
+    document.querySelector('.modal-body').innerHTML = '<div style="max-height:400px;overflow-y:auto;">' + html + '</div>';
+  } catch(e) { document.querySelector('.modal-body').innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-3);">Unable to load followers</div>'; }
+}
+
+async function showFollowingModal() {
+  SS.showModal('<div style="text-align:center;padding:20px;color:var(--text-3);">Loading following...</div>', { title: 'Following' });
+  try {
+    const following = await DevHub.getFollowing(profileUid);
+    if (!following.length) {
+      document.querySelector('.modal-body').innerHTML = '<div style="text-align:center;padding:40px;"><div style="font-size:1.5rem;margin-bottom:8px;">👥</div><div style="color:var(--text-3);">Not following anyone yet</div></div>';
+      return;
+    }
+    const profiles = await Promise.all(following.map(f => DB.getUserProfile(f.following_uid || f.uid).catch(() => null)));
+    const html = profiles.filter(Boolean).map(p => `
+      <a href="profile.html?uid=${p.uid||p.id}" onclick="SS.closeModal()" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);text-decoration:none;color:inherit;">
+        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#4169e1,#6366f1);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.7rem;font-weight:800;font-family:var(--mono);">${SS.getInitials(p.name||'U')}</div>
+        <div><div style="font-weight:700;font-size:.88rem;">${SS.sanitizeHTML(p.name||'User')}</div><div style="font-size:.72rem;color:var(--text-3);">${p.headline||p.college||''}</div></div>
+      </a>
+    `).join('');
+    document.querySelector('.modal-body').innerHTML = '<div style="max-height:400px;overflow-y:auto;">' + html + '</div>';
+  } catch(e) { document.querySelector('.modal-body').innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-3);">Unable to load following</div>'; }
+}
+</script>
+</body>
+</html>

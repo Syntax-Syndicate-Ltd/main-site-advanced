@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Opportunity Details — Syntax Syndicate</title>
+  <link rel="stylesheet" href="../css/global.css"/>
+  <link rel="stylesheet" href="../css/opportunities.css"/>
+</head>
+<body class="opp-page">
+
+<div id="navbar-placeholder"></div>
+
+<main class="detail-page">
+  <div class="container">
+    <a href="javascript:history.back()" class="apply-back">
+      <i class="bi bi-chevron-left"></i> Back to Opportunities
+    </a>
+
+    <!-- LOADING STATE -->
+    <div id="loading-state" style="text-align:center; padding:80px 0">
+      <div style="font-size:48px; margin-bottom:16px">⏳</div>
+      <p style="color:var(--opp-text3)">Fetching detailed insights...</p>
+    </div>
+
+    <!-- ERROR STATE -->
+    <div id="error-state" style="display:none; text-align:center; padding:80px 0">
+      <div style="font-size:48px; margin-bottom:16px">❌</div>
+      <h3 style="color:var(--opp-text); margin-bottom:8px">Post Not Found</h3>
+      <p style="color:var(--opp-text3); margin-bottom:24px">The post you're looking for doesn't exist or has been removed.</p>
+      <a href="browse.html" class="filter-toggle-btn active" style="display:inline-flex; width:auto; padding:10px 20px;">Browse Others →</a>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="detail-content" style="display:none" class="detail-grid">
+      <!-- LEFT MAIN -->
+      <div class="detail-main">
+        <div class="detail-hero" id="detail-hero">
+          <!-- Image or emoji placeholder loaded via JS -->
+        </div>
+
+        <div class="detail-body">
+          <div class="detail-header">
+            <div class="detail-badge-row" id="detail-badges">
+              <!-- Badges populated by JS -->
+            </div>
+            <h1 class="detail-title" id="detail-title">Loading Opportunity Title...</h1>
+            <div class="detail-company" id="detail-company">Organization Name</div>
+
+            <div class="detail-meta-row" id="detail-meta">
+              <!-- Meta items populated by JS -->
+            </div>
+          </div>
+
+          <div class="detail-section" id="detail-desc-section">
+            <h3 style="font-family:var(--opp-font-display); font-size:16px; font-weight:700; color:var(--opp-text); margin-bottom:10px;">About this Opportunity</h3>
+            <div class="detail-desc" id="detail-description">Description content goes here...</div>
+          </div>
+
+          <div class="detail-section" id="req-wrap" style="display:none">
+            <h3 style="font-family:var(--opp-font-display); font-size:16px; font-weight:700; color:var(--opp-text); margin-bottom:10px;">Requirements</h3>
+            <div class="detail-desc" id="detail-requirements"></div>
+          </div>
+
+          <div class="detail-section" id="ben-wrap" style="display:none">
+            <h3 style="font-family:var(--opp-font-display); font-size:16px; font-weight:700; color:var(--opp-text); margin-bottom:10px;">Benefits</h3>
+            <div class="detail-desc" id="detail-benefits"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT SIDEBAR -->
+      <div class="detail-side-wrap">
+        <div class="detail-sidebar-card">
+          <h3 style="font-family:var(--opp-font-display); font-size:16px; font-weight:700; color:var(--opp-text); margin-bottom:16px;">Quick Dashboard</h3>
+          <div class="detail-sidebar-info" id="detail-sidebar-info">
+            <!-- Populated by JS -->
+          </div>
+          <a href="#" id="apply-btn" target="_blank" class="btn-primary-adm" style="display:block; text-align:center; padding:12px; border-radius:10px; text-decoration:none;">
+            Apply Now <i class="bi bi-box-arrow-up-right"></i>
+          </a>
+          <div style="margin-top:12px; text-align:center; font-size:12px; color:var(--opp-text3)">
+             Verified by Syntax Syndicate
+          </div>
+          <div style="height:1px; background:var(--opp-border); margin:20px 0;"></div>
+          <a href="browse.html" style="display:block; text-align:center; font-size:13px; color:var(--opp-text2); font-weight:600;">← More Opportunities</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="footer-placeholder"></div>
+
+<!-- SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../js/navbar.js"></script>
+<script src="../js/footer.js"></script>
+
+<script type="module">
+  import { DB } from '../js/db.js';
+  import { Auth } from '../js/auth.js';
+
+  async function init() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    const col = params.get('col');
+
+    if (!id || !col) {
+      showError();
+      return;
+    }
+
+    try {
+      const post = await DB.getDoc(`${col}/${id}`);
+      if (!post) {
+        showError();
+        return;
+      }
+      render(post, col);
+    } catch (err) {
+      console.error(err);
+      showError();
+    }
+  }
+
+  function render(post, col) {
+    document.title = `${post.title} | Syntax Syndicate`;
+    const cfg = Auth.CATEGORY_CONFIG[col] || { label: 'Explore', badgeClass: 'badge-jobs', emoji: '⚡' };
+    
+    // UI Elements
+    const heroWrap = document.getElementById('detail-hero');
+    const badgeRow = document.getElementById('detail-badges');
+    const title = document.getElementById('detail-title');
+    const company = document.getElementById('detail-company');
+    const metaRow = document.getElementById('detail-meta');
+    const desc = document.getElementById('detail-description');
+    const sidebarInfo = document.getElementById('detail-sidebar-info');
+    const applyBtn = document.getElementById('apply-btn');
+
+    // Basic Info
+    badgeRow.innerHTML = `<span class="badge ${cfg.badgeClass}">${cfg.label}</span> <span style="font-size:11px; color:var(--opp-text3); font-weight:500;">${SS.formatDateRelative(post.postedAt)}</span>`;
+    title.textContent = post.title;
+    company.textContent = post.company || post.organizer || post.platform || 'Verified Partner';
+    desc.textContent = post.description || 'No description available.';
+
+    // Hero
+    if (post.imagePath) {
+      heroWrap.innerHTML = `<img src="${post.imagePath}" onerror="this.outerHTML='<span class=\'apply-emoji\'>${cfg.emoji || '⚡'}</span>'">`;
+    } else {
+      heroWrap.innerHTML = `<span class="apply-emoji">${cfg.emoji || '⚡'}</span>`;
+    }
+
+    // Meta Row Construction
+    const metas = [];
+    if (post.location || post.venue) metas.push({ icon: 'bi-geo-alt', label: post.location || post.venue });
+    if (post.experienceLevel) metas.push({ icon: 'bi-bar-chart', label: post.experienceLevel });
+    if (post.duration) metas.push({ icon: 'bi-clock', label: post.duration });
+    if (post.mode) metas.push({ icon: 'bi-globe', label: post.mode });
+    if (post.prizePool) metas.push({ icon: 'bi-trophy', label: post.prizePool });
+
+    metaRow.innerHTML = metas.map(m => `
+      <div class="detail-meta-item">
+        <i class="bi ${m.icon}"></i>
+        <span>${m.label}</span>
+      </div>
+    `).join('');
+
+    // Sidebar Sidebar Construction
+    const sidebarItems = [
+      { lbl: 'Category', val: cfg.label },
+      { lbl: 'Last Modified', val: SS.formatDateRelative(post.postedAt || post.updated_at) }
+    ];
+    if (post.deadline) sidebarItems.push({ lbl: 'Deadline', val: post.deadline });
+    if (post.stipend || post.salary) sidebarItems.push({ lbl: 'Compensation', val: post.stipend || post.salary });
+    if (post.price) sidebarItems.push({ lbl: 'Fee', val: post.price });
+
+    sidebarInfo.innerHTML = sidebarItems.map(si => `
+      <div class="ds-info-item">
+        <span class="ds-info-lbl">${si.lbl}</span>
+        <span class="ds-info-val">${si.val}</span>
+      </div>
+    `).join('');
+
+    // Optional Fields
+    if (post.requirements) {
+      document.getElementById('req-wrap').style.display = 'block';
+      document.getElementById('detail-requirements').textContent = post.requirements;
+    }
+    if (post.benefits) {
+      document.getElementById('ben-wrap').style.display = 'block';
+      document.getElementById('detail-benefits').textContent = post.benefits;
+    }
+
+    // Action
+    if (post.applyLink) {
+      applyBtn.href = post.applyLink;
+      applyBtn.addEventListener('click', async (e) => {
+        if (!Auth.isLoggedIn()) {
+          e.preventDefault();
+          SS.showToast('Please log in to apply', 'info');
+          setTimeout(() => { window.location.href = '../login.html?redirect=' + encodeURIComponent(window.location.href); }, 1000);
+        } else {
+           DB.incrementField(`users/${Auth.currentUser.uid}`, 'apply_clicks');
+        }
+      });
+    } else {
+      applyBtn.style.display = 'none';
+    }
+
+    // Toggle View
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('detail-content').style.display = 'grid';
+  }
+
+  function showError() {
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('error-state').style.display = 'block';
+  }
+
+  init();
+</script>
+
+</body>
+</html>

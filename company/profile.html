@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Company Profile — Syntax Syndicate</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+<link rel="stylesheet" href="../css/global.css"/>
+<style>
+:root{--white:#fff;--tint:#f0f4ff;--border:#d0d7e8;--text:#0a0e1a;--text-2:#3d4a66;--text-3:#7985a0;--accent:#4169e1;--accent-hi:#2a52cc;--accent-bg:rgba(65,105,225,.08);--accent-bg2:rgba(65,105,225,.15);--carbon-black:#0a0e1a;--font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;--max:1100px;--pad:max(24px,calc((100vw - 1100px)/2))}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--font);background:var(--tint);color:var(--text);line-height:1.6}
+
+.cp-hero{background:var(--white);border-bottom:1px solid var(--border);padding:100px var(--pad) 0}
+.cp-hero-inner{max-width:var(--max);margin:0 auto;display:flex;gap:28px;align-items:flex-end;padding-bottom:28px}
+.cp-avatar{width:80px;height:80px;border-radius:20px;background:linear-gradient(135deg,#141e30,#243b55);display:flex;align-items:center;justify-content:center;color:#fff;font-size:2rem;font-weight:700;flex-shrink:0;border:3px solid var(--white);box-shadow:0 4px 20px rgba(10,14,26,.12)}
+.cp-info h1{font-size:1.5rem;font-weight:700;color:var(--carbon-black);display:flex;align-items:center;gap:8px}
+.cp-verified{display:inline-flex;align-items:center;gap:4px;font-size:.65rem;font-weight:700;padding:3px 10px;border-radius:100px;background:#e8f5e9;color:#2e7d32;text-transform:uppercase;letter-spacing:.05em}
+.cp-domain{font-size:.85rem;color:var(--accent);text-decoration:none}
+.cp-domain:hover{text-decoration:underline}
+.cp-desc{font-size:.88rem;color:var(--text-2);max-width:500px;margin-top:6px}
+
+.cp-tabs{background:var(--white);border-bottom:1px solid var(--border);padding:0 var(--pad);display:flex;gap:0;max-width:100%}
+.cp-tab{padding:14px 24px;font-size:.85rem;font-weight:600;color:var(--text-3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.cp-tab:hover{color:var(--text)}
+.cp-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+.cp-content{max-width:var(--max);margin:0 auto;padding:32px var(--pad) 80px}
+.cp-section{display:none}.cp-section.active{display:block}
+.cp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
+.cp-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:22px 20px;display:flex;flex-direction:column;gap:10px;transition:all .2s;text-decoration:none;color:inherit}
+.cp-card:hover{border-color:rgba(65,105,225,.4);box-shadow:0 8px 28px rgba(65,105,225,.1);transform:translateY(-3px)}
+.cp-card-badge{font-family:var(--mono);font-size:.58rem;font-weight:600;padding:3px 10px;border-radius:100px;width:fit-content;text-transform:uppercase;letter-spacing:.05em}
+.cp-card-title{font-size:.92rem;font-weight:700;color:var(--carbon-black)}
+.cp-card-desc{font-size:.8rem;color:var(--text-2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cp-card-meta{font-family:var(--mono);font-size:.62rem;color:var(--text-3);display:flex;gap:12px;margin-top:auto;padding-top:8px;border-top:1px solid var(--border)}
+.cp-empty{text-align:center;padding:48px 20px;color:var(--text-3);font-size:.9rem}
+.cp-loading{text-align:center;padding:80px 20px}
+.cp-spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:600px){.cp-hero-inner{flex-direction:column;align-items:flex-start}.cp-tabs{overflow-x:auto}.cp-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="navbar-placeholder" data-type="main"></div>
+
+<div id="companyPage">
+  <div class="cp-loading"><div class="cp-spinner"></div><div style="color:var(--text-3);font-size:.88rem">Loading company profile...</div></div>
+</div>
+
+<div id="footer-placeholder"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/db.js"></script>
+<script src="../js/navbar.js"></script>
+<script src="../js/footer.js"></script>
+<script>
+const uid = new URLSearchParams(window.location.search).get('uid');
+const CATEGORY_CONFIG = Auth.CATEGORY_CONFIG || {};
+
+async function loadCompany() {
+  const page = document.getElementById('companyPage');
+  if (!uid) { page.innerHTML = '<div class="cp-loading"><h2 style="color:var(--text)">Company not found</h2></div>'; return; }
+
+  try {
+    const company = await DB.fetchCompanyProfile(uid);
+    if (!company || !['institute_admin','team','superadmin'].includes(company.role)) {
+      page.innerHTML = '<div class="cp-loading"><h2 style="color:var(--text)">Company not found</h2><p style="color:var(--text-3)">This profile may have been removed.</p></div>';
+      return;
+    }
+
+    document.title = `${company.name} — Syntax Syndicate`;
+    const initials = SS.getInitials(company.name || 'C');
+
+    // Fetch all content in parallel
+    const [opportunities, roadmaps, cheatsheets, resources] = await Promise.all([
+      DB.fetchCompanyOpportunities(uid).catch(() => []),
+      DB.fetchCompanyRoadmaps(uid).catch(() => []),
+      DB.fetchCompanyCheatsheets(uid).catch(() => []),
+      DB.fetchCompanyContent(uid, null, 'approved').catch(() => [])
+    ]);
+
+    page.innerHTML = `
+      <div class="cp-hero">
+        <div class="cp-hero-inner">
+          <div class="cp-avatar">${initials}</div>
+          <div class="cp-info">
+            <h1>${SS.sanitizeHTML(company.name)}
+              ${company.is_verified ? '<span class="cp-verified">✓ Verified</span>' : ''}
+            </h1>
+            ${company.domain ? `<a href="${SS.sanitizeHTML(company.domain)}" target="_blank" class="cp-domain"><i class="bi bi-globe2"></i> ${SS.sanitizeHTML(company.domain)}</a>` : ''}
+            ${company.description ? `<p class="cp-desc">${SS.sanitizeHTML(company.description)}</p>` : ''}
+          </div>
+        </div>
+      </div>
+
+      <div class="cp-tabs">
+        <div class="cp-tab active" onclick="showCPTab('opps',this)">Opportunities (${opportunities.length})</div>
+        <div class="cp-tab" onclick="showCPTab('roadmaps',this)">Roadmaps (${roadmaps.length})</div>
+        <div class="cp-tab" onclick="showCPTab('cheatsheets',this)">Cheatsheets (${cheatsheets.length})</div>
+        <div class="cp-tab" onclick="showCPTab('resources',this)">Resources (${resources.length})</div>
+      </div>
+
+      <div class="cp-content">
+        <div class="cp-section active" id="cp-opps">
+          ${opportunities.length ? `<div class="cp-grid">${opportunities.map(o => {
+            const cfg = CATEGORY_CONFIG[o._collection] || { label:'Opportunity', emoji:'💼', bg:'#edf1ff', color:'#1847c2' };
+            return `<a href="../opportunities/apply.html?id=${o.id}&col=${o._collection}" class="cp-card">
+              <span class="cp-card-badge" style="background:${cfg.bg};color:${cfg.color}">${cfg.emoji} ${cfg.label}</span>
+              <div class="cp-card-title">${SS.sanitizeHTML(o.title)}</div>
+              <div class="cp-card-desc">${SS.sanitizeHTML(o.description || '')}</div>
+              <div class="cp-card-meta"><span><i class="bi bi-geo-alt"></i> ${SS.sanitizeHTML(o.location || o.venue || 'Remote')}</span></div>
+            </a>`;
+          }).join('')}</div>` : '<div class="cp-empty">No opportunities posted yet</div>'}
+        </div>
+
+        <div class="cp-section" id="cp-roadmaps">
+          ${roadmaps.length ? `<div class="cp-grid">${roadmaps.map(r => `<a href="../resources/roadmap.html?id=${r.id}" class="cp-card">
+            <span class="cp-card-badge" style="background:var(--accent-bg);color:var(--accent)">🗺️ Roadmap</span>
+            <div class="cp-card-title">${SS.sanitizeHTML(r.title)}</div>
+            <div class="cp-card-desc">${SS.sanitizeHTML(r.description || '')}</div>
+            <div class="cp-card-meta"><span>${(r.steps||[]).length} steps</span><span>${r.level || 'beginner'}</span></div>
+          </a>`).join('')}</div>` : '<div class="cp-empty">No roadmaps posted yet</div>'}
+        </div>
+
+        <div class="cp-section" id="cp-cheatsheets">
+          ${cheatsheets.length ? `<div class="cp-grid">${cheatsheets.map(c => `<a href="../resources/cheatsheet.html?id=${c.id}" class="cp-card">
+            <span class="cp-card-badge" style="background:rgba(40,200,64,.08);color:#1e7a42">📋 Cheatsheet</span>
+            <div class="cp-card-title">${SS.sanitizeHTML(c.title)}</div>
+            <div class="cp-card-desc">${SS.sanitizeHTML(c.description || '')}</div>
+            <div class="cp-card-meta"><span>${(c.sections||[]).length} sections</span></div>
+          </a>`).join('')}</div>` : '<div class="cp-empty">No cheatsheets posted yet</div>'}
+        </div>
+
+        <div class="cp-section" id="cp-resources">
+          ${resources.length ? `<div class="cp-grid">${resources.map(r => `<div class="cp-card">
+            <span class="cp-card-badge" style="background:var(--tint);color:var(--text-2)">${r.type || 'Resource'}</span>
+            <div class="cp-card-title">${SS.sanitizeHTML(r.title)}</div>
+            <div class="cp-card-desc">${SS.sanitizeHTML(r.description || '')}</div>
+          </div>`).join('')}</div>` : '<div class="cp-empty">No resources posted yet</div>'}
+        </div>
+      </div>
+    `;
+  } catch(e) {
+    console.error('Error loading company:', e);
+    page.innerHTML = '<div class="cp-loading"><h2 style="color:var(--text)">Error loading profile</h2><p style="color:var(--text-3)">Please try refreshing.</p></div>';
+  }
+}
+
+function showCPTab(name, el) {
+  document.querySelectorAll('.cp-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.cp-section').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('cp-' + name).classList.add('active');
+}
+
+loadCompany();
+</script>
+</body>
+</html>

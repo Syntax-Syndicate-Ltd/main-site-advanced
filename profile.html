@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>My Profile - Syntax Syndicate</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/global.css"/>
+
+<style>
+:root {
+  --white: rgba(255, 255, 255, 0.7);
+  --white-solid: #ffffff;
+  --tint: rgba(240, 244, 255, 0.4);
+  --border: rgba(255, 255, 255, 0.4);
+  --text: #0f172a;
+  --text-2: #475569;
+  --text-3: #64748b;
+  --accent: #3b82f6;
+  --accent-hi: #2563eb;
+  --accent-bg: rgba(59, 130, 246, 0.1);
+  --accent-bg2: rgba(59, 130, 246, 0.2);
+  --carbon-black: #0f172a;
+  --font: 'Plus Jakarta Sans', 'DM Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+  
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+/* Dynamic Mesh Gradient Background */
+body {
+  font-family: var(--font);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+  background: #fdfcfb; /* Muted, premium light background */
+  background-image: 
+    radial-gradient(at 100% 0%, rgba(59,130,246,0.05) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(59,130,246,0.03) 0px, transparent 50%);
+  background-attachment: fixed;
+}
+
+/* ── LAYOUT ── */
+.container{max-width:1200px;margin:60px auto;padding:0 32px;display:grid;grid-template-columns:300px 1fr;gap:48px;}
+
+/* ── SIDEBAR ── */
+.sidebar{display:flex;flex-direction:column;gap:20px;}
+.profile-card{
+  background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border); box-shadow: var(--glass-shadow);
+  border-radius:28px; padding:32px 28px; text-align:center; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.profile-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.08); }
+.avatar{
+  width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg, var(--accent), #8b5cf6);
+  display:flex;align-items:center;justify-content:center;color:white;font-size:2.4rem;font-weight:700;
+  margin:0 auto 20px; box-shadow: 0 8px 24px rgba(59, 130, 246, 0.35); position:relative;
+}
+.avatar::after {
+  content:''; position:absolute; inset:-4px; border-radius:50%; border:2px solid rgba(255,255,255,0.6);
+}
+.profile-name{font-size:1.35rem;font-weight:800;margin-bottom:2px;letter-spacing:-0.02em;}
+.profile-email{font-size:.85rem;color:var(--text-2);font-family:var(--mono);margin-bottom:6px;}
+.profile-college{font-size:.85rem;color:var(--text-3);margin-bottom:14px;font-weight:500;}
+.role-badge{display:inline-block;padding:6px 14px;border-radius:100px;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;box-shadow: 0 4px 12px rgba(0,0,0,0.05);}
+.role-user{background:var(--accent-bg);color:var(--accent-hi);}
+.role-premium{background:linear-gradient(135deg,#f9d423,#ff4e50);color:#fff;text-shadow:0 1px 2px rgba(0,0,0,0.2);}
+.role-admin{background:linear-gradient(135deg, #0f172a, #334155);color:#fff;}
+
+.nav-menu{
+  background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border); box-shadow: var(--glass-shadow);
+  border-radius:20px; overflow:hidden; padding:8px 0;
+}
+.menu-item{display:flex;align-items:center;gap:12px;padding:12px 24px;color:var(--text-2);text-decoration:none;font-size:.9rem;font-weight:600;transition:all .2s;position:relative;}
+.menu-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);transform:scaleY(0);transition:transform 0.2s;transform-origin:center;}
+.menu-item:hover,.menu-item.active{background:rgba(255,255,255,0.5);color:var(--accent-hi);}
+.menu-item.active::before { transform:scaleY(1); }
+.menu-item svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+
+.premium-cta{background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:20px;padding:28px;color:#fff;text-align:center;box-shadow: 0 12px 32px rgba(15,23,42,0.3);position:relative;overflow:hidden;}
+.premium-cta::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 60%);animation:pulse 6s infinite alternate;}
+@keyframes pulse { 0% {transform:scale(1);} 100% {transform:scale(1.2);} }
+.premium-cta h4{font-size:1.05rem;margin-bottom:8px;position:relative;z-index:1;}
+.premium-cta p{font-size:.82rem;opacity:.85;margin-bottom:18px;line-height:1.5;position:relative;z-index:1;}
+
+/* ── MAIN ── */
+.main{display:flex;flex-direction:column;gap:40px;}
+/* Section wrappers need gaps too */
+#section-overview, #section-edit, #section-share, #section-content { display: flex; flex-direction: column; gap: 40px; }
+.card{
+  background: var(--white-solid);
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.02);
+  border-radius:32px; padding:48px;
+}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid rgba(0,0,0,0.06);}
+.card-title{font-size:1.2rem;font-weight:800;letter-spacing:-0.01em;}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
+.stat-box{background:var(--gray-50);padding:32px 24px;border-radius:24px;border:1px solid rgba(0,0,0,0.03);text-align:center;transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1);display:flex;flex-direction:column;align-items:center;gap:12px;}
+.stat-box:hover{transform:translateY(-8px);background:#fff;box-shadow:0 30px 60px -12px rgba(0,0,0,0.05);border-color:var(--accent);}
+.stat-val{font-size:2.8rem;font-weight:900;color:var(--text);line-height:1;letter-spacing:-0.05em;}
+.stat-label{font-size:.7rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.15em;font-weight:800;}
+.stat-icon{color:var(--accent);margin-bottom:4px; opacity:0.9;}
+.stat-icon svg { width:24px; height:24px; stroke-width:2; }
+
+/* Badges */
+.badges-grid{display:flex;gap:16px;flex-wrap:wrap;}
+.badge-item{display:flex;align-items:center;gap:10px;padding:12px 24px;background:#fff;border:1px solid rgba(0,0,0,0.06);border-radius:100px;font-size:.85rem;font-weight:700;color:var(--text-2);box-shadow:0 4px 20px rgba(0,0,0,0.02);transition:all 0.2s;}
+.badge-item:hover{transform:scale(1.05);border-color:var(--accent);}
+.badge-icon svg { width:18px; height:18px; color: #fbbf24; }
+.no-badges{text-align:center;padding:60px;color:var(--text-3);font-size:1rem;background:rgba(0,0,0,0.02);border-radius:24px;border:1px dashed rgba(0,0,0,0.1);width:100%;}
+
+/* Edit Form */
+.edit-form{display:none;}
+.edit-form.active{display:block;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.form-group{margin-bottom:0;}
+.form-label{display:block;font-size:.8rem;font-weight:700;margin-bottom:6px;color:var(--text-2);}
+.form-input,.form-select{width:100%;padding:12px 16px;background:rgba(255,255,255,0.8);border:1px solid var(--border);border-radius:12px;font-family:var(--font);font-size:.9rem;outline:none;transition:all .2s;}
+.form-input:focus,.form-select:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 4px rgba(59,130,246,0.15);}
+.form-full{grid-column:1/-1;}
+
+/* Share */
+.share-link-box{display:flex;align-items:center;gap:16px;background:rgba(0,0,0,0.02);padding:18px 24px;border-radius:16px;border:1px solid rgba(0,0,0,0.05);}
+.share-link-box input{flex:1;border:none;background:transparent;font-family:var(--mono);font-size:.88rem;color:var(--text-hi);outline:none;font-weight:500;}
+
+/* Responsive */
+@media(max-width:860px){
+  .container{grid-template-columns:1fr;}.sidebar{order:2;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .form-grid{grid-template-columns:1fr;}
+}
+@media(max-width:600px){
+  .container{padding:0 12px;margin:16px auto;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div id="navbar-placeholder" data-type="main"></div>
+
+<!-- MAIN LAYOUT -->
+<div class="container" id="app" style="display:none;">
+
+  <!-- TOP HEADER -->
+  <div style="grid-column:1/-1;margin-bottom:24px;">
+    <h1 style="font-size:2.5rem;font-weight:900;letter-spacing:-0.05em;margin-bottom:8px;color:var(--text);">Welcome back, <span id="welcomeName">Developer</span>!</h1>
+    <p style="font-size:1.1rem;color:var(--text-3);font-weight:500;">Your professional growth at a glance.</p>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="profile-card">
+      <div class="avatar" id="avatarEl">U</div>
+      <div class="profile-name" id="nameEl">Loading...</div>
+      <div class="profile-email" id="emailEl">...</div>
+      <div class="profile-college" id="collegeEl">...</div>
+      <div class="role-badge role-user" id="roleBadge">Member</div>
+    </div>
+
+    <div class="nav-menu">
+      <a href="#" class="menu-item active" onclick="showSection('overview')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Overview
+      </a>
+      <a href="#" class="menu-item" onclick="showSection('edit')">
+        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit Profile
+      </a>
+      <a href="#" class="menu-item" onclick="showSection('share')">
+        <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Share Profile
+      </a>
+      <a href="#" class="menu-item" onclick="showSection('content')">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Manage Content
+      </a>
+    </div>
+
+    <!-- Premium CTA (for free users) -->
+    <div class="premium-cta" id="premiumCta">
+      <h4>⚡ Upgrade to Premium</h4>
+      <p>Unlock Guide Tool, Premium Library, Portfolio Builder, and more.</p>
+      <a href="upgrade.html" class="btn btn-accent" style="width:100%;display:block;text-align:center;text-decoration:none;">Upgrade Now</a>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+
+    <!-- OVERVIEW SECTION -->
+    <div id="section-overview">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">My Progress</div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+            <div class="stat-val" id="statBooks">0</div>
+            <div class="stat-label">Resources Read</div>
+          </div>
+          <div class="stat-box">
+            <span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+            <div class="stat-val" id="statProjects">0</div>
+            <div class="stat-label">Projects Built</div>
+          </div>
+          <div class="stat-box">
+            <span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg></span>
+            <div class="stat-val" id="statApply">0</div>
+            <div class="stat-label">Applications</div>
+          </div>
+          <div class="stat-box">
+            <span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg></span>
+            <div class="stat-val" id="statBadges">0</div>
+            <div class="stat-label">Badges</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">My Badges</div>
+        </div>
+        <div id="badgesContainer" class="badges-grid">
+          <div class="no-badges">No badges yet. Keep learning to earn your first badge! 🏅</div>
+        </div>
+      </div>
+
+      <!-- Suggested Resources -->
+      <div class="card">
+        <div class="card-header" style="border:none;margin-bottom:32px;">
+          <div class="card-title">Suggested for You</div>
+        </div>
+        <div id="suggestionsContainer" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+          <div style="text-align:center;grid-column:1/-1;padding:40px;color:var(--text-3);background:var(--gray-50);border-radius:24px;border:1px dashed rgba(0,0,0,0.1);">
+            Select interests in 'Edit Profile' to see personalized suggestions.
+          </div>
+        </div>
+      </div>
+
+      <!-- Premium tools (hidden for free users) -->
+      <div class="card" id="premiumTools" style="display:none;">
+        <div class="card-header" style="border:none;margin-bottom:32px;">
+          <div class="card-title">Premium Tools</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+          <a href="resume-builder.html" class="btn btn-accent" style="text-align:center;text-decoration:none;padding:20px;display:flex;flex-direction:column;align-items:center;gap:12px;border-radius:24px;">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            Resume Builder
+          </a>
+          <a href="portfolio-builder.html" class="btn btn-accent" style="text-align:center;text-decoration:none;padding:20px;display:flex;flex-direction:column;align-items:center;gap:12px;border-radius:24px;">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            Portfolio Builder
+          </a>
+        </div>
+        <a href="guide.html" class="btn btn-accent" style="display:flex;align-items:center;justify-content:center;gap:12px;text-decoration:none;padding:20px;border-radius:24px;">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          AI Guide Engine
+        </a>
+      </div>
+    </div>
+
+    <!-- EDIT SECTION -->
+    <div id="section-edit" style="display:none;">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Edit Profile</div>
+        </div>
+        <form id="editForm" class="form-grid">
+          <div class="form-group form-full">
+            <label class="form-label">Headline (e.g. Full Stack Developer)</label>
+            <input type="text" id="editHeadline" class="form-input" placeholder="Your professional title"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="editName" class="form-input"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mobile</label>
+            <input type="tel" id="editMobile" class="form-input"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Location (City, Country)</label>
+            <input type="text" id="editLocation" class="form-input" placeholder="e.g. Mumbai, India"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Skills (comma separated)</label>
+            <input type="text" id="editSkills" class="form-input" placeholder="React, Node.js, Python"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Interests / Topics (comma separated)</label>
+            <input type="text" id="editInterests" class="form-input" placeholder="Web3, AI, Cloud, Cybersecurity"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">College / Institute</label>
+            <input type="text" id="editCollege" class="form-input"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Branch / Major</label>
+            <input type="text" id="editBranch" class="form-input"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Level / Year</label>
+            <select id="editLevel" class="form-select">
+              <option value="">Select</option>
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year">3rd Year</option>
+              <option value="4th Year">4th Year</option>
+              <option value="Postgraduate">Postgraduate</option>
+              <option value="Working Professional">Working Professional</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Portfolio Link</label>
+            <input type="url" id="editPortfolio" class="form-input" placeholder="https://..."/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">GitHub Link</label>
+            <input type="url" id="editGithub" class="form-input" placeholder="https://github.com/..."/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">LinkedIn Link</label>
+            <input type="url" id="editLinkedin" class="form-input" placeholder="https://linkedin.com/in/..."/>
+          </div>
+          <div class="form-group form-full">
+            <label class="form-label">Bio / About Me</label>
+            <textarea id="editBio" class="form-input" rows="3" placeholder="Write a short bio about yourself..."></textarea>
+          </div>
+          <div class="form-full" style="margin-top:10px;">
+            <button type="submit" class="btn btn-primary" id="btnSave" style="padding:12px 32px;">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- SHARE SECTION -->
+    <div id="section-share" style="display:none;">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Share Your Profile</div>
+        </div>
+        <p style="font-size:.88rem;color:var(--text-2);margin-bottom:16px;">Share your developer profile with recruiters, mentors, or friends.</p>
+        <div class="share-link-box">
+          <input type="text" id="shareUrl" readonly value="Loading..."/>
+          <button class="btn" onclick="copyShareLink()">Copy</button>
+        </div>
+        <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:20px;">
+          <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:12px;">Privacy Settings</h3>
+          <p style="font-size:0.88rem;color:var(--text-3);margin-bottom:16px;">Control what information is visible to the public.</p>
+          <div style="display:grid;gap:12px;">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+              <input type="checkbox" id="shareToggle" onchange="togglePrivacySettings()"/>
+              <span style="font-size:.88rem;color:var(--text);font-weight:600;">Enable Public Developer Profile</span>
+            </label>
+            <div id="privacyOptions" style="display:none;margin-left:24px;border-left:2px solid var(--border);padding-left:16px;display:flex;flex-direction:column;gap:10px;">
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                <input type="checkbox" id="privacyEmail" onchange="togglePrivacySettings()"/>
+                <span style="font-size:.88rem;color:var(--text-2);">Show Email Address</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                <input type="checkbox" id="privacyMobile" onchange="togglePrivacySettings()"/>
+                <span style="font-size:.88rem;color:var(--text-2);">Show Mobile Number</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                <input type="checkbox" id="privacyEducation" onchange="togglePrivacySettings()"/>
+                <span style="font-size:.88rem;color:var(--text-2);">Show Educational Details</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                <input type="checkbox" id="privacyStats" onchange="togglePrivacySettings()"/>
+                <span style="font-size:.88rem;color:var(--text-2);">Show Progress Metrics (Reads, Applies, etc.)</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MANAGE CONTENT SECTION -->
+    <div id="section-content" style="display:none;">
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">
+          <div class="card-title">Manage Visibility</div>
+        </div>
+        <p style="font-size:0.88rem;color:var(--text-2);margin-bottom:20px;">Choose which of your contributions, posts, and snippets show up on your public Developer profile.</p>
+        
+        <div id="manageContentList" style="display:flex;flex-direction:column;gap:12px;">
+          <div style="text-align:center;padding:20px;color:var(--text-3);font-size:0.9rem;">Loading content...</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/db.js"></script>
+<script src="js/navbar.js"></script>
+<script>
+let profile = null;
+
+async function init() {
+  try {
+    const user = await Auth.requireAuth();
+    profile = Auth.getProfile();
+    if (!profile) { window.location.href = 'login.html'; return; }
+
+    // Redirect institute_admin to their dashboard
+    if (profile.role === 'institute_admin') { window.location.href = 'dashboard-company.html'; return; }
+
+    document.getElementById('app').style.display = 'grid';
+
+    // Sidebar
+    const name = profile.name || user.displayName || 'No Name';
+    document.getElementById('nameEl').innerText = name;
+    document.getElementById('welcomeName').innerText = name.split(' ')[0];
+    document.getElementById('emailEl').innerText = user.email;
+    document.getElementById('collegeEl').innerText = [profile.college, profile.branch, profile.level].filter(Boolean).join(' · ') || 'No details set';
+    document.getElementById('avatarEl').innerText = SS.getInitials(name);
+
+    // Role badge
+    const badge = document.getElementById('roleBadge');
+    if (['superadmin', 'team'].includes(profile.role)) {
+      badge.className = 'role-badge role-admin'; badge.innerText = profile.role === 'superadmin' ? 'Superadmin' : 'Team';
+    } else if (profile.role === 'premium') {
+      badge.className = 'role-badge role-premium'; badge.innerText = 'Premium';
+    } else {
+      badge.className = 'role-badge role-user'; badge.innerText = 'Free Member';
+    }
+
+    // Stats
+    document.getElementById('statBooks').innerText = profile.books_read || 0;
+    document.getElementById('statProjects').innerText = profile.projects_done || 0;
+    document.getElementById('statApply').innerText = profile.apply_clicks || 0;
+    document.getElementById('statBadges').innerText = (profile.badges || []).length;
+
+    // Badges
+    const badges = profile.badges || [];
+    const bc = document.getElementById('badgesContainer');
+    if (badges.length > 0) {
+      bc.innerHTML = badges.map(b => `<div class="badge-item"><span class="badge-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg></span>${b}</div>`).join('');
+    }
+
+    // Premium visibility
+    const isPremium = ['premium', 'team', 'superadmin'].includes(profile.role);
+    document.getElementById('premiumCta').style.display = isPremium ? 'none' : 'block';
+    document.getElementById('premiumTools').style.display = isPremium ? 'block' : 'none';
+
+    // Edit form mapping
+    document.getElementById('editHeadline').value = profile.headline || '';
+    document.getElementById('editName').value = profile.name || '';
+    document.getElementById('editBio').value = profile.bio || '';
+    document.getElementById('editLocation').value = profile.location || '';
+    document.getElementById('editMobile').value = profile.mobile || '';
+    document.getElementById('editCollege').value = profile.college || '';
+    document.getElementById('editBranch').value = profile.branch || '';
+    document.getElementById('editLevel').value = profile.level || '';
+    document.getElementById('editSkills').value = profile.skills || '';
+    document.getElementById('editInterests').value = profile.interests || '';
+    document.getElementById('editPortfolio').value = profile.portfolio_link || '';
+    document.getElementById('editGithub').value = profile.github || '';
+    document.getElementById('editLinkedin').value = profile.linkedin || '';
+
+    // Share privacy
+    document.getElementById('shareUrl').value = window.location.origin + window.location.pathname.replace('profile.html', 'devhub/profile.html') + '?uid=' + profile.id;
+    document.getElementById('shareToggle').checked = !!profile.share_profile;
+    document.getElementById('privacyEmail').checked = !!profile.privacy_email;
+    document.getElementById('privacyMobile').checked = !!profile.privacy_mobile;
+    document.getElementById('privacyEducation').checked = !!profile.privacy_education;
+    document.getElementById('privacyStats').checked = !!profile.privacy_stats;
+    document.getElementById('privacyOptions').style.display = profile.share_profile ? 'flex' : 'none';
+
+    // Suggestions
+    loadSuggestions();
+
+  } catch(e) { console.error(e); }
+}
+
+async function loadSuggestions() {
+  const container = document.getElementById('suggestionsContainer');
+  const interests = (profile.interests || '').split(',').map(i => i.trim().toLowerCase()).filter(Boolean);
+  
+  if (interests.length === 0) return;
+
+  container.innerHTML = '<div style="text-align:center;grid-column:1/-1;padding:40px;color:var(--text-3);">Finding the best content for you...</div>';
+
+  try {
+    // Fetch aggregated opportunities and latest posts
+    const [opps, posts] = await Promise.all([
+      DB.fetchAllOpportunities(10), // Limit per category for speed
+      DB.queryDocs('devhub_posts', [], 'created_at', 'desc', 20)
+    ]);
+
+    const filtered = [];
+    
+    // Filter logic: check if any interest matches title/content
+    opps.forEach(o => {
+      const text = `${o.title} ${o.description} ${o.company || ''} ${o.tech || ''}`.toLowerCase();
+      const match = interests.some(i => text.includes(i));
+      if (match) {
+        let link = 'opportunities.html';
+        if (o._collection === 'ss_jobs') link = 'opportunities.html?type=jobs';
+        if (o._collection === 'ss_internships') link = 'opportunities.html?type=internships';
+        filtered.push({ ...o, _type: 'Opportunity', _link: link });
+      }
+    });
+    
+    posts.forEach(p => {
+      const text = `${p.title || ''} ${p.content || ''} ${p.tags || ''}`.toLowerCase();
+      const match = interests.some(i => text.includes(i));
+      if (match) filtered.push({ ...p, _type: 'Community Post', _link: 'devhub/index.html' });
+    });
+
+    if (filtered.length === 0) {
+      container.innerHTML = '<div style="text-align:center;grid-column:1/-1;padding:40px;color:var(--text-3);background:var(--gray-50);border-radius:24px;border:1px dashed rgba(0,0,0,0.1);">No direct matches for your interests yet. Try broadening your topics!</div>';
+      return;
+    }
+
+    // Limit to 4 suggestions
+    container.innerHTML = filtered.slice(0, 4).map(item => `
+      <a href="${item._link}" style="text-decoration:none;display:flex;align-items:center;gap:20px;padding:24px;background:var(--gray-50);border-radius:24px;border:1px solid rgba(0,0,0,0.03);transition:all 0.3s;" onmouseover="this.style.background='#fff';this.style.transform='translateY(-4px)';this.style.boxShadow='0 10px 30px rgba(0,0,0,0.05)'" onmouseout="this.style.background='var(--gray-50)';this.style.transform='none';this.style.boxShadow='none'">
+        <div style="width:48px;height:48px;border-radius:12px;background:rgba(59,130,246,0.1);display:flex;align-items:center;justify-content:center;color:var(--accent)">
+          ${item._type === 'Opportunity' ? 
+            '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>' : 
+            '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'
+          }
+        </div>
+        <div>
+          <div style="font-weight:800;color:var(--text);font-size:1rem;margin-bottom:4px;">${SS.truncateText(item.title || item.content || 'Untitled', 40)}</div>
+          <div style="font-size:0.8rem;color:var(--text-3);font-weight:600;">${item._type}</div>
+        </div>
+      </a>
+    `).join('');
+
+  } catch(e) {
+    console.error(e);
+    container.innerHTML = '<div style="text-align:center;grid-column:1/-1;padding:20px;color:red;">Error loading suggestions.</div>';
+  }
+}
+
+function showSection(name) {
+  ['overview', 'edit', 'share', 'content'].forEach(s => {
+    document.getElementById('section-' + s).style.display = s === name ? 'block' : 'none';
+  });
+  document.querySelectorAll('.menu-item').forEach((el, i) => {
+    el.classList.toggle('active', i === ['overview', 'edit', 'share', 'content'].indexOf(name));
+  });
+  if (name === 'content') loadManageContent();
+}
+
+document.getElementById('editForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('btnSave');
+  btn.innerText = 'Saving...'; btn.disabled = true;
+  try {
+    await DB.updateUserProfile(profile.id, {
+      headline: document.getElementById('editHeadline').value.trim(),
+      name: document.getElementById('editName').value.trim(),
+      bio: document.getElementById('editBio').value.trim(),
+      location: document.getElementById('editLocation').value.trim(),
+      mobile: document.getElementById('editMobile').value.trim(),
+      college: document.getElementById('editCollege').value.trim(),
+      branch: document.getElementById('editBranch').value.trim(),
+      level: document.getElementById('editLevel').value,
+      skills: document.getElementById('editSkills').value.trim(),
+      interests: document.getElementById('editInterests').value.trim(),
+      portfolio_link: document.getElementById('editPortfolio').value.trim(),
+      github: document.getElementById('editGithub').value.trim(),
+      linkedin: document.getElementById('editLinkedin').value.trim()
+    });
+    SS.showToast('Profile updated!', 'success');
+    setTimeout(() => window.location.reload(), 800);
+  } catch(e) {
+    SS.showToast('Error saving profile', 'error');
+    btn.innerText = 'Save Changes'; btn.disabled = false;
+  }
+});
+
+function copyShareLink() {
+  const url = document.getElementById('shareUrl').value;
+  navigator.clipboard.writeText(url).then(() => SS.showToast('Link copied!', 'success'));
+}
+
+async function togglePrivacySettings() {
+  const isPublic = document.getElementById('shareToggle').checked;
+  document.getElementById('privacyOptions').style.display = isPublic ? 'flex' : 'none';
+  
+  await DB.updateUserProfile(profile.id, { 
+    share_profile: isPublic,
+    privacy_email: document.getElementById('privacyEmail').checked,
+    privacy_mobile: document.getElementById('privacyMobile').checked,
+    privacy_education: document.getElementById('privacyEducation').checked,
+    privacy_stats: document.getElementById('privacyStats').checked
+  });
+  SS.showToast('Privacy settings updated', 'info');
+}
+
+async function loadManageContent() {
+  const container = document.getElementById('manageContentList');
+  container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-3);font-size:0.9rem;">Loading content...</div>';
+  try {
+    const [posts, projects, snippets, pdfs] = await Promise.all([
+      DB.queryDocs('devhub_posts', [['author_uid','==',profile.id]], null, null, 1000),
+      DB.queryDocs('projects', [['author_uid','==',profile.id]], null, null, 1000),
+      DB.queryDocs('snippets', [['author_uid','==',profile.id]], null, null, 1000),
+      DB.queryDocs('pdfs', [['posted_by','==',profile.id]], null, null, 1000)
+    ]);
+    
+    let allContent = [];
+    posts.forEach(p => allContent.push({...p, _type: 'devhub_posts', _title: 'Post: ' + SS.truncateText(p.content||'', 40)}));
+    projects.forEach(p => allContent.push({...p, _type: 'projects', _title: 'Project: ' + (p.title||'Untitled')}));
+    snippets.forEach(p => allContent.push({...p, _type: 'snippets', _title: 'Snippet: ' + (p.title||'Untitled')}));
+    pdfs.forEach(p => allContent.push({...p, _type: 'pdfs', _title: 'Contribution: ' + (p.title||'Untitled Resource')}));
+
+    allContent.sort((a,b) => {
+      if (a._type < b._type) return -1;
+      if (a._type > b._type) return 1;
+      return (b.created_at?.toMillis?.()||0) - (a.created_at?.toMillis?.()||0);
+    });
+
+    if (allContent.length === 0) {
+      container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-3);font-size:0.9rem;">No content found to manage.</div>';
+      return;
+    }
+
+    container.innerHTML = allContent.map(item => {
+      const isHidden = !!item.is_hidden;
+      const typeBadgeClass = 
+        item._type==='devhub_posts' ? 'badge-primary' :
+        item._type==='projects' ? 'badge-accent' :
+        item._type==='snippets' ? 'badge-green' : 'badge-danger';
+        
+      return `
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:16px 20px;border-radius:16px;border:1px solid var(--border);box-shadow:var(--glass-shadow);margin-bottom:12px;transition:transform 0.2s;">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <span class="badge ${typeBadgeClass}" style="box-shadow:0 2px 8px rgba(0,0,0,0.05);">${item._type.replace('devhub_','').toUpperCase()}</span>
+            <span style="font-weight:700;color:var(--text);font-size:1rem;">${SS.sanitizeHTML(item._title)}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button class="btn" style="padding:8px 16px;background:rgba(255,255,255,0.8);border:1px solid var(--border);" onclick="editContent('${item._type}', '${item.id}')">Edit</button>
+            <button class="btn" style="padding:8px 16px;color:#ef4444;border:1px solid rgba(239,68,68,0.3);background:rgba(254,226,226,0.5);" onclick="deleteContent('${item._type}', '${item.id}')">Delete</button>
+            <button class="btn ${isHidden ? 'btn-secondary' : 'btn-primary'}" onclick="toggleVisibility('${item._type}', '${item.id}', ${isHidden})" style="padding:8px 16px;display:flex;align-items:center;gap:6px;">
+              ${isHidden ? '<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg> Hidden' : '<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Visible'}
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch(e) {
+    container.innerHTML = '<div style="color:var(--danger);padding:20px;">Error loading content.</div>';
+  }
+}
+
+window.toggleVisibility = async function(collection, docId, currentlyHidden) {
+  try {
+    await DB.updateDoc(`${collection}/${docId}`, { is_hidden: !currentlyHidden });
+    SS.showToast(!currentlyHidden ? 'Item is now hidden from public profile' : 'Item is now visible', 'success');
+    loadManageContent(); // Refresh list
+  } catch(e) {
+    SS.showToast('Failed to update visibility', 'error');
+  }
+};
+
+window.deleteContent = async function(collection, docId) {
+  if(!confirm('Are you sure you want to delete this item forever?')) return;
+  try {
+    await DB.deleteDoc(`${collection}/${docId}`);
+    SS.showToast('Item deleted successfully', 'success');
+    loadManageContent();
+  } catch(e) {
+    SS.showToast('Failed to delete item', 'error');
+  }
+};
+
+window.editContent = async function(collection, docId) {
+  try {
+    const doc = await DB.getDoc(`${collection}/${docId}`);
+    if(!doc) return SS.showToast('Item not found', 'error');
+
+    let html = '<form id="dynamicEditForm" style="display:flex;flex-direction:column;gap:14px;">';
+    html += `<input type="hidden" id="editDocCol" value="${collection}">`;
+    html += `<input type="hidden" id="editDocId" value="${docId}">`;
+
+    ['title', 'content', 'description', 'code', 'language', 'demo_link', 'github_link'].forEach(field => {
+      if (doc[field] !== undefined) {
+        html += `<div style="display:flex;flex-direction:column;gap:6px;">
+          <label style="font-size:0.8rem;font-weight:600;text-transform:capitalize;">${field.replace('_', ' ')}</label>
+          ${field === 'content' || field === 'description' || field === 'code' ? 
+            `<textarea id="edit_f_${field}" rows="5" class="form-input">${doc[field] || ''}</textarea>` : 
+            `<input type="text" id="edit_f_${field}" class="form-input" value="${doc[field] || ''}">`
+          }
+        </div>`;
+      }
+    });
+
+    html += `<div style="margin-top:10px;"><button type="submit" class="btn btn-primary" style="width:100%;padding:12px;">Save Changes</button></div>`;
+    html += '</form>';
+
+    SS.showModal(html, { title: '✏️ Edit Content' });
+
+    document.getElementById('dynamicEditForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const col = document.getElementById('editDocCol').value;
+      const id = document.getElementById('editDocId').value;
+      const updates = {};
+      ['title', 'content', 'description', 'code', 'language', 'demo_link', 'github_link'].forEach(field => {
+        const el = document.getElementById(`edit_f_${field}`);
+        if(el) updates[field] = el.value.trim();
+      });
+      try {
+        await DB.updateDoc(`${col}/${id}`, updates);
+        SS.showToast('Updated successfully!', 'success');
+        SS.closeModal();
+        loadManageContent();
+      } catch(ex) {
+        SS.showToast('Error saving updates', 'error');
+      }
+    });
+
+  } catch(e) {
+    SS.showToast('Error loading item for editing', 'error');
+  }
+};
+
+init();
+</script>
+</body>
+</html>

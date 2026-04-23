@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Free Library — Syntax Archives</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../css/global.css"/>
+
+<style>
+:root {
+  --white:#ffffff;--tint:#f0f4ff;--tint-2:#e4eaf8;--border:#d0d7e8;--border-2:#b8c2d8;
+  --text:#0a0e1a;--text-2:#3d4a66;--text-3:#7985a0;
+  --accent:#4169e1;--accent-hi:#2a52cc;--accent-bg:rgba(65,105,225,0.08);--accent-bg2:rgba(65,105,225,0.15);
+  --ui-bar:#1a2035;--carbon-black:#0a0e1a;--gunmetal:#1a2035;--iron-grey:#3d4a66;
+  --pale-slate:#d0d7e8;--pale-slate-2:#b8c2d8;--platinum:#f0f4ff;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --max:1100px;--pad:max(40px,calc((100vw - 1100px)/2));
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font);background:var(--white);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased;line-height:1.6;padding-top:72px;}
+
+
+/* ── HERO ── */
+.lib-hero{background:var(--white);padding:60px var(--pad) 48px;text-align:center;}
+.sh-tag{font-family:var(--mono);font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;display:inline-flex;align-items:center;gap:6px;}
+.sh-h2{font-size:clamp(1.7rem,2.8vw,2.4rem);font-weight:700;letter-spacing:-.025em;color:var(--carbon-black);line-height:1.15;margin-bottom:12px;}
+.sh-sub{font-size:.95rem;color:var(--text-2);max-width:520px;margin:0 auto;line-height:1.7;}
+
+/* ── FILTERS ── */
+.filter-bar{background:var(--tint);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:16px var(--pad);display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.search-box{flex:1;min-width:240px;padding:10px 16px 10px 40px;border:1px solid var(--border);border-radius:8px;font-family:var(--font);font-size:.85rem;outline:none;background:var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237985a0' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") 14px center no-repeat;}
+.search-box:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(65,105,225,0.1);}
+.filter-tag{padding:7px 16px;border-radius:6px;font-size:.78rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--text-2);transition:all .15s;font-family:var(--font);}
+.filter-tag:hover,.filter-tag.active{background:var(--carbon-black);color:#fff;border-color:var(--carbon-black);}
+
+/* ── PDF GRID ── */
+.lib-content{max-width:var(--max);margin:0 auto;padding:40px var(--pad) 80px;}
+.pdf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.pdf-card{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color .2s,box-shadow .2s,transform .2s;display:flex;flex-direction:column;box-shadow:0 6px 16px rgba(10,14,26,0.03);}
+.pdf-card:hover{border-color:rgba(65,105,225,0.45);box-shadow:0 12px 36px rgba(65,105,225,0.12);transform:translateY(-4px);}
+.pdf-thumb{height:160px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--border);position:relative;overflow:hidden;padding:20px;text-align:center;}
+.pdf-thumb-title{font-size:1.05rem;font-weight:800;color:#fff;line-height:1.3;letter-spacing:-.02em;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;text-shadow:0 2px 8px rgba(0,0,0,.3);max-width:85%;}
+.pdf-type-badge{position:absolute;top:14px;left:14px;font-family:var(--mono);font-size:.58rem;font-weight:600;padding:3px 9px;border-radius:100px;background:rgba(255,255,255,.15);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2);color:#fff;text-transform:uppercase;letter-spacing:.06em;}
+.pdf-thumb-domain{position:absolute;bottom:12px;right:14px;font-family:var(--mono);font-size:.55rem;font-weight:600;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.08em;}
+.pdf-body{padding:20px 22px;display:flex;flex-direction:column;gap:8px;flex:1;}
+.pdf-title{font-size:.92rem;font-weight:700;color:var(--carbon-black);}
+.pdf-desc{font-size:.8rem;color:var(--text-2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex:1;}
+.pdf-meta{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--border);margin-top:6px;}
+.pdf-domain{font-family:var(--mono);font-size:.62rem;font-weight:600;color:var(--accent);background:var(--accent-bg);padding:3px 10px;border-radius:100px;border:1px solid rgba(65,105,225,.2);}
+.pdf-rating{display:flex;align-items:center;gap:4px;font-size:.78rem;color:#e6a817;font-family:var(--mono);}
+.pdf-actions{display:flex;gap:8px;padding:0 22px 20px;}
+.pdf-actions a{flex:1;text-align:center;font-size:.8rem;font-weight:600;padding:9px;border-radius:7px;text-decoration:none;transition:all .15s;}
+.btn-view{background:var(--tint);color:var(--text);border:1px solid var(--border);}
+.btn-view:hover{background:var(--accent-bg);border-color:rgba(65,105,225,.3);color:var(--accent);}
+.btn-download{background:var(--carbon-black);color:#fff;border:1px solid var(--carbon-black);}
+.btn-download:hover{background:var(--gunmetal);}
+
+.empty-state{grid-column:1/-1;text-align:center;padding:80px 20px;}
+.empty-state h3{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:8px;}
+.empty-state p{color:var(--text-2);font-size:.92rem;}
+
+/* ── FOOTER ── */
+.lib-footer{background:var(--carbon-black);padding:40px var(--pad);text-align:center;}
+.lib-footer p{font-size:.78rem;color:rgba(255,255,255,.4);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:860px){.pdf-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.pdf-grid{grid-template-columns:1fr;}.filter-bar{flex-direction:column;}.search-box{min-width:unset;width:100%;}nav{width:calc(100% - 24px);padding:0 12px;}}
+</style>
+</head>
+<body>
+
+<div id="navbar-placeholder"></div>
+
+<!-- ── HERO ── -->
+<div class="lib-hero">
+  <div class="sh-tag">// free_resources</div>
+  <h1 class="sh-h2">Explore the <em style="font-style:normal;color:var(--accent);">Free Library</em></h1>
+  <p class="sh-sub">Curated PDFs, cheatsheets, and learning resources — open for everyone. No login required to browse.</p>
+  <div style="margin-top:24px;">
+    <a href="../dashboard-user.html" class="filter-tag" style="background:var(--carbon-black);color:#fff;border-color:var(--carbon-black);text-decoration:none;padding:10px 20px;font-weight:700;">+ Contribute Resource</a>
+  </div>
+</div>
+
+<!-- ── FILTERS ── -->
+<div class="filter-bar">
+  <input type="text" class="search-box" placeholder="Search by title, domain, or keyword..." id="searchInput" oninput="filterPDFs()"/>
+  <div class="filter-tag active" onclick="setFilter('all')">All</div>
+  <div class="filter-tag" onclick="setFilter('pdf')">PDFs</div>
+  <div class="filter-tag" onclick="setFilter('cheatsheet')">Cheatsheets</div>
+  <div class="filter-tag" onclick="setFilter('guide')">Guides</div>
+  <div class="filter-tag" onclick="setFilter('course')">Courses</div>
+</div>
+
+<!-- ── GRID ── -->
+<div class="lib-content">
+  <div class="pdf-grid" id="pdfGrid">
+    <div class="empty-state">
+      <h3>Loading resources...</h3>
+      <p>Fetching from the archive...</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
+<div class="lib-footer">
+  <p>© 2025 Syntax Syndicate. All rights reserved. Built, not generated.</p>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/db.js"></script>
+<script src="../js/navbar.js"></script>
+<script>
+let allPDFs = [];
+let currentFilter = 'all';
+
+async function init() {
+  try {
+    allPDFs = await DB.fetchFreePdfs(100);
+    renderPDFs();
+  } catch(e) {
+    console.error(e);
+    document.getElementById('pdfGrid').innerHTML = '<div class="empty-state"><h3>No resources available yet</h3><p>Check back soon — our team is constantly adding new materials!</p></div>';
+  }
+}
+
+function renderPDFs() {
+  const grid = document.getElementById('pdfGrid');
+  let filtered = allPDFs;
+  const query = document.getElementById('searchInput').value.toLowerCase();
+  if (currentFilter !== 'all') filtered = filtered.filter(p => p.type === currentFilter);
+  if (query) filtered = filtered.filter(p => (p.title||'').toLowerCase().includes(query) || (p.domain||'').toLowerCase().includes(query) || (p.description||'').toLowerCase().includes(query));
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="empty-state"><h3>No resources found</h3><p>Try a different search or filter. New content is added regularly.</p></div>';
+    return;
+  }
+  const gradients = [
+    'linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #4169e1 100%)',
+    'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+    'linear-gradient(135deg, #2d1b69 0%, #4a2c8a 50%, #6366f1 100%)',
+    'linear-gradient(135deg, #134e5e 0%, #1a6b7a 50%, #2dd4bf 100%)',
+    'linear-gradient(135deg, #1f1c2c 0%, #3a2d5e 50%, #928dab 100%)',
+    'linear-gradient(135deg, #0c2340 0%, #1a3b5c 50%, #3b82f6 100%)',
+  ];
+  grid.innerHTML = filtered.map((p, idx) => {
+    const rating = p.avg_rating ? p.avg_rating.toFixed(1) : '—';
+    const grad = gradients[idx % gradients.length];
+    const typeLabels = { pdf:'PDF', cheatsheet:'Cheatsheet', guide:'Guide', course:'Course' };
+    return `<div class="pdf-card">
+      <div class="pdf-thumb" style="background:${grad};">
+        <div class="pdf-thumb-title">${p.title}</div>
+        <span class="pdf-type-badge">${typeLabels[p.type] || 'PDF'}</span>
+        <div class="pdf-thumb-domain">${p.domain||'General'}</div>
+      </div>
+      <div class="pdf-body">
+        <div class="pdf-title">${p.title}</div>
+        <div class="pdf-desc">${p.description||'No description available.'}</div>
+        <div style="font-size:0.72rem;color:var(--text-3);margin-top:4px;display:flex;align-items:center;gap:6px;">
+          <span style="width:22px;height:22px;border-radius:50%;background:var(--accent-bg2);display:flex;align-items:center;justify-content:center;font-size:.5rem;font-weight:800;color:var(--accent);font-family:var(--mono);">${(p.poster_name||'SS').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase()}</span>
+          <strong>${p.poster_name || 'Syntax Syndicate'}</strong>
+        </div>
+        <div class="pdf-meta"><span class="pdf-domain">${p.domain||'General'}</span><span class="pdf-rating">★ ${rating}</span></div>
+      </div>
+      <div class="pdf-actions">
+        <a href="viewer.html?id=${p.id}" class="btn-view">Read →</a>
+        <a href="${p.url||'#'}" target="_blank" class="btn-download">Download</a>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  renderPDFs();
+}
+function filterPDFs() { renderPDFs(); }
+init();
+</script>
+</body>
+</html>

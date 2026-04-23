@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Roadmap — Syntax Syndicate</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+<link rel="stylesheet" href="../css/global.css"/>
+<style>
+:root {
+  --white:#fff;--tint:#f0f4ff;--tint-2:#e4eaf8;--border:#d0d7e8;
+  --text:#0a0e1a;--text-2:#3d4a66;--text-3:#7985a0;
+  --accent:#4169e1;--accent-hi:#2a52cc;--accent-bg:rgba(65,105,225,.08);--accent-bg2:rgba(65,105,225,.15);
+  --carbon-black:#0a0e1a;--font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --max:1280px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--tint);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* Hero */
+.rm-hero{background:var(--white);border-bottom:1px solid var(--border);padding:80px 24px 48px}
+.rm-hero-inner{max-width:var(--max);margin:0 auto}
+.rm-back{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;color:var(--text-3);text-decoration:none;margin-bottom:20px;font-weight:500;transition:color .2s}
+.rm-back:hover{color:var(--accent)}
+.rm-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.rm-badge{font-family:var(--mono);font-size:.6rem;font-weight:600;padding:4px 12px;border-radius:100px;letter-spacing:.06em;text-transform:uppercase;border:1px solid}
+.rm-badge-level{color:#1e7a42;border-color:rgba(30,122,66,.35);background:rgba(30,122,66,.07)}
+.rm-badge-level.intermediate{color:#b8860b;border-color:rgba(184,134,11,.35);background:rgba(184,134,11,.07)}
+.rm-badge-level.advanced{color:#e63946;border-color:rgba(230,57,70,.35);background:rgba(230,57,70,.07)}
+.rm-badge-domain{color:var(--accent);border-color:rgba(65,105,225,.3);background:var(--accent-bg)}
+.rm-title{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:700;letter-spacing:-.02em;color:var(--carbon-black);line-height:1.15;margin-bottom:10px}
+.rm-desc{font-size:.95rem;color:var(--text-2);max-width:640px;line-height:1.7;margin-bottom:18px}
+.rm-meta{display:flex;gap:24px;flex-wrap:wrap;font-size:.8rem;color:var(--text-3)}
+.rm-meta-item{display:flex;align-items:center;gap:6px}
+.rm-meta-item i{font-size:.9rem;color:var(--accent)}
+
+/* Layout */
+.rm-layout{max-width:var(--max);margin:0 auto;padding:40px 24px 80px;display:grid;grid-template-columns:260px 1fr;gap:48px;align-items:start}
+
+/* Sidebar */
+.rm-sidebar{position:sticky;top:100px}
+.rm-nav{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:0 4px 20px rgba(10,14,26,.04)}
+.rm-nav-title{font-family:var(--mono);font-size:.62rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:12px;padding:0 4px}
+.rm-nav-item{display:flex;align-items:center;gap:10px;padding:9px 8px;border-radius:8px;text-decoration:none;color:var(--text-2);font-size:.82rem;font-weight:500;transition:all .15s;cursor:pointer}
+.rm-nav-item:hover{background:var(--tint);color:var(--text)}
+.rm-nav-item.active{background:var(--accent-bg);color:var(--accent);font-weight:600}
+.rm-nav-num{width:24px;height:24px;border-radius:50%;background:var(--tint);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.6rem;font-weight:700;color:var(--text-3);flex-shrink:0;transition:all .15s}
+.rm-nav-item.active .rm-nav-num{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* Steps */
+.rm-steps{display:flex;flex-direction:column;gap:28px}
+.rm-step{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.rm-step:hover{border-color:rgba(65,105,225,.3);box-shadow:0 8px 32px rgba(65,105,225,.08)}
+.rm-step-header{padding:24px 28px 0;display:flex;align-items:flex-start;gap:16px}
+.rm-step-num{width:36px;height:36px;border-radius:10px;background:var(--accent-bg2);border:1px solid rgba(65,105,225,.3);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.75rem;font-weight:700;color:var(--accent);flex-shrink:0}
+.rm-step-title{font-size:1.05rem;font-weight:700;color:var(--carbon-black);line-height:1.3}
+.rm-step-time{font-family:var(--mono);font-size:.62rem;color:var(--text-3);margin-top:4px}
+.rm-step-body{padding:16px 28px 24px}
+.rm-step-desc{font-size:.88rem;color:var(--text-2);line-height:1.75;margin-bottom:16px}
+
+/* Videos */
+.rm-videos{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:18px}
+.rm-video-wrap{border-radius:10px;overflow:hidden;border:1px solid var(--border);aspect-ratio:16/9;background:var(--carbon-black)}
+.rm-video-wrap iframe{width:100%;height:100%;border:none}
+
+/* Resources */
+.rm-resources{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.rm-resource{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1px solid var(--border);border-radius:10px;text-decoration:none;color:var(--text);transition:all .15s;background:var(--white)}
+.rm-resource:hover{border-color:var(--accent);background:var(--accent-bg);transform:translateX(4px)}
+.rm-resource-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+.rm-resource-icon.article{background:#edf1ff;color:#4169e1}
+.rm-resource-icon.course{background:#ecfdf5;color:#059669}
+.rm-resource-icon.docs{background:#fef8ec;color:#d97706}
+.rm-resource-icon.tool{background:#f4f0ff;color:#7c3aed}
+.rm-resource-title{font-size:.82rem;font-weight:600;color:var(--carbon-black)}
+.rm-resource-type{font-family:var(--mono);font-size:.58rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em}
+.rm-resource-arrow{margin-left:auto;color:var(--text-3);font-size:.75rem;transition:transform .15s}
+.rm-resource:hover .rm-resource-arrow{transform:translateX(3px);color:var(--accent)}
+
+/* Tips */
+.rm-tips{background:linear-gradient(135deg,rgba(65,105,225,.04),rgba(65,105,225,.08));border:1px solid rgba(65,105,225,.2);border-radius:10px;padding:14px 18px;display:flex;gap:10px;align-items:flex-start}
+.rm-tips-icon{font-size:1rem;flex-shrink:0;margin-top:1px}
+.rm-tips-text{font-size:.82rem;color:var(--text-2);line-height:1.65}
+.rm-tips-text strong{color:var(--accent);font-weight:600}
+
+/* Loading / Empty */
+.rm-loading{text-align:center;padding:80px 20px}
+.rm-loading-spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Poster */
+.rm-poster{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:var(--tint);border:1px solid var(--border);border-radius:100px;font-size:.78rem;font-weight:600;color:var(--text-2);text-decoration:none;transition:all .15s}
+.rm-poster:hover{border-color:var(--accent);color:var(--accent)}
+.rm-poster-badge{font-size:.7rem}
+
+/* Responsive */
+@media(max-width:860px){
+  .rm-layout{grid-template-columns:1fr;gap:20px}
+  .rm-sidebar{position:static;order:-1}
+  .rm-nav{display:flex;gap:4px;overflow-x:auto;padding:10px}
+  .rm-nav-title{display:none}
+  .rm-nav-item{white-space:nowrap;padding:7px 12px}
+  .rm-step-header{padding:18px 20px 0}
+  .rm-step-body{padding:14px 20px 20px}
+}
+@media(max-width:600px){
+  .rm-hero{padding:100px 20px 36px}
+  .rm-videos{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div id="navbar-placeholder" data-type="main"></div>
+
+<div id="roadmapContent">
+  <div class="rm-loading">
+    <div class="rm-loading-spinner"></div>
+    <div style="font-size:.9rem;color:var(--text-3)">Loading roadmap...</div>
+  </div>
+</div>
+
+<div id="footer-placeholder"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/db.js"></script>
+<script src="../js/navbar.js"></script>
+<script src="../js/footer.js"></script>
+<script>
+const params = new URLSearchParams(window.location.search);
+const roadmapId = params.get('id');
+
+function extractYouTubeId(url) {
+  if (!url) return null;
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/))([^?&\s]+)/);
+  return m ? m[1] : null;
+}
+
+function getResourceIcon(type) {
+  const icons = { article: '📄', course: '🎓', docs: '📖', tool: '🔧' };
+  return icons[type] || '🔗';
+}
+
+async function loadRoadmap() {
+  const container = document.getElementById('roadmapContent');
+  if (!roadmapId) {
+    container.innerHTML = '<div class="rm-loading"><h2 style="color:var(--text);margin-bottom:8px">Roadmap not found</h2><p style="color:var(--text-3)">No roadmap ID specified.</p><a href="index.html" class="rm-back" style="margin-top:16px">← Back to Resources</a></div>';
+    return;
+  }
+
+  try {
+    const rm = await DB.fetchRoadmap(roadmapId);
+    if (!rm) {
+      container.innerHTML = '<div class="rm-loading"><h2 style="color:var(--text);margin-bottom:8px">Roadmap not found</h2><p style="color:var(--text-3)">This roadmap may have been removed.</p><a href="index.html" class="rm-back" style="margin-top:16px">← Back to Resources</a></div>';
+      return;
+    }
+
+    document.title = `${rm.title} — Syntax Syndicate`;
+    const steps = rm.steps || [];
+    const lvl = rm.level || 'beginner';
+    const lvlClass = lvl === 'intermediate' ? ' intermediate' : lvl === 'advanced' ? ' advanced' : '';
+    const totalHours = steps.reduce((sum, s) => sum + (parseInt(s.estimated_hours) || 0), 0);
+
+    container.innerHTML = `
+      <section class="rm-hero">
+        <div class="rm-hero-inner">
+          <a href="index.html" class="rm-back"><i class="bi bi-arrow-left"></i> Back to Resources</a>
+          <div class="rm-badges">
+            <span class="rm-badge rm-badge-level${lvlClass}">${lvl}</span>
+            ${rm.domain ? `<span class="rm-badge rm-badge-domain">${SS.sanitizeHTML(rm.domain)}</span>` : ''}
+            ${rm.role ? `<span class="rm-badge rm-badge-domain">${SS.sanitizeHTML(rm.role)}</span>` : ''}
+          </div>
+          <h1 class="rm-title">${rm.cover_emoji || '🗺️'} ${SS.sanitizeHTML(rm.title)}</h1>
+          ${rm.description ? `<p class="rm-desc">${SS.sanitizeHTML(rm.description)}</p>` : ''}
+          <div class="rm-meta">
+            <div class="rm-meta-item"><i class="bi bi-list-ol"></i> ${steps.length} steps</div>
+            ${totalHours ? `<div class="rm-meta-item"><i class="bi bi-clock"></i> ~${totalHours} hours</div>` : ''}
+            ${rm.estimated_time ? `<div class="rm-meta-item"><i class="bi bi-calendar3"></i> ${SS.sanitizeHTML(rm.estimated_time)}</div>` : ''}
+            <a href="${rm.poster_type === 'company' ? '../company/profile.html?uid=' + rm.posted_by : '#'}" class="rm-poster">
+              <span class="rm-poster-badge">${rm.poster_type === 'company' ? '🏢' : '⚡'}</span>
+              ${SS.sanitizeHTML(rm.poster_name || 'Syntax Syndicate')}
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <div class="rm-layout">
+        <aside class="rm-sidebar">
+          <nav class="rm-nav">
+            <div class="rm-nav-title">Steps</div>
+            ${steps.map((s, i) => `
+              <a class="rm-nav-item${i === 0 ? ' active' : ''}" href="#step-${i}" data-step="${i}">
+                <span class="rm-nav-num">${i + 1}</span>
+                <span>${SS.truncateText(s.title || 'Step ' + (i+1), 22)}</span>
+              </a>
+            `).join('')}
+          </nav>
+        </aside>
+
+        <div class="rm-steps">
+          ${steps.map((step, i) => {
+            const videos = (step.video_urls || []).filter(Boolean);
+            const resources = (step.resource_links || []).filter(r => r && r.url);
+            return `
+              <div class="rm-step" id="step-${i}">
+                <div class="rm-step-header">
+                  <div class="rm-step-num">${i + 1}</div>
+                  <div>
+                    <div class="rm-step-title">${SS.sanitizeHTML(step.title || 'Step ' + (i+1))}</div>
+                    ${step.estimated_hours ? `<div class="rm-step-time">⏱ ~${step.estimated_hours} hours</div>` : ''}
+                  </div>
+                </div>
+                <div class="rm-step-body">
+                  ${step.description ? `<div class="rm-step-desc">${SS.sanitizeHTML(step.description)}</div>` : ''}
+
+                  ${videos.length ? `
+                    <div class="rm-videos">
+                      ${videos.map(vurl => {
+                        const ytId = extractYouTubeId(vurl);
+                        return ytId ? `<div class="rm-video-wrap"><iframe src="https://www.youtube.com/embed/${ytId}" allowfullscreen loading="lazy"></iframe></div>` : `<a href="${SS.sanitizeHTML(vurl)}" target="_blank" class="rm-resource"><span class="rm-resource-icon article">🎬</span><div><div class="rm-resource-title">Watch Video</div><div class="rm-resource-type">${SS.truncateText(vurl, 40)}</div></div><span class="rm-resource-arrow">→</span></a>`;
+                      }).join('')}
+                    </div>
+                  ` : ''}
+
+                  ${resources.length ? `
+                    <div class="rm-resources">
+                      ${resources.map(r => `
+                        <a href="${SS.sanitizeHTML(r.url)}" target="_blank" rel="noopener" class="rm-resource">
+                          <span class="rm-resource-icon ${r.type || 'article'}">${getResourceIcon(r.type)}</span>
+                          <div>
+                            <div class="rm-resource-title">${SS.sanitizeHTML(r.title || r.url)}</div>
+                            <div class="rm-resource-type">${r.type || 'resource'}</div>
+                          </div>
+                          <span class="rm-resource-arrow">→</span>
+                        </a>
+                      `).join('')}
+                    </div>
+                  ` : ''}
+
+                  ${step.tips ? `
+                    <div class="rm-tips">
+                      <span class="rm-tips-icon">💡</span>
+                      <div class="rm-tips-text"><strong>Pro Tip:</strong> ${SS.sanitizeHTML(step.tips)}</div>
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+
+    // Scroll spy for sidebar
+    const navItems = document.querySelectorAll('.rm-nav-item');
+    const stepEls = document.querySelectorAll('.rm-step');
+    if (navItems.length && stepEls.length) {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            const idx = e.target.id.replace('step-', '');
+            navItems.forEach(n => n.classList.toggle('active', n.dataset.step === idx));
+          }
+        });
+      }, { threshold: 0.3, rootMargin: '-80px 0px -40% 0px' });
+      stepEls.forEach(el => observer.observe(el));
+    }
+
+  } catch(e) {
+    console.error('Error loading roadmap:', e);
+    container.innerHTML = '<div class="rm-loading"><h2 style="color:var(--text)">Error loading roadmap</h2><p style="color:var(--text-3)">Please try refreshing the page.</p></div>';
+  }
+}
+
+loadRoadmap();
+</script>
+</body>
+</html>

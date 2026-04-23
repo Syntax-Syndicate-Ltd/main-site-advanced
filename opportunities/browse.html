@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Opportunities — Syntax Syndicate</title>
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/opportunities.css">
+</head>
+<body>
+
+<div id="navbar-placeholder"></div>
+
+<!-- ── OPP PAGE ── -->
+<div class="opp-page">
+  <div class="opp-header">
+    <div class="opp-header-inner">
+      <div class="opp-title-row">
+        <div>
+          <h1>Opportunities</h1>
+          <p>Discover jobs, internships, hackathons, events and seminars</p>
+        </div>
+        <span id="result-count" style="font-size:13px;color:var(--opp-text3);font-weight:500">Loading…</span>
+      </div>
+      <div class="opp-tabs" id="opp-tabs">
+        <button class="opp-tab active" data-cat="all"><i class="bi bi-grid-3x3-gap"></i> All <span class="opp-tab-count" id="tab-count-all">0</span></button>
+        <button class="opp-tab" data-cat="jobs"><i class="bi bi-briefcase"></i> Jobs <span class="opp-tab-count" id="tab-count-jobs">0</span></button>
+        <button class="opp-tab" data-cat="internships"><i class="bi bi-mortarboard"></i> Internships <span class="opp-tab-count" id="tab-count-internships">0</span></button>
+        <button class="opp-tab" data-cat="hackathons"><i class="bi bi-lightning"></i> Hackathons <span class="opp-tab-count" id="tab-count-hackathons">0</span></button>
+        <button class="opp-tab" data-cat="techEvents"><i class="bi bi-cpu"></i> Tech Events <span class="opp-tab-count" id="tab-count-techEvents">0</span></button>
+        <button class="opp-tab" data-cat="seminars"><i class="bi bi-mic"></i> Seminars <span class="opp-tab-count" id="tab-count-seminars">0</span></button>
+        <button class="opp-tab" data-cat="courses"><i class="bi bi-book"></i> Courses <span class="opp-tab-count" id="tab-count-courses">0</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <div class="filter-toggle-row">
+      <button class="filter-toggle-btn" id="filter-toggle-btn">
+        <i class="bi bi-sliders"></i> Search &amp; Filters
+        <span class="filter-active-badge" id="filter-badge">0</span>
+        <i class="bi bi-chevron-down chevron"></i>
+      </button>
+      <span class="filter-result-count" id="filter-count"></span>
+    </div>
+    <div class="filter-panel" id="filter-panel">
+      <div class="filter-panel-inner">
+        <div class="filter-search-box">
+          <i class="bi bi-search"></i>
+          <input type="text" id="search-input" placeholder="Search by title, company, keyword…">
+        </div>
+        <select class="filter-select" id="loc-filter">
+          <option value="">All Locations</option>
+          <option value="remote">Remote</option>
+          <option value="bangalore">Bangalore</option>
+          <option value="mumbai">Mumbai</option>
+          <option value="delhi">Delhi</option>
+          <option value="hyderabad">Hyderabad</option>
+          <option value="pune">Pune</option>
+          <option value="online">Online</option>
+        </select>
+        <select class="filter-select" id="exp-filter">
+          <option value="">All Levels</option>
+          <option value="Entry Level">Entry Level</option>
+          <option value="Junior">Junior</option>
+          <option value="Mid Level">Mid Level</option>
+          <option value="Senior">Senior</option>
+          <option value="Lead">Lead</option>
+        </select>
+        <select class="filter-select" id="time-filter">
+          <option value="all">All Time</option>
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+        </select>
+        <button class="opp-btn opp-btn-secondary opp-btn-sm" id="clear-filters">
+          <i class="bi bi-x-circle"></i> Clear
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="opp-content">
+    <div id="ad-banner" class="ad-banner hidden"></div>
+    <div class="cards-grid" id="cards-grid"></div>
+  </div>
+</div>
+
+<div id="footer-placeholder"></div>
+<div class="toast-container"></div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/navbar.js"></script>
+<script src="../js/footer.js"></script>
+
+<script>
+  // Initialize navbar
+  if (window.Navbar) Navbar.init('main');
+  if (window.Footer) Footer.init();
+
+  /* ══════════════════════════════════════════════
+     OPPORTUNITIES BROWSE — All logic inline (compat SDK)
+     ══════════════════════════════════════════════ */
+
+  const COLLECTIONS = {
+    JOBS: 'ss_jobs',
+    INTERNSHIPS: 'ss_internships',
+    HACKATHONS: 'ss_hackathons',
+    TECH_EVENTS: 'ss_techEvents',
+    SEMINARS: 'ss_seminars',
+    COURSES: 'ss_courses',
+    ADS: 'ss_ads'
+  };
+
+  const CAT_CFG = {
+    jobs:        { icon:'bi-briefcase-fill',   label:'Job',        badge:'badge-jobs',       emoji:'🏢' },
+    internships: { icon:'bi-mortarboard-fill', label:'Internship', badge:'badge-internships', emoji:'📚' },
+    hackathons:  { icon:'bi-lightning-fill',   label:'Hackathon',  badge:'badge-hackathons',  emoji:'⚡' },
+    techEvents:  { icon:'bi-cpu-fill',         label:'Tech Event', badge:'badge-techEvents',  emoji:'💡' },
+    seminars:    { icon:'bi-mic-fill',         label:'Seminar',    badge:'badge-seminars',    emoji:'🎤' },
+    courses:     { icon:'bi-book-fill',        label:'Course',     badge:'badge-courses',     emoji:'🎒' },
+  };
+
+  /* ── Helpers ── */
+  function timeAgo(ts) {
+    if (!ts) return '';
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    const diff = Math.floor((Date.now() - d) / 1000);
+    if (diff < 60) return 'Just now';
+    if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+    if (diff < 604800) return Math.floor(diff/86400) + 'd ago';
+    return d.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+  }
+  function truncate(str, n) {
+    if (!str) return '';
+    return str.length > n ? str.substring(0, n) + '…' : str;
+  }
+
+  /* ── Filter panel toggle ── */
+  const toggleBtn   = document.getElementById('filter-toggle-btn');
+  const filterPanel = document.getElementById('filter-panel');
+  const filterBadge = document.getElementById('filter-badge');
+  toggleBtn.addEventListener('click', () => {
+    const open = filterPanel.classList.toggle('open');
+    toggleBtn.classList.toggle('open', open);
+    toggleBtn.classList.toggle('active', open);
+  });
+  function updateBadge() {
+    const n = [
+      document.getElementById('search-input').value.trim(),
+      document.getElementById('loc-filter').value,
+      document.getElementById('exp-filter').value,
+      document.getElementById('time-filter').value !== 'all' ? '1' : ''
+    ].filter(Boolean).length;
+    filterBadge.textContent = n;
+    filterBadge.classList.toggle('show', n > 0);
+    if (!filterPanel.classList.contains('open')) toggleBtn.classList.toggle('active', n > 0);
+  }
+
+  /* ── State ── */
+  let allPosts = [], filteredPosts = [], topAds = [], inlineAds = [];
+  let adTopIdx = 0, adInlineIdx = 0;
+  const state = { cat: 'all', search: '', location: '', experience: '', time: 'all' };
+  const grid     = document.getElementById('cards-grid');
+  const adBanner = document.getElementById('ad-banner');
+
+  /* ── Init ── */
+  async function init() {
+    showSkeletons();
+    const cat = new URLSearchParams(location.search).get('cat');
+    if (cat) {
+      state.cat = cat;
+      document.querySelectorAll('.opp-tab').forEach(t => t.classList.toggle('active', t.dataset.cat === cat));
+    }
+    await Promise.all([fetchAll(), fetchAds()]);
+    renderTopAd();
+    updateTabCounts();
+    applyFilters();
+  }
+
+  async function fetchAll() {
+    const cols = Object.values(COLLECTIONS).filter(c => c !== 'ss_ads');
+    const results = await Promise.all(cols.map(fetchCol));
+    allPosts = results.flat().sort((a, b) => {
+      return (b.postedAt?.toDate?.() || new Date(0)) - (a.postedAt?.toDate?.() || new Date(0));
+    });
+  }
+  async function fetchCol(col) {
+    try {
+      const snap = await db.collection(col).orderBy('postedAt', 'desc').get();
+      const displayCol = col.replace('ss_', '');
+      return snap.docs.map(d => ({ id: d.id, _col: displayCol, _colRaw: col, ...d.data() }));
+    } catch(e) { console.warn('Fetch error for', col, e); return []; }
+  }
+
+  async function fetchAds() {
+    try {
+      const snap = await db.collection(COLLECTIONS.ADS).get();
+      const ads  = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      topAds    = ads.filter(a => a.placement === 'top');
+      inlineAds = ads.filter(a => a.placement === 'betweenCards');
+      if (topAds.length > 1) setInterval(() => { adTopIdx = (adTopIdx+1)%topAds.length; renderTopAd(adTopIdx); }, 30000);
+    } catch(e) { topAds=[]; inlineAds=[]; }
+  }
+
+  function updateTabCounts() {
+    const counts = { all: allPosts.length };
+    allPosts.forEach(p => { counts[p._col] = (counts[p._col]||0)+1; });
+    Object.entries(counts).forEach(([k,v]) => { const el=document.getElementById(`tab-count-${k}`); if(el) el.textContent=v; });
+  }
+
+  function renderTopAd(idx=0) {
+    if (!topAds.length) { adBanner.classList.add('hidden'); return; }
+    const ad = topAds[idx%topAds.length];
+    adBanner.classList.remove('hidden');
+    adBanner.innerHTML=`
+      <div class="ad-banner-img-wrap">
+        ${ad.imagePath?`<img src="${ad.imagePath}" alt="${ad.title}">`:`<i class="bi bi-megaphone-fill"></i>`}
+      </div>
+      <div class="ad-banner-info">
+        <div class="ad-banner-title">${ad.title}</div>
+        <div class="ad-banner-sub">Sponsored</div>
+      </div>
+      <div class="ad-banner-label">SPONSORED</div>
+      <button class="opp-btn opp-btn-primary opp-btn-sm ad-banner-btn" onclick="window.open('${(ad.redirectLink||'').replace(/'/g,"\\'")}','_blank')">
+        Learn More <i class="bi bi-arrow-right"></i>
+      </button>`;
+  }
+
+  function applyFilters() {
+    const now = new Date();
+    filteredPosts = allPosts.filter(p => {
+      if (state.cat !== 'all' && p._col !== state.cat) return false;
+      if (state.search) {
+        const s = state.search.toLowerCase();
+        if (!`${p.title} ${p.company} ${p.organizer} ${p.description}`.toLowerCase().includes(s)) return false;
+      }
+      if (state.location && !`${p.location} ${p.venue}`.toLowerCase().includes(state.location.toLowerCase())) return false;
+      if (state.experience && p.experienceLevel && p.experienceLevel !== state.experience) return false;
+      if (state.time !== 'all' && p.postedAt) {
+        const d = p.postedAt.toDate ? p.postedAt.toDate() : new Date(p.postedAt);
+        const diff = (now-d)/86400000;
+        if (state.time==='week' && diff>7) return false;
+        if (state.time==='month' && diff>30) return false;
+      }
+      return true;
+    });
+    renderCards();
+    document.getElementById('result-count').textContent = `${filteredPosts.length} result${filteredPosts.length!==1?'s':''}`;
+    document.getElementById('filter-count').textContent  = `${filteredPosts.length} found`;
+    updateBadge();
+  }
+
+  function renderCards() {
+    grid.innerHTML = '';
+    if (!filteredPosts.length) {
+      grid.innerHTML = `<div class="empty-state"><i class="bi bi-search"></i><h3>No Results Found</h3><p>Try adjusting your filters or search query.</p></div>`;
+      return;
+    }
+    filteredPosts.forEach((post, i) => {
+      if (i > 0 && i % 4 === 0 && inlineAds.length) {
+        grid.appendChild(makeAdCard(inlineAds[(adInlineIdx + Math.floor(i/4) - 1) % inlineAds.length]));
+      }
+      grid.appendChild(makeCard(post));
+    });
+  }
+
+  function makeCard(post) {
+    const cfg     = CAT_CFG[post._col] || { icon:'bi-file-text', label:post._col, badge:'', emoji:'📄' };
+    const company = post.company || post.organizer || post.instructor || post.platform || '';
+    const loc     = post.location || post.venue || (post.mode==='Online'?'Online':'');
+    const div     = document.createElement('div');
+    div.className = 'card';
+
+    const imgSection = post.imagePath
+      ? `<div class="card-img">
+           <img src="${post.imagePath}" alt="${post.title}" loading="lazy"
+             onerror="this.remove();this.parentElement.querySelector('.card-emoji').style.display='flex'">
+           <span class="card-emoji" style="display:none">${cfg.emoji}</span>
+         </div>`
+      : `<div class="card-img">
+           <span class="card-emoji">${cfg.emoji}</span>
+         </div>`;
+
+    div.innerHTML = `
+      ${imgSection}
+      <div class="card-body">
+        <div class="card-header-row">
+          <span class="badge ${cfg.badge}"><i class="bi ${cfg.icon}"></i> ${cfg.label}</span>
+          <span class="card-time">${timeAgo(post.postedAt)}</span>
+        </div>
+        <div class="card-title">${post.title||'Untitled'}</div>
+        <div class="card-company"><i class="bi bi-building"></i> ${company}</div>
+        <div class="card-tags">
+          ${loc?`<span class="card-tag"><i class="bi bi-geo-alt"></i> ${loc}</span>`:''}
+          ${post.experienceLevel?`<span class="card-tag"><i class="bi bi-bar-chart"></i> ${post.experienceLevel}</span>`:''}
+          ${post.duration?`<span class="card-tag"><i class="bi bi-clock"></i> ${post.duration}</span>`:''}
+          ${post.prizePool?`<span class="card-tag"><i class="bi bi-trophy"></i> ${post.prizePool}</span>`:''}
+          ${post.mode?`<span class="card-tag"><i class="bi bi-globe"></i> ${post.mode}</span>`:''}
+          ${post.price?`<span class="card-tag"><i class="bi bi-tag"></i> ${post.price}</span>`:''}
+        </div>
+        <div class="card-desc">${truncate(post.description,110)}</div>
+      </div>
+      <div class="card-footer">
+        <span style="font-size:11px;color:var(--opp-text3);text-transform:uppercase;letter-spacing:0.4px;font-weight:600">${post._col}</span>
+        <a href="apply.html?id=${post.id}&type=${post._colRaw}" class="opp-btn opp-btn-primary opp-btn-sm">
+          ${post._col==='courses'?'Enroll Now':'View Details'} <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>`;
+    return div;
+  }
+
+  function makeAdCard(ad) {
+    const div = document.createElement('div');
+    div.className = 'ad-card';
+    div.onclick   = () => window.open(ad.redirectLink, '_blank');
+    div.innerHTML = `
+      <div class="ad-img-wrap">
+        ${ad.imagePath?`<img src="${ad.imagePath}" alt="${ad.title}">`:`<i class="bi bi-megaphone-fill"></i>`}
+      </div>
+      <div>
+        <div style="font-family:var(--opp-font-d);font-weight:700;color:var(--opp-text);margin-bottom:4px">${ad.title}</div>
+        <div style="font-size:12px;color:var(--opp-text3);margin-bottom:10px">Sponsored</div>
+        <span class="opp-btn opp-btn-secondary opp-btn-sm">Learn More <i class="bi bi-arrow-right"></i></span>
+      </div>`;
+    return div;
+  }
+
+  function showSkeletons() {
+    grid.innerHTML = Array(6).fill(`
+      <div class="skeleton">
+        <div class="skel-img"></div>
+        <div class="skel-body">
+          <div class="skel-line xs"></div>
+          <div class="skel-line"></div>
+          <div class="skel-line s"></div>
+          <div class="skel-line"></div>
+          <div class="skel-line s"></div>
+        </div>
+      </div>`).join('');
+  }
+
+  /* ── Event listeners ── */
+  document.getElementById('opp-tabs').addEventListener('click', e => {
+    const tab = e.target.closest('.opp-tab'); if (!tab) return;
+    document.querySelectorAll('.opp-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    state.cat = tab.dataset.cat;
+    applyFilters();
+    const url = new URL(location.href);
+    state.cat==='all' ? url.searchParams.delete('cat') : url.searchParams.set('cat', state.cat);
+    history.replaceState({}, '', url);
+  });
+  document.getElementById('search-input').addEventListener('input', e => { state.search=e.target.value.trim(); applyFilters(); });
+  document.getElementById('loc-filter').addEventListener('change', e  => { state.location=e.target.value; applyFilters(); });
+  document.getElementById('exp-filter').addEventListener('change', e  => { state.experience=e.target.value; applyFilters(); });
+  document.getElementById('time-filter').addEventListener('change', e => { state.time=e.target.value; applyFilters(); });
+  document.getElementById('clear-filters').addEventListener('click', () => {
+    state.search=''; state.location=''; state.experience=''; state.time='all';
+    ['search-input','loc-filter','exp-filter'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('time-filter').value='all';
+    applyFilters();
+  });
+
+  init();
+</script>
+</body>
+</html>

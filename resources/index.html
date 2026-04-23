@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Resources Hub — Syntax Syndicate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+<link rel="stylesheet" href="../css/global.css"/>
+
+<style>
+:root {
+  --white:#ffffff;--tint:#f0f4ff;--tint-2:#e4eaf8;--border:#d0d7e8;--border-2:#b8c2d8;
+  --text:#0a0e1a;--text-2:#3d4a66;--text-3:#7985a0;
+  --accent:#4169e1;--accent-hi:#2a52cc;--accent-bg:rgba(65,105,225,0.08);--accent-bg2:rgba(65,105,225,0.15);
+  --carbon-black:#0a0e1a;--gunmetal:#1a2035;--iron-grey:#3d4a66;--pale-slate:#d0d7e8;--platinum:#f0f4ff;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --max:1100px;--pad:max(40px,calc((100vw - 1100px)/2));
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font);background:var(--white);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased;line-height:1.6;}
+
+.page-hero{background:var(--white);padding:100px var(--pad) 48px;text-align:center;border-bottom:1px solid var(--border);}
+.sh-tag{font-family:var(--mono);font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;display:inline-flex;align-items:center;gap:6px;}
+.sh-h2{font-size:clamp(1.7rem,2.8vw,2.4rem);font-weight:700;letter-spacing:-.025em;color:var(--carbon-black);line-height:1.15;margin-bottom:12px;}
+.sh-sub{font-size:.95rem;color:var(--text-2);max-width:520px;margin:0 auto;line-height:1.7;}
+
+/* Tabs */
+.tab-bar{background:var(--tint);border-bottom:1px solid var(--border);padding:12px var(--pad);display:flex;gap:6px;justify-content:center;}
+.tab{padding:10px 24px;border-radius:7px;font-size:.85rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--text-2);transition:all .15s;font-family:var(--font);}
+.tab:hover,.tab.active{background:var(--carbon-black);color:#fff;border-color:var(--carbon-black);}
+
+.filter-bar{padding:16px var(--pad);max-width:var(--max);margin:0 auto;display:flex;gap:10px;align-items:center;}
+.search-box{flex:1;padding:10px 16px 10px 40px;border:1px solid var(--border);border-radius:8px;font-family:var(--font);font-size:.85rem;outline:none;background:var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237985a0' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") 14px center no-repeat;}
+.search-box:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(65,105,225,0.1);}
+.filter-select{padding:9px 14px;border:1px solid var(--border);border-radius:8px;font-family:var(--font);font-size:.82rem;color:var(--text-2);outline:none;background:var(--white);cursor:pointer;}
+
+.content{max-width:var(--max);margin:0 auto;padding:24px var(--pad) 80px;}
+.cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.r-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:26px 24px;display:flex;flex-direction:column;gap:12px;transition:border-color .2s,box-shadow .2s,transform .2s;box-shadow:0 6px 16px rgba(10,14,26,0.03);cursor:pointer;position:relative;overflow:hidden;text-decoration:none;color:inherit;}
+.r-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .25s ease;}
+.r-card:hover{border-color:rgba(65,105,225,0.45);box-shadow:0 12px 36px rgba(65,105,225,0.12);transform:translateY(-4px);}
+.r-card:hover::before{transform:scaleX(1);}
+.r-head{display:flex;align-items:flex-start;gap:14px;}
+.r-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;background:var(--accent-bg2);border:1px solid rgba(65,105,225,0.25);}
+.r-icon.cs{background:rgba(40,200,64,0.08);border-color:rgba(40,200,64,0.25);}
+.r-title{font-size:.95rem;font-weight:700;color:var(--carbon-black);}
+.r-domain{font-family:var(--mono);font-size:.62rem;color:var(--text-3);margin-top:2px;}
+.r-desc{font-size:.82rem;color:var(--text-2);line-height:1.6;flex:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.r-footer{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--border);}
+.level-tag{font-family:var(--mono);font-size:.6rem;font-weight:600;padding:3px 10px;border-radius:100px;text-transform:uppercase;letter-spacing:.06em;}
+.lv-beginner{color:#1e7a42;border:1px solid rgba(30,122,66,0.35);background:rgba(30,122,66,0.07);}
+.lv-intermediate{color:#b8860b;border:1px solid rgba(184,134,11,0.35);background:rgba(184,134,11,0.07);}
+.lv-advanced{color:#e63946;border:1px solid rgba(230,57,70,0.35);background:rgba(230,57,70,0.07);}
+.r-steps{font-family:var(--mono);font-size:.68rem;color:var(--text-3);}
+.r-poster{font-family:var(--mono);font-size:.58rem;color:var(--text-3);display:flex;align-items:center;gap:4px;margin-top:2px}
+.r-poster .verified{color:var(--accent)}
+
+.section{display:none;}.section.active{display:block;}
+.empty-state{grid-column:1/-1;text-align:center;padding:60px 20px;}
+.empty-state h3{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:8px;}
+.empty-state p{color:var(--text-2);font-size:.88rem;}
+
+@media(max-width:860px){.cards-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.cards-grid{grid-template-columns:1fr;}.filter-bar{flex-direction:column;}}
+</style>
+</head>
+<body>
+
+<div id="navbar-placeholder" data-type="main"></div>
+
+<div class="page-hero">
+  <div class="sh-tag">// learn_and_grow</div>
+  <h1 class="sh-h2">Resources <em style="font-style:normal;color:var(--accent);">Hub</em></h1>
+  <p class="sh-sub">Curated roadmaps and cheatsheets to accelerate your learning — by our team and partner companies.</p>
+</div>
+
+<div class="tab-bar">
+  <div class="tab active" onclick="showTab('roadmaps')">🗺️ Roadmaps</div>
+  <div class="tab" onclick="showTab('cheatsheets')">📋 Cheatsheets</div>
+</div>
+
+<!-- ROADMAPS -->
+<div class="section active" id="sec-roadmaps">
+  <div class="filter-bar">
+    <input type="text" class="search-box" placeholder="Search roadmaps by role, domain..." id="rmSearch" oninput="renderRoadmaps()"/>
+    <select class="filter-select" id="rmSource" onchange="renderRoadmaps()">
+      <option value="all">All Sources</option>
+      <option value="admin">By Syntax Syndicate</option>
+      <option value="company">By Companies</option>
+    </select>
+  </div>
+  <div class="content"><div class="cards-grid" id="roadmapGrid"><div class="empty-state"><h3>Loading roadmaps...</h3></div></div></div>
+</div>
+
+<!-- CHEATSHEETS -->
+<div class="section" id="sec-cheatsheets">
+  <div class="filter-bar">
+    <input type="text" class="search-box" placeholder="Search cheatsheets..." id="csSearch" oninput="renderCheatsheets()"/>
+    <select class="filter-select" id="csSource" onchange="renderCheatsheets()">
+      <option value="all">All Sources</option>
+      <option value="admin">By Syntax Syndicate</option>
+      <option value="company">By Companies</option>
+    </select>
+  </div>
+  <div class="content"><div class="cards-grid" id="cheatsheetGrid"><div class="empty-state"><h3>Loading cheatsheets...</h3></div></div></div>
+</div>
+
+<div id="footer-placeholder"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/db.js"></script>
+<script src="../js/navbar.js"></script>
+<script src="../js/footer.js"></script>
+<script>
+let roadmaps = [], cheatsheets = [];
+
+async function init() {
+  try { roadmaps = await DB.fetchLatestRoadmaps(100); } catch(e) { console.error('Roadmaps fetch error:', e); }
+  try { cheatsheets = await DB.fetchLatestCheatsheets(100); } catch(e) { console.error('Cheatsheets fetch error:', e); }
+  renderRoadmaps(); renderCheatsheets();
+}
+
+function renderRoadmaps() {
+  const grid = document.getElementById('roadmapGrid');
+  const q = (document.getElementById('rmSearch').value||'').toLowerCase();
+  const src = document.getElementById('rmSource').value;
+  let f = roadmaps;
+  if (q) f = f.filter(r => (r.title||'').toLowerCase().includes(q) || (r.domain||'').toLowerCase().includes(q) || (r.role||'').toLowerCase().includes(q));
+  if (src === 'admin') f = f.filter(r => r.poster_type !== 'company');
+  if (src === 'company') f = f.filter(r => r.poster_type === 'company');
+
+  if (f.length === 0) {
+    grid.innerHTML = '<div class="empty-state"><h3>No roadmaps found</h3><p>Roadmaps are being crafted. Check back soon!</p></div>';
+    return;
+  }
+
+  grid.innerHTML = f.map(r => {
+    const lvl = r.level || 'beginner';
+    const steps = r.steps || [];
+    const posterIcon = r.poster_type === 'company' ? '🏢' : '⚡';
+    const posterName = r.poster_name || 'Syntax Syndicate';
+    return `<a href="roadmap.html?id=${r.id}" class="r-card">
+      <div class="r-head">
+        <div class="r-icon">${r.cover_emoji || '🗺️'}</div>
+        <div>
+          <div class="r-title">${SS.sanitizeHTML(r.title)}</div>
+          <div class="r-domain">${SS.sanitizeHTML(r.role || r.domain || 'General')}</div>
+          <div class="r-poster">${posterIcon} ${SS.sanitizeHTML(posterName)}</div>
+        </div>
+      </div>
+      <div class="r-desc">${SS.sanitizeHTML(r.description || 'Follow this step-by-step roadmap to master this domain.')}</div>
+      <div class="r-footer">
+        <span class="level-tag lv-${lvl}">${lvl}</span>
+        <span class="r-steps">${steps.length ? steps.length + ' steps' : (r.steps_count ? r.steps_count + ' steps' : '')}</span>
+      </div>
+    </a>`;
+  }).join('');
+}
+
+function renderCheatsheets() {
+  const grid = document.getElementById('cheatsheetGrid');
+  const q = (document.getElementById('csSearch').value||'').toLowerCase();
+  const src = document.getElementById('csSource').value;
+  let f = cheatsheets;
+  if (q) f = f.filter(c => (c.title||'').toLowerCase().includes(q) || (c.domain||'').toLowerCase().includes(q));
+  if (src === 'admin') f = f.filter(c => c.poster_type !== 'company');
+  if (src === 'company') f = f.filter(c => c.poster_type === 'company');
+
+  if (f.length === 0) {
+    grid.innerHTML = '<div class="empty-state"><h3>No cheatsheets found</h3><p>Cheatsheets are being prepared. Check back soon!</p></div>';
+    return;
+  }
+
+  grid.innerHTML = f.map(c => {
+    const posterIcon = c.poster_type === 'company' ? '🏢' : '⚡';
+    const posterName = c.poster_name || 'Syntax Syndicate';
+    const sections = c.sections || [];
+    return `<a href="cheatsheet.html?id=${c.id}" class="r-card">
+      <div class="r-head">
+        <div class="r-icon cs">${c.cover_emoji || '📋'}</div>
+        <div>
+          <div class="r-title">${SS.sanitizeHTML(c.title)}</div>
+          <div class="r-domain">${SS.sanitizeHTML(c.domain || 'General')}</div>
+          <div class="r-poster">${posterIcon} ${SS.sanitizeHTML(posterName)}</div>
+        </div>
+      </div>
+      <div class="r-desc">${SS.sanitizeHTML(c.description || 'Quick reference sheet for this topic.')}</div>
+      <div class="r-footer">
+        <span class="r-steps">${sections.length ? sections.length + ' sections' : (c.pages ? c.pages + ' pages' : '')}</span>
+        ${c.download_url ? '<span class="r-steps"><i class="bi bi-download"></i> PDF</span>' : ''}
+      </div>
+    </a>`;
+  }).join('');
+}
+
+function showTab(tab) {
+  ['roadmaps','cheatsheets'].forEach(s => document.getElementById('sec-'+s).classList.toggle('active', s === tab));
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i === (tab === 'roadmaps' ? 0 : 1)));
+}
+init();
+</script>
+</body>
+</html>

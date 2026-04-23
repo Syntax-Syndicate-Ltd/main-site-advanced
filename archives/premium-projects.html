@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Premium Projects — Syntax Syndicate</title>
+<meta name="description" content="Ready-made, downloadable projects for premium members. Get access to production-quality code and learn by example."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../css/global.css"/>
+
+<style>
+:root {
+  --white:#ffffff;--tint:#f0f4ff;--tint-2:#e4eaf8;--border:#d0d7e8;--border-2:#b8c2d8;
+  --text:#0a0e1a;--text-2:#3d4a66;--text-3:#7985a0;
+  --accent:#4169e1;--accent-hi:#2a52cc;--accent-bg:rgba(65,105,225,0.08);--accent-bg2:rgba(65,105,225,0.15);
+  --carbon-black:#0a0e1a;--gunmetal:#1a2035;--iron-grey:#3d4a66;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --max:1100px;--pad:max(40px,calc((100vw - 1100px)/2));
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font);background:var(--white);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased;line-height:1.6;padding-top:72px;}
+
+/* ── HERO ── */
+.pp-hero {
+  background: linear-gradient(135deg, #0a0e1a 0%, #1a2035 30%, #243b55 60%, #4169e1 100%);
+  padding: 72px var(--pad) 56px; text-align: center; position: relative; overflow: hidden;
+}
+.pp-hero::before {
+  content:''; position:absolute; inset:0;
+  background: radial-gradient(ellipse at 30% 70%, rgba(99,102,241,.15) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 30%, rgba(245,158,11,.08) 0%, transparent 50%);
+  pointer-events:none;
+}
+.pp-hero::after {
+  content:''; position:absolute; inset:0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='1.5'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events:none;
+}
+.pp-hero-inner { position:relative; z-index:1; max-width:560px; margin:0 auto; }
+.pp-hero-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:6px 18px; border-radius:100px;
+  background:linear-gradient(135deg, rgba(245,158,11,.15), rgba(239,68,68,.15));
+  border:1px solid rgba(245,158,11,.3);
+  font-family:var(--mono); font-size:.62rem; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase;
+  color:#fbbf24; margin-bottom:18px;
+}
+.pp-hero h1 { font-size:clamp(1.6rem,3vw,2.3rem); font-weight:700; color:#fff; letter-spacing:-.03em; line-height:1.2; margin-bottom:12px; }
+.pp-hero h1 em { font-style:normal; background:linear-gradient(135deg,#f9d423,#ff4e50); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.pp-hero p { font-size:.92rem; color:rgba(255,255,255,.6); line-height:1.6; max-width:440px; margin:0 auto; }
+
+/* ── FILTERS ── */
+.pp-filters { max-width:var(--max); margin:0 auto; padding:28px var(--pad) 0; display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.pp-search { flex:1; min-width:220px; padding:10px 16px 10px 40px; border:1px solid var(--border); border-radius:10px; font-family:var(--font); font-size:.85rem; outline:none; background:var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237985a0' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") 14px center no-repeat; }
+.pp-search:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(65,105,225,.1); }
+.pp-chip { padding:8px 18px; border-radius:8px; font-size:.78rem; font-weight:600; cursor:pointer; border:1px solid var(--border); background:var(--white); color:var(--text-2); transition:all .15s; font-family:var(--font); }
+.pp-chip:hover,.pp-chip.active { background:var(--carbon-black); color:#fff; border-color:var(--carbon-black); }
+
+/* ── GRID ── */
+.pp-content { max-width:var(--max); margin:0 auto; padding:32px var(--pad) 80px; }
+.pp-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:24px; }
+
+/* ── PROJECT CARD ── */
+.pp-card {
+  background:var(--white); border:1px solid var(--border); border-radius:16px;
+  overflow:hidden; display:flex; flex-direction:column;
+  transition:border-color .2s, box-shadow .2s, transform .2s;
+  box-shadow:0 6px 16px rgba(10,14,26,.03); position:relative;
+}
+.pp-card:hover { border-color:rgba(65,105,225,.4); box-shadow:0 12px 36px rgba(65,105,225,.12); transform:translateY(-4px); }
+.pp-card-thumb {
+  height:180px; display:flex; align-items:center; justify-content:center;
+  border-bottom:1px solid var(--border); position:relative; overflow:hidden; padding:24px; text-align:center;
+}
+.pp-card-thumb-title { font-size:1.2rem; font-weight:800; color:#fff; line-height:1.25; text-shadow:0 2px 10px rgba(0,0,0,.3); max-width:90%; letter-spacing:-.02em; }
+.pp-card-pro { position:absolute; top:14px; right:14px; font-family:var(--mono); font-size:.55rem; font-weight:700; padding:4px 12px; border-radius:100px; background:linear-gradient(135deg,#f9d423,#ff4e50); color:#fff; letter-spacing:.06em; text-transform:uppercase; }
+.pp-card-body { padding:20px; display:flex; flex-direction:column; gap:8px; flex:1; }
+.pp-card-title { font-size:1rem; font-weight:700; color:var(--carbon-black); }
+.pp-card-desc { font-size:.82rem; color:var(--text-2); line-height:1.6; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; flex:1; }
+.pp-card-tags { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+.pp-card-tag { font-family:var(--mono); font-size:.6rem; font-weight:500; padding:3px 10px; border-radius:6px; background:var(--tint); color:var(--accent); border:1px solid rgba(65,105,225,.1); }
+.pp-card-footer { display:flex; gap:8px; padding:0 20px 20px; }
+.pp-card-footer a { flex:1; text-align:center; font-size:.82rem; font-weight:600; padding:10px; border-radius:8px; text-decoration:none; transition:all .15s; }
+.pp-btn-preview { background:var(--tint); color:var(--text); border:1px solid var(--border); }
+.pp-btn-preview:hover { background:var(--accent-bg); border-color:rgba(65,105,225,.3); color:var(--accent); }
+.pp-btn-download { background:var(--carbon-black); color:#fff; border:1px solid var(--carbon-black); }
+.pp-btn-download:hover { background:var(--gunmetal); }
+
+/* ── PREMIUM GATE ── */
+.pp-gate-overlay {
+  position:absolute; inset:0; background:linear-gradient(to bottom, transparent 20%, rgba(255,255,255,.95) 70%, #fff);
+  display:flex; flex-direction:column; align-items:center; justify-content:flex-end; padding:24px; z-index:5;
+}
+.pp-gate-text { font-size:.85rem; font-weight:600; color:var(--carbon-black); margin-bottom:8px; }
+.pp-gate-cta { padding:10px 24px; border-radius:8px; font-size:.82rem; font-weight:600; background:linear-gradient(135deg,#f9d423,#ff4e50); color:#fff; border:none; cursor:pointer; text-decoration:none; }
+
+.pp-empty { grid-column:1/-1; text-align:center; padding:80px 20px; }
+.pp-empty h3 { font-size:1.1rem; font-weight:700; color:var(--text); margin-bottom:8px; }
+.pp-empty p { color:var(--text-2); font-size:.92rem; }
+
+/* ── RESPONSIVE ── */
+@media(max-width:600px) { .pp-grid{grid-template-columns:1fr;} .pp-filters{flex-direction:column;} .pp-search{min-width:unset;width:100%;} }
+</style>
+</head>
+<body>
+
+<div id="navbar-placeholder" data-type="main"></div>
+
+<!-- HERO -->
+<div class="pp-hero">
+  <div class="pp-hero-inner">
+    <div class="pp-hero-badge">⭐ Premium Access</div>
+    <h1>Ready-Made <em>Projects</em></h1>
+    <p>Production-quality, downloadable projects for premium members. Learn by studying real, working codebases.</p>
+  </div>
+</div>
+
+<!-- FILTERS -->
+<div class="pp-filters">
+  <input type="text" class="pp-search" placeholder="Search projects by name or tech..." id="ppSearch" oninput="filterProjects()"/>
+  <button class="pp-chip active" onclick="setTech('all', this)">All</button>
+  <button class="pp-chip" onclick="setTech('react', this)">React</button>
+  <button class="pp-chip" onclick="setTech('next.js', this)">Next.js</button>
+  <button class="pp-chip" onclick="setTech('python', this)">Python</button>
+  <button class="pp-chip" onclick="setTech('node', this)">Node.js</button>
+</div>
+
+<!-- GRID -->
+<div class="pp-content">
+  <div class="pp-grid" id="ppGrid">
+    <div class="pp-empty">
+      <h3>Loading projects...</h3>
+      <p>Fetching premium projects...</p>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/db.js"></script>
+<script src="../js/navbar.js"></script>
+<script>
+let allProjects = [], techFilter = 'all';
+let isPremiumUser = false;
+
+async function init() {
+  // Check if user is premium
+  firebase.auth().onAuthStateChanged(async (user) => {
+    if (user && window.Auth) {
+      const profile = Auth.getProfile();
+      if (profile) {
+        isPremiumUser = ['premium','team','superadmin'].includes(profile.role);
+      }
+    }
+    loadProjects();
+  });
+}
+
+async function loadProjects() {
+  try {
+    if (window.DB && DB.fetchPremiumProjects) {
+      allProjects = await DB.fetchPremiumProjects(50);
+    } else {
+      // Fallback: query from collection directly
+      const snap = await firebase.firestore().collection('premium_projects').orderBy('created_at','desc').limit(50).get();
+      allProjects = snap.docs.map(d => ({id: d.id, ...d.data()}));
+    }
+    renderProjects();
+  } catch(e) {
+    console.error(e);
+    document.getElementById('ppGrid').innerHTML = '<div class="pp-empty"><h3>No premium projects available yet</h3><p>Check back soon — our team is preparing amazing starter projects!</p></div>';
+  }
+}
+
+function renderProjects() {
+  const grid = document.getElementById('ppGrid');
+  let filtered = allProjects;
+  const q = document.getElementById('ppSearch').value.toLowerCase();
+  if (techFilter !== 'all') filtered = filtered.filter(p => (p.tech_stack||[]).some(t => t.toLowerCase().includes(techFilter)));
+  if (q) filtered = filtered.filter(p => (p.title||'').toLowerCase().includes(q) || (p.description||'').toLowerCase().includes(q));
+
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="pp-empty"><h3>No projects found</h3><p>Try adjusting your search or filters.</p></div>';
+    return;
+  }
+
+  const gradients = [
+    'linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #4169e1 100%)',
+    'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+    'linear-gradient(135deg, #2d1b69 0%, #4a2c8a 50%, #6366f1 100%)',
+    'linear-gradient(135deg, #134e5e 0%, #1a6b7a 50%, #2dd4bf 100%)',
+    'linear-gradient(135deg, #1f1c2c 0%, #3a2d5e 50%, #928dab 100%)',
+  ];
+
+  grid.innerHTML = filtered.map((p, i) => {
+    const tags = (p.tech_stack||[]).slice(0,4).map(t => `<span class="pp-card-tag">${t}</span>`).join('');
+    const grad = gradients[i % gradients.length];
+    const gated = !isPremiumUser;
+
+    return `<div class="pp-card">
+      <div class="pp-card-thumb" style="background:${grad};">
+        <div class="pp-card-thumb-title">${p.title}</div>
+        <span class="pp-card-pro">PRO</span>
+      </div>
+      <div class="pp-card-body">
+        <div class="pp-card-title">${p.title}</div>
+        <div class="pp-card-desc">${p.description||'A ready-made project for premium members.'}</div>
+        <div class="pp-card-tags">${tags}</div>
+      </div>
+      <div class="pp-card-footer">
+        ${gated ? `
+          <a href="../login.html" class="pp-btn-preview" style="flex:1;">Login for Access</a>
+          <a href="../login.html" class="pp-btn-download">🔒 Premium Only</a>
+        ` : `
+          ${p.preview_url ? `<a href="${p.preview_url}" target="_blank" class="pp-btn-preview">Preview</a>` : ''}
+          <a href="${p.download_url||'#'}" target="_blank" class="pp-btn-download">Download ↓</a>
+        `}
+      </div>
+      ${gated ? `<div class="pp-gate-overlay">
+        <div class="pp-gate-text">🔒 Premium members only</div>
+        <a href="../login.html" class="pp-gate-cta">Upgrade to Premium</a>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function setTech(tech, el) {
+  techFilter = tech;
+  document.querySelectorAll('.pp-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderProjects();
+}
+function filterProjects() { renderProjects(); }
+
+// Wait for auth to be ready
+setTimeout(init, 500);
+</script>
+</body>
+</html>

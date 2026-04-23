@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Cheatsheet — Syntax Syndicate</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+<link rel="stylesheet" href="../css/global.css"/>
+<style>
+:root {
+  --white:#fff;--tint:#f0f4ff;--tint-2:#e4eaf8;--border:#d0d7e8;
+  --text:#0a0e1a;--text-2:#3d4a66;--text-3:#7985a0;
+  --accent:#4169e1;--accent-hi:#2a52cc;--accent-bg:rgba(65,105,225,.08);--accent-bg2:rgba(65,105,225,.15);
+  --carbon-black:#0a0e1a;--font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --max:1280px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--tint);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* Hero */
+.cs-hero{background:var(--white);border-bottom:1px solid var(--border);padding:80px 24px 48px}
+.cs-hero-inner{max-width:var(--max);margin:0 auto}
+.cs-back{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;color:var(--text-3);text-decoration:none;margin-bottom:20px;font-weight:500;transition:color .2s}
+.cs-back:hover{color:var(--accent)}
+.cs-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.cs-badge{font-family:var(--mono);font-size:.6rem;font-weight:600;padding:4px 12px;border-radius:100px;letter-spacing:.06em;text-transform:uppercase;border:1px solid;color:var(--accent);border-color:rgba(65,105,225,.3);background:var(--accent-bg)}
+.cs-title{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:700;letter-spacing:-.02em;color:var(--carbon-black);line-height:1.15;margin-bottom:10px}
+.cs-desc{font-size:.95rem;color:var(--text-2);max-width:640px;line-height:1.7;margin-bottom:18px}
+.cs-meta{display:flex;gap:20px;flex-wrap:wrap;align-items:center}
+.cs-poster{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:var(--tint);border:1px solid var(--border);border-radius:100px;font-size:.78rem;font-weight:600;color:var(--text-2);text-decoration:none;transition:all .15s}
+.cs-poster:hover{border-color:var(--accent);color:var(--accent)}
+.cs-download{display:inline-flex;align-items:center;gap:6px;padding:8px 20px;background:var(--carbon-black);color:#fff;border-radius:8px;font-size:.82rem;font-weight:600;text-decoration:none;transition:background .15s}
+.cs-download:hover{background:#1a2035}
+
+/* Layout */
+.cs-layout{max-width:var(--max);margin:0 auto;padding:40px 24px 80px;display:grid;grid-template-columns:260px 1fr;gap:48px;align-items:start}
+
+/* TOC Sidebar */
+.cs-toc{position:sticky;top:100px}
+.cs-toc-inner{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:0 4px 20px rgba(10,14,26,.04)}
+.cs-toc-title{font-family:var(--mono);font-size:.62rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:12px;padding:0 4px}
+.cs-toc-link{display:block;padding:8px 10px;border-radius:7px;font-size:.8rem;font-weight:500;color:var(--text-2);text-decoration:none;transition:all .15s}
+.cs-toc-link:hover{background:var(--tint);color:var(--text)}
+.cs-toc-link.active{background:var(--accent-bg);color:var(--accent);font-weight:600}
+
+/* Sections */
+.cs-sections{display:flex;flex-direction:column;gap:28px}
+.cs-section{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color .2s}
+.cs-section:hover{border-color:rgba(65,105,225,.25)}
+.cs-section-header{padding:22px 28px 0;display:flex;align-items:center;gap:14px}
+.cs-section-num{width:32px;height:32px;border-radius:9px;background:rgba(40,200,64,.08);border:1px solid rgba(40,200,64,.25);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.7rem;font-weight:700;color:#1e7a42;flex-shrink:0}
+.cs-section-heading{font-size:1rem;font-weight:700;color:var(--carbon-black)}
+.cs-section-body{padding:16px 28px 24px}
+.cs-section-content{font-size:.88rem;color:var(--text-2);line-height:1.75;margin-bottom:16px;white-space:pre-wrap}
+
+/* Code Snippets */
+.cs-code-block{margin-bottom:14px;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.cs-code-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:var(--carbon-black);border-bottom:1px solid rgba(255,255,255,.1)}
+.cs-code-lang{font-family:var(--mono);font-size:.6rem;font-weight:600;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.06em}
+.cs-code-caption{font-size:.7rem;color:rgba(255,255,255,.4);font-style:italic}
+.cs-code-copy{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);font-family:var(--mono);font-size:.6rem;padding:3px 10px;border-radius:5px;cursor:pointer;transition:all .15s}
+.cs-code-copy:hover{background:rgba(255,255,255,.2);color:#fff}
+.cs-code-pre{background:var(--carbon-black);padding:16px 18px;margin:0;font-family:var(--mono);font-size:.78rem;line-height:1.7;color:#c8d4e0;overflow-x:auto;tab-size:2}
+
+/* Tips */
+.cs-tips{background:linear-gradient(135deg,rgba(40,200,64,.04),rgba(40,200,64,.08));border:1px solid rgba(40,200,64,.2);border-radius:10px;padding:14px 18px;display:flex;gap:10px;align-items:flex-start}
+.cs-tips-icon{font-size:1rem;flex-shrink:0}
+.cs-tips-text{font-size:.82rem;color:var(--text-2);line-height:1.65}
+
+/* Loading */
+.cs-loading{text-align:center;padding:80px 20px}
+.cs-loading-spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:860px){
+  .cs-layout{grid-template-columns:1fr;gap:20px}
+  .cs-toc{position:static;order:-1}
+  .cs-toc-inner{display:flex;gap:4px;overflow-x:auto;padding:10px}
+  .cs-toc-title{display:none}
+  .cs-toc-link{white-space:nowrap}
+  .cs-section-header{padding:16px 18px 0}
+  .cs-section-body{padding:14px 18px 20px}
+}
+@media(max-width:600px){.cs-hero{padding:100px 20px 36px}}
+</style>
+</head>
+<body>
+
+<div id="navbar-placeholder" data-type="main"></div>
+
+<div id="cheatsheetContent">
+  <div class="cs-loading">
+    <div class="cs-loading-spinner"></div>
+    <div style="font-size:.9rem;color:var(--text-3)">Loading cheatsheet...</div>
+  </div>
+</div>
+
+<div id="footer-placeholder"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/db.js"></script>
+<script src="../js/navbar.js"></script>
+<script src="../js/footer.js"></script>
+<script>
+const params = new URLSearchParams(window.location.search);
+const csId = params.get('id');
+
+function copyCode(btn, code) {
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+async function loadCheatsheet() {
+  const container = document.getElementById('cheatsheetContent');
+  if (!csId) {
+    container.innerHTML = '<div class="cs-loading"><h2 style="color:var(--text);margin-bottom:8px">Cheatsheet not found</h2><p style="color:var(--text-3)">No cheatsheet ID specified.</p><a href="index.html" class="cs-back" style="margin-top:16px">← Back to Resources</a></div>';
+    return;
+  }
+
+  try {
+    const cs = await DB.fetchCheatsheet(csId);
+    if (!cs) {
+      container.innerHTML = '<div class="cs-loading"><h2 style="color:var(--text);margin-bottom:8px">Cheatsheet not found</h2><p style="color:var(--text-3)">This cheatsheet may have been removed.</p><a href="index.html" class="cs-back" style="margin-top:16px">← Back to Resources</a></div>';
+      return;
+    }
+
+    document.title = `${cs.title} — Syntax Syndicate`;
+    const sections = cs.sections || [];
+
+    container.innerHTML = `
+      <section class="cs-hero">
+        <div class="cs-hero-inner">
+          <a href="index.html" class="cs-back"><i class="bi bi-arrow-left"></i> Back to Resources</a>
+          <div class="cs-badges">
+            ${cs.domain ? `<span class="cs-badge">${SS.sanitizeHTML(cs.domain)}</span>` : ''}
+            ${(cs.tags || []).slice(0, 3).map(t => `<span class="cs-badge">${SS.sanitizeHTML(t)}</span>`).join('')}
+          </div>
+          <h1 class="cs-title">${cs.cover_emoji || '📋'} ${SS.sanitizeHTML(cs.title)}</h1>
+          ${cs.description ? `<p class="cs-desc">${SS.sanitizeHTML(cs.description)}</p>` : ''}
+          <div class="cs-meta">
+            <a href="${cs.poster_type === 'company' ? '../company/profile.html?uid=' + cs.posted_by : '#'}" class="cs-poster">
+              <span>${cs.poster_type === 'company' ? '🏢' : '⚡'}</span>
+              ${SS.sanitizeHTML(cs.poster_name || 'Syntax Syndicate')}
+            </a>
+            ${cs.download_url ? `<a href="${SS.sanitizeHTML(cs.download_url)}" target="_blank" class="cs-download"><i class="bi bi-download"></i> Download PDF</a>` : ''}
+          </div>
+        </div>
+      </section>
+
+      <div class="cs-layout">
+        <aside class="cs-toc">
+          <div class="cs-toc-inner">
+            <div class="cs-toc-title">Sections</div>
+            ${sections.map((s, i) => `<a class="cs-toc-link${i === 0 ? ' active' : ''}" href="#sec-${i}" data-sec="${i}">${SS.truncateText(s.heading || 'Section ' + (i+1), 24)}</a>`).join('')}
+          </div>
+        </aside>
+
+        <div class="cs-sections">
+          ${sections.map((sec, i) => {
+            const snippets = (sec.code_snippets || []).filter(s => s && s.code);
+            return `
+              <div class="cs-section" id="sec-${i}">
+                <div class="cs-section-header">
+                  <div class="cs-section-num">${i + 1}</div>
+                  <div class="cs-section-heading">${SS.sanitizeHTML(sec.heading || 'Section ' + (i+1))}</div>
+                </div>
+                <div class="cs-section-body">
+                  ${sec.content ? `<div class="cs-section-content">${SS.sanitizeHTML(sec.content)}</div>` : ''}
+
+                  ${snippets.map((sn, si) => `
+                    <div class="cs-code-block">
+                      <div class="cs-code-header">
+                        <div>
+                          <span class="cs-code-lang">${SS.sanitizeHTML(sn.language || 'code')}</span>
+                          ${sn.caption ? `<span class="cs-code-caption"> — ${SS.sanitizeHTML(sn.caption)}</span>` : ''}
+                        </div>
+                        <button class="cs-code-copy" onclick="copyCode(this, this.closest('.cs-code-block').querySelector('pre').textContent)">Copy</button>
+                      </div>
+                      <pre class="cs-code-pre">${SS.sanitizeHTML(sn.code)}</pre>
+                    </div>
+                  `).join('')}
+
+                  ${sec.tips ? `
+                    <div class="cs-tips">
+                      <span class="cs-tips-icon">💡</span>
+                      <div class="cs-tips-text">${SS.sanitizeHTML(sec.tips)}</div>
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+
+    // Scroll spy
+    const tocLinks = document.querySelectorAll('.cs-toc-link');
+    const secEls = document.querySelectorAll('.cs-section');
+    if (tocLinks.length && secEls.length) {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            const idx = e.target.id.replace('sec-', '');
+            tocLinks.forEach(n => n.classList.toggle('active', n.dataset.sec === idx));
+          }
+        });
+      }, { threshold: 0.3, rootMargin: '-80px 0px -40% 0px' });
+      secEls.forEach(el => observer.observe(el));
+    }
+
+  } catch(e) {
+    console.error('Error loading cheatsheet:', e);
+    container.innerHTML = '<div class="cs-loading"><h2 style="color:var(--text)">Error loading cheatsheet</h2><p style="color:var(--text-3)">Please try refreshing the page.</p></div>';
+  }
+}
+
+loadCheatsheet();
+</script>
+</body>
+</html>

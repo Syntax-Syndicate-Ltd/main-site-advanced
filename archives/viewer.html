@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PDF Viewer — Syntax Archives</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../css/global.css"/>
+
+<style>
+:root {
+  --white:#ffffff;--tint:#f0f4ff;--tint-2:#e4eaf8;--border:#d0d7e8;--border-2:#b8c2d8;
+  --text:#0a0e1a;--text-2:#3d4a66;--text-3:#7985a0;
+  --accent:#4169e1;--accent-hi:#2a52cc;--accent-bg:rgba(65,105,225,0.08);--accent-bg2:rgba(65,105,225,0.15);
+  --ui-bar:#1a2035;--carbon-black:#0a0e1a;--gunmetal:#1a2035;--iron-grey:#3d4a66;
+  --pale-slate:#d0d7e8;--platinum:#f0f4ff;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --max:1280px;
+  --yellow:#e6a817;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--tint);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased;line-height:1.6;padding-top:72px;}
+
+.container{max-width:var(--max);margin:28px auto;padding:0 24px;display:grid;grid-template-columns:1fr 360px;gap:24px;}
+
+/* Viewer */
+.viewer-wrap{border-radius:16px;overflow:hidden;border:1px solid var(--border);box-shadow:0 8px 48px rgba(10,14,26,.06);}
+.mock-bar{height:40px;background:var(--ui-bar);display:flex;align-items:center;padding:0 16px;gap:8px;}
+.mock-dot{width:9px;height:9px;border-radius:50%;}
+.md-r{background:#ff5f57;}.md-y{background:#febc2e;}.md-g{background:#28c840;}
+.mock-title{font-family:var(--mono);font-size:.62rem;color:rgba(255,255,255,.4);margin-left:8px;flex:1;}
+.mock-actions{display:flex;gap:8px;margin-left:auto;}
+.mock-actions a{font-size:.68rem;color:rgba(255,255,255,.5);text-decoration:none;padding:4px 10px;border:1px solid rgba(255,255,255,.15);border-radius:6px;transition:all .15s;}
+.mock-actions a:hover{color:#fff;border-color:rgba(255,255,255,.4);}
+.viewer-body{background:var(--white);height:720px;}
+.viewer-body iframe{width:100%;height:100%;border:none;}
+
+.card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 6px 16px rgba(10,14,26,0.03);}
+
+.pdf-info .title{font-size:1.25rem;font-weight:800;color:var(--carbon-black);margin-bottom:8px;letter-spacing:-0.02em;}
+.pdf-info .desc{font-size:.9rem;color:var(--text-2);line-height:1.7;margin-bottom:16px;}
+.meta-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+.domain-tag{font-family:var(--mono);font-size:.62rem;font-weight:600;color:var(--accent);background:var(--accent-bg);padding:3px 12px;border-radius:100px;border:1px solid rgba(65,105,225,.2);}
+.meta-item{font-family:var(--mono);font-size:.68rem;color:var(--text-3);}
+
+/* Access notice */
+.access-notice{background:#fffbeb;border:1px solid #fbbf24;border-radius:12px;padding:16px 20px;margin-top:16px;font-size:.85rem;color:#92400e;line-height:1.6;}
+.access-notice strong{color:#78350f;}
+
+/* Sidebar */
+.sidebar{display:flex;flex-direction:column;gap:20px;}
+.rating-section h4{font-size:.95rem;font-weight:700;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.review-summary{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:12px 16px;background:var(--tint);border-radius:10px;border:1px solid var(--border);}
+.review-avg{font-size:1.8rem;font-weight:800;color:var(--carbon-black);line-height:1;}
+.review-avg-stars{color:var(--yellow);font-size:.9rem;letter-spacing:1px;}
+.review-avg-count{font-size:.72rem;color:var(--text-3);font-family:var(--mono);}
+.stars{display:flex;gap:4px;margin-bottom:14px;}
+.star{font-size:1.4rem;cursor:pointer;color:var(--border);transition:color .15s;user-select:none;}
+.star.active,.star:hover{color:var(--yellow);}
+.review-input{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-family:var(--font);font-size:.85rem;outline:none;resize:vertical;min-height:70px;}
+.review-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(65,105,225,0.1);}
+.btn-submit{width:100%;padding:10px;border-radius:7px;font-size:.85rem;font-weight:600;background:var(--carbon-black);color:#fff;border:1px solid var(--carbon-black);cursor:pointer;font-family:var(--font);margin-top:10px;transition:all .15s;}
+.btn-submit:hover{background:var(--gunmetal);}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed;}
+
+.reviews-list{display:flex;flex-direction:column;gap:12px;margin-top:16px;}
+.review-item{padding:14px;background:var(--tint);border-radius:10px;border:1px solid var(--border);}
+.review-author{font-size:.82rem;font-weight:700;color:var(--carbon-black);}
+.review-stars{font-size:.78rem;color:var(--yellow);letter-spacing:1px;}
+.review-text{font-size:.82rem;color:var(--text-2);line-height:1.6;margin-top:4px;}
+.review-date{font-size:.62rem;color:var(--text-3);margin-top:6px;font-family:var(--mono);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:960px){
+  .container{grid-template-columns:1fr;padding:0 16px;}
+  .viewer-body{height:500px;}
+}
+@media(max-width:600px){
+  .container{padding:0 12px;margin:16px auto;}
+  .viewer-body{height:400px;}
+  .card{padding:16px;}
+  .pdf-info .title{font-size:1.05rem;}
+  nav{width:calc(100% - 24px);padding:0 12px;}
+}
+</style>
+</head>
+<body>
+
+<div id="navbar-placeholder"></div>
+
+<div class="container">
+  <div>
+    <div class="viewer-wrap" id="pdfEmbed">
+      <div class="mock-bar">
+        <span class="mock-dot md-r"></span><span class="mock-dot md-y"></span><span class="mock-dot md-g"></span>
+        <span class="mock-title">viewer.pdf</span>
+        <div class="mock-actions">
+          <a href="#" id="openExternal" target="_blank">Open ↗</a>
+        </div>
+      </div>
+      <div class="viewer-body" id="viewerBody"><div style="padding:60px;text-align:center;color:var(--text-3);">Loading PDF...</div></div>
+    </div>
+    <div class="card pdf-info" style="margin-top:20px;">
+      <div class="title" id="pdfTitle">Loading...</div>
+      <div class="desc" id="pdfDesc"></div>
+      <div style="font-size:0.85rem;color:var(--text-3);margin-bottom:12px;">By: <strong style="color:var(--text-2)" id="pdfAuthor">—</strong></div>
+      <div class="meta-row">
+        <span class="domain-tag" id="pdfDomain">—</span>
+        <span class="meta-item" id="pdfType">📄 PDF</span>
+        <span class="meta-item" id="pdfDate">—</span>
+        <span class="meta-item" id="pdfReads">👁 0 reads</span>
+      </div>
+      <div class="access-notice" id="accessNotice" style="display:none;">
+        <strong>⚠️ Can't see the PDF?</strong> The Google Drive file owner needs to set sharing to <strong>"Anyone with the link"</strong> in their Drive settings. <a href="#" id="directLink" target="_blank" style="color:var(--accent);font-weight:600;">Try opening directly →</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="card rating-section">
+      <h4>Ratings & Reviews</h4>
+      <div class="review-summary" id="reviewSummary" style="display:none;">
+        <div>
+          <div class="review-avg" id="avgRatingVal">—</div>
+          <div class="review-avg-stars" id="avgRatingStars"></div>
+        </div>
+        <div class="review-avg-count" id="avgRatingCount"></div>
+      </div>
+      <p style="font-size:.82rem;color:var(--text-3);margin-bottom:10px;">Tap a star to rate</p>
+      <div class="stars" id="starsContainer">
+        <span class="star" data-val="1" onclick="setRating(1)">★</span>
+        <span class="star" data-val="2" onclick="setRating(2)">★</span>
+        <span class="star" data-val="3" onclick="setRating(3)">★</span>
+        <span class="star" data-val="4" onclick="setRating(4)">★</span>
+        <span class="star" data-val="5" onclick="setRating(5)">★</span>
+      </div>
+      <textarea class="review-input" id="reviewText" placeholder="Write a review (optional)..."></textarea>
+      <button class="btn-submit" id="btnReview" onclick="submitReview()">Submit Review</button>
+      <div class="reviews-list" id="reviewsList"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/db.js"></script>
+<script src="../js/navbar.js"></script>
+<script>
+const pdfId = new URLSearchParams(window.location.search).get('id');
+let selectedRating = 0;
+
+/**
+ * Convert a Google Drive share/view URL into an embeddable preview URL.
+ *  - https://drive.google.com/file/d/FILEID/view  → /preview
+ *  - https://drive.google.com/open?id=FILEID       → /file/d/FILEID/preview
+ */
+function toGoogleDrivePreview(url) {
+  if (!url) return null;
+  // Already a preview URL
+  if (url.includes('/preview')) return url;
+  
+  // Pattern: /file/d/FILEID/view or /file/d/FILEID/edit etc.
+  const fileMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (fileMatch) return `https://drive.google.com/file/d/${fileMatch[1]}/preview`;
+  
+  // Pattern: ?id=FILEID
+  const idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (idMatch) return `https://drive.google.com/file/d/${idMatch[1]}/preview`;
+  
+  // Not a Google Drive URL — return as-is for iframe
+  return url;
+}
+
+function getDirectUrl(url) {
+  if (!url) return '#';
+  const fileMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (fileMatch) return `https://drive.google.com/file/d/${fileMatch[1]}/view`;
+  const idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (idMatch) return `https://drive.google.com/file/d/${idMatch[1]}/view`;
+  return url;
+}
+
+async function init() {
+  if (!pdfId) { document.getElementById('pdfTitle').innerText = 'No PDF selected'; return; }
+  const pdf = await DB.getDoc('pdfs/' + pdfId);
+  if (!pdf) { document.getElementById('pdfTitle').innerText = 'Resource not found'; return; }
+
+  document.title = (pdf.title || 'PDF Viewer') + ' — Syntax Archives';
+  document.getElementById('pdfTitle').innerText = pdf.title || 'Untitled';
+  document.getElementById('pdfDesc').innerText = pdf.description || '';
+  document.getElementById('pdfAuthor').innerText = pdf.poster_name || 'Syntax Syndicate';
+  document.getElementById('pdfDomain').innerText = pdf.domain || 'General';
+  document.getElementById('pdfType').innerText = '📄 ' + (pdf.type || 'PDF').toUpperCase();
+  document.getElementById('pdfDate').innerText = pdf.created_at ? SS.formatDate(pdf.created_at) : '';
+  document.getElementById('pdfReads').innerText = '👁 ' + (pdf.read_count || 0) + ' reads';
+  document.querySelector('.mock-title').innerText = (pdf.title || 'document') + '.pdf';
+
+  if (pdf.url) {
+    const isGoogleDrive = pdf.url.includes('drive.google.com');
+    
+    if (isGoogleDrive) {
+      const previewUrl = toGoogleDrivePreview(pdf.url);
+      const directUrl = getDirectUrl(pdf.url);
+      document.getElementById('viewerBody').innerHTML = `<iframe src="${previewUrl}" allow="autoplay" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>`;
+      document.getElementById('openExternal').href = directUrl;
+      document.getElementById('directLink').href = directUrl;
+      document.getElementById('accessNotice').style.display = 'block';
+    } else {
+      // Direct URL (e.g. hosted PDF)
+      document.getElementById('viewerBody').innerHTML = `<iframe src="${pdf.url}" allow="autoplay"></iframe>`;
+      document.getElementById('openExternal').href = pdf.url;
+    }
+  } else if (pdf.file_path) {
+    document.getElementById('viewerBody').innerHTML = `<iframe src="${pdf.file_path}"></iframe>`;
+    document.getElementById('openExternal').href = pdf.file_path;
+  } else {
+    document.getElementById('viewerBody').innerHTML = '<div style="padding:60px;text-align:center;color:var(--text-3);">No preview available for this resource.</div>';
+  }
+
+  // Show rating summary
+  if (pdf.avg_rating) {
+    document.getElementById('reviewSummary').style.display = 'flex';
+    document.getElementById('avgRatingVal').innerText = pdf.avg_rating.toFixed(1);
+    document.getElementById('avgRatingStars').innerText = '★'.repeat(Math.round(pdf.avg_rating)) + '☆'.repeat(5 - Math.round(pdf.avg_rating));
+    document.getElementById('avgRatingCount').innerText = (pdf.review_count || 0) + ' reviews';
+  }
+
+  DB.incrementField('pdfs/' + pdfId, 'read_count').catch(() => {});
+  loadReviews();
+}
+
+function setRating(val) {
+  selectedRating = val;
+  document.querySelectorAll('.star').forEach(s => s.classList.toggle('active', parseInt(s.dataset.val) <= val));
+}
+
+async function submitReview() {
+  if (selectedRating === 0) { alert('Please select a rating'); return; }
+  const user = firebase.auth().currentUser;
+  if (!user) { alert('Please log in to review'); return; }
+  const btn = document.getElementById('btnReview');
+  btn.disabled = true; btn.innerText = 'Submitting...';
+  try {
+    await DB.submitReview(pdfId, {
+      user_id: user.uid,
+      user_name: Auth.getProfile()?.name || user.email,
+      rating: selectedRating,
+      text: document.getElementById('reviewText').value.trim()
+    });
+    alert('Review submitted! Thank you.');
+    document.getElementById('reviewText').value = '';
+    selectedRating = 0;
+    document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
+    loadReviews();
+    // Reload to update summary
+    const pdf = await DB.getDoc('pdfs/' + pdfId);
+    if (pdf && pdf.avg_rating) {
+      document.getElementById('reviewSummary').style.display = 'flex';
+      document.getElementById('avgRatingVal').innerText = pdf.avg_rating.toFixed(1);
+      document.getElementById('avgRatingStars').innerText = '★'.repeat(Math.round(pdf.avg_rating)) + '☆'.repeat(5 - Math.round(pdf.avg_rating));
+      document.getElementById('avgRatingCount').innerText = (pdf.review_count || 0) + ' reviews';
+    }
+  } catch(e) { alert('Failed to submit: ' + e.message); }
+  btn.disabled = false; btn.innerText = 'Submit Review';
+}
+
+async function loadReviews() {
+  try {
+    const reviews = await DB.fetchReviews(pdfId, 20);
+    const list = document.getElementById('reviewsList');
+    if (reviews.length === 0) { list.innerHTML = '<div style="text-align:center;color:var(--text-3);font-size:.82rem;padding:16px;">No reviews yet. Be the first!</div>'; return; }
+    list.innerHTML = reviews.map(r => `<div class="review-item">
+      <div class="review-author">${SS.sanitizeHTML(r.user_name || 'Anonymous')}</div>
+      <div class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+      ${r.text ? '<div class="review-text">' + SS.sanitizeHTML(r.text) + '</div>' : ''}
+      <div class="review-date">${r.created_at ? SS.formatDate(r.created_at) : ''}</div>
+    </div>`).join('');
+  } catch(e) { console.error('Reviews error:', e); }
+}
+
+init();
+</script>
+</body>
+</html>

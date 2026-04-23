@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Developer Portfolio — Syntax Syndicate</title>
+<meta name="description" content="A developer portfolio hosted on Syntax Syndicate"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/portfolio-builder.css"/>
+<style>
+body{height:auto;overflow:auto;background:#0f0f23}
+.port-loading{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#64748b;gap:12px}
+.port-loading .spinner{width:32px;height:32px;border:3px solid rgba(129,140,248,.15);border-top-color:#818cf8;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.port-error{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#64748b;text-align:center;padding:40px;gap:16px}
+.port-error h2{font-size:1.4rem;color:#e2e8f0;font-weight:700}
+.port-error p{font-size:.9rem;max-width:400px;line-height:1.6}
+.port-error a{color:#818cf8;text-decoration:none;font-weight:600}
+.port-share-bar{position:fixed;bottom:20px;right:20px;display:flex;gap:8px;z-index:100}
+.port-share-btn{padding:8px 14px;border-radius:8px;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none;display:flex;align-items:center;gap:5px;font-family:'DM Sans',sans-serif}
+.port-share-btn:hover{background:rgba(129,140,248,.2);border-color:rgba(129,140,248,.4)}
+</style>
+</head>
+<body>
+
+<div id="portfolioRoot">
+  <div class="port-loading" id="loadingState">
+    <div class="spinner"></div>
+    <div style="font-size:.85rem;font-weight:500">Loading portfolio...</div>
+  </div>
+</div>
+
+<div class="port-share-bar" id="shareBar" style="display:none">
+  <button class="port-share-btn" onclick="copyLink()">📋 Copy Link</button>
+  <a href="index.html" class="port-share-btn">SS ← Platform</a>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/db.js"></script>
+<script src="js/portfolio-builder.js"></script>
+<script>
+function copyLink(){
+  navigator.clipboard.writeText(window.location.href).then(()=>{
+    const btn=document.querySelector('.port-share-btn');
+    btn.textContent='✓ Copied!';
+    setTimeout(()=>btn.innerHTML='📋 Copy Link',2000);
+  });
+}
+
+(async function(){
+  const root=document.getElementById('portfolioRoot');
+  const params=new URLSearchParams(window.location.search);
+  const uid=params.get('uid');
+  
+  if(!uid){
+    root.innerHTML=`<div class="port-error"><h2>No Portfolio Found</h2><p>This link is missing a user ID. Make sure you have the correct URL.</p><a href="index.html">← Back to Syntax Syndicate</a></div>`;
+    return;
+  }
+
+  try{
+    const doc=await DB.getPublicPortfolio(uid);
+    if(!doc||!doc.data){
+      root.innerHTML=`<div class="port-error"><h2>Portfolio Not Available</h2><p>This portfolio either doesn't exist or hasn't been published yet.</p><a href="index.html">← Back to Syntax Syndicate</a></div>`;
+      return;
+    }
+
+    // Update page title and meta
+    const name=doc.data.hero?.name||'Developer';
+    document.title=name+' — Portfolio | Syntax Syndicate';
+    const metaDesc=document.querySelector('meta[name="description"]');
+    if(metaDesc) metaDesc.content=`${name}'s developer portfolio — ${doc.data.hero?.role||'Developer'}`;
+
+    // Render portfolio
+    root.innerHTML=PB.generatePortfolioHTML(doc.data, doc.template||'midnight', false);
+    document.getElementById('shareBar').style.display='flex';
+
+    // Set background based on template
+    const tplBgs={midnight:'#0b0f1a',daylight:'#f9fafb',gradient:'#fdf2f8',terminal:'#000000',bento:'#f9fafb',elegant:'#ffffff'};
+    document.body.style.background=tplBgs[doc.template]||'#f9fafb';
+
+    // Interaction Scripts
+    setTimeout(() => {
+      // Intersection Observer for scroll reveal
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.1 });
+
+      document.querySelectorAll('.scroll-reveal').forEach(el => observer.observe(el));
+
+      // Handle smooth scrolling for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      });
+    }, 100);
+
+  }catch(e){
+    console.error(e);
+    root.innerHTML=`<div class="port-error"><h2>Something Went Wrong</h2><p>We couldn't load this portfolio. Please try again later.</p><a href="index.html">← Back to Syntax Syndicate</a></div>`;
+  }
+})();
+</script>
+</body>
+</html>

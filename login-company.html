@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Company Portal - Syntax Syndicate</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --white:      #ffffff;
+  --tint:       #f0f4ff;
+  --border:     #d0d7e8;
+  --text:       #0a0e1a;
+  --text-2:     #3d4a66;
+  --accent:     #4169e1;
+  --carbon-black: #0a0e1a;
+  --font: 'DM Sans', sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body { font-family:var(--font); background:var(--tint); color:var(--text); line-height:1.6; display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px 0; }
+.login-wrap { width:100%; max-width:440px; padding:20px; }
+.login-card { background:var(--white); border:1px solid var(--border); border-radius:16px; padding:40px; box-shadow:0 12px 48px rgba(10,14,26,0.06); }
+.logo { font-size:1.4rem; font-weight:700; color:var(--carbon-black); text-align:center; display:block; text-decoration:none; margin-bottom:8px; }
+.sub { text-align:center; color:var(--text-2); font-size:.9rem; margin-bottom:24px; }
+.tabs { display:flex; border-bottom:1px solid var(--border); margin-bottom:24px; }
+.tab { flex:1; text-align:center; padding:10px; cursor:pointer; font-size:.9rem; font-weight:600; color:var(--text-2); border-bottom:2px solid transparent; transition:all .2s; }
+.tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+.form-group { margin-bottom:16px; }
+.form-label { display:block; font-size:.8rem; font-weight:600; margin-bottom:6px; color:var(--text-2); }
+.form-input { width:100%; padding:12px 16px; border:1px solid var(--border); border-radius:10px; font-family:var(--font); outline:none; transition:border-color .2s; }
+.form-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(65,105,225,0.1); }
+.btn-submit { width:100%; padding:14px; background:var(--carbon-black); color:#fff; border:none; border-radius:10px; font-weight:600; font-family:var(--font); cursor:pointer; font-size:.95rem; margin-top:8px; transition:background .2s; }
+.btn-submit:hover { background:#1a2035; }
+.links { text-align:center; margin-top:24px; font-size:.85rem; }
+.links a { color:var(--accent); text-decoration:none; font-weight:600; }
+.links a:hover { text-decoration:underline; }
+.panel { display: none; }
+.panel.active { display: block; }
+</style>
+</head>
+<body>
+<div class="login-wrap">
+  <div class="login-card">
+    <a href="index.html" class="logo">Syntax Syndicate</a>
+    <div class="sub">Partner Portal</div>
+    
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('login')">Sign In</div>
+      <div class="tab" onclick="switchTab('register')">Register Company</div>
+    </div>
+    
+    <div id="panel-login" class="panel active">
+      <form id="loginForm">
+        <div class="form-group">
+          <label class="form-label">Email address</label>
+          <input type="email" id="l-email" class="form-input" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="l-password" class="form-input" required />
+        </div>
+        <button type="submit" class="btn-submit" id="btnLogin">Sign In</button>
+      </form>
+    </div>
+    
+    <div id="panel-register" class="panel">
+      <form id="registerForm">
+        <div class="form-group">
+          <label class="form-label">Company Name</label>
+          <input type="text" id="r-name" class="form-input" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Company Website / Domain</label>
+          <input type="url" id="r-domain" class="form-input" placeholder="https://" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Official Email</label>
+          <input type="email" id="r-email" class="form-input" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="r-password" class="form-input" required minlength="6" />
+        </div>
+        <button type="submit" class="btn-submit" id="btnReg">Create Account</button>
+      </form>
+    </div>
+
+    <div class="links">
+      <div style="margin-top:16px;">Are you a developer? <a href="login.html">Login here</a></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  function switchTab(t) {
+    document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(el => el.classList.remove('active'));
+    if(t === 'login') {
+      document.querySelectorAll('.tab')[0].classList.add('active');
+      document.getElementById('panel-login').classList.add('active');
+    } else {
+      document.querySelectorAll('.tab')[1].classList.add('active');
+      document.getElementById('panel-register').classList.add('active');
+    }
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnLogin');
+    const og = btn.innerText;
+    btn.innerText = "Signing in...";
+    const res = await Auth.login(document.getElementById('l-email').value, document.getElementById('l-password').value);
+    if (!res.success) btn.innerText = og;
+  });
+
+  document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnReg');
+    const og = btn.innerText;
+    btn.innerText = "Registering...";
+    const data = {
+      name: document.getElementById('r-name').value,
+      domain: document.getElementById('r-domain').value
+    };
+    const res = await Auth.registerCompany(document.getElementById('r-email').value, document.getElementById('r-password').value, data);
+    if (!res.success) btn.innerText = og;
+  });
+</script>
+</body>
+</html>

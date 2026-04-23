@@ -1,0 +1,727 @@
+/* ══════════════════════════════════════════════
+   SYNTAX SYNDICATE — DEVELOPER'S HUB MODULE
+   Posts · Projects · Snippets · Ideas · Social
+   ══════════════════════════════════════════════ */
+
+const DevHub = {
+
+  /* ═══════════════════════════════════
+     POSTS (Feed)
+     ═══════════════════════════════════ */
+  async createPost(content, imageUrl, linkUrl) {
+    const user = Auth.getUser();
+    const profile = Auth.getProfile();
+    if (!user || !profile) { SS.showToast('Please log in first', 'error'); return null; }
+    const data = {
+      author_uid: user.uid,
+      author_name: profile.name || user.displayName || 'Anonymous',
+      content: content.trim(),
+      image_url: (imageUrl || '').trim(),
+      link_url: (linkUrl || '').trim(),
+      likes: [],
+      comment_count: 0,
+      created_at: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    const id = await DB.addDoc('devhub_posts', data);
+    SS.showToast('Post published!', 'success');
+    return id;
+  },
+
+  async deletePost(postId) {
+    const user = Auth.getUser();
+    if (!user) return;
+    const post = await DB.getDoc(`devhub_posts/${postId}`);
+    if (!post) return;
+    if (post.author_uid !== user.uid && !Auth.isAdmin()) {
+      SS.showToast('Not authorized', 'error'); return;
+    }
+    await DB.deleteDoc(`devhub_posts/${postId}`);
+    // Delete associated comments
+    const comments = await DB.queryDocs('devhub_comments', [['target_type','==','post'],['target_id','==',postId]]);
+    for (const c of comments) await DB.deleteDoc(`devhub_comments/${c.id}`);
+    SS.showToast('Post deleted', 'info');
+  },
+
+  async toggleLike(collection, docId) {
+    const user = Auth.getUser();
+    if (!user) { SS.showToast('Log in to like', 'error'); return; }
+    const doc = await DB.getDoc(`${collection}/${docId}`);
+    if (!doc) return;
+    const likes = doc.likes || [];
+    if (likes.includes(user.uid)) {
+      await DB.removeFromArray(`${collection}/${docId}`, 'likes', user.uid);
+    } else {
+      await DB.addToArray(`${collection}/${docId}`, 'likes', user.uid);
+    }
+  },
+
+  /* ═══════════════════════════════════
+     PROJECTS
+     ═══════════════════════════════════ */
+  async createProject(data) {
+    const user = Auth.getUser();
+    const profile = Auth.getProfile();
+    if (!user || !profile) { SS.showToast('Please log in first', 'error'); return null; }
+    const doc = {
+      author_uid: user.uid,
+      author_name: profile.name || 'Anonymous',
+      title: data.title.trim(),
+      description: (data.description || '').trim(),
+      thumbnail_url: (data.thumbnail_url || '').trim(),
+      tech_stack: (data.tech_stack || '').split(',').map(s => s.trim()).filter(Boolean),
+      github_url: (data.github_url || '').trim(),
+      live_url: (data.live_url || '').trim(),
+      likes: [],
+      created_at: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    const id = await DB.addDoc('projects', doc);
+    SS.showToast('Project added!', 'success');
+    return id;
+  },
+
+  async deleteProject(projectId) {
+    const user = Auth.getUser();
+    if (!user) return;
+    const p = await DB.getDoc(`projects/${projectId}`);
+    if (!p) return;
+    if (p.author_uid !== user.uid && !Auth.isAdmin()) {
+      SS.showToast('Not authorized', 'error'); return;
+    }
+    await DB.deleteDoc(`projects/${projectId}`);
+    SS.showToast('Project removed', 'info');
+  },
+
+  /* ═══════════════════════════════════
+     SNIPPETS
+     ═══════════════════════════════════ */
+  async createSnippet(data) {
+    const user = Auth.getUser();
+    const profile = Auth.getProfile();
+    if (!user || !profile) { SS.showToast('Please log in first', 'error'); return null; }
+    const doc = {
+      author_uid: user.uid,
+      author_name: profile.name || 'Anonymous',
+      title: data.title.trim(),
+      description: (data.description || '').trim(),
+      language: data.language || 'other',
+      code: data.code || '',
+      likes: [],
+      created_at: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    const id = await DB.addDoc('snippets', doc);
+    SS.showToast('Snippet shared!', 'success');
+    return id;
+  },
+
+  async deleteSnippet(snippetId) {
+    const user = Auth.getUser();
+    if (!user) return;
+    const s = await DB.getDoc(`snippets/${snippetId}`);
+    if (!s) return;
+    if (s.author_uid !== user.uid && !Auth.isAdmin()) {
+      SS.showToast('Not authorized', 'error'); return;
+    }
+    await DB.deleteDoc(`snippets/${snippetId}`);
+    SS.showToast('Snippet deleted', 'info');
+  },
+
+  copySnippet(code) {
+    SS.copyToClipboard(code);
+  },
+
+  /* ═══════════════════════════════════
+     IDEAS
+     ═══════════════════════════════════ */
+  async createIdea(data) {
+    const user = Auth.getUser();
+    const profile = Auth.getProfile();
+    if (!user || !profile) { SS.showToast('Please log in first', 'error'); return null; }
+    const doc = {
+      author_uid: user.uid,
+      author_name: profile.name || 'Anonymous',
+      title: data.title.trim(),
+      description: (data.description || '').trim(),
+      category: data.category || 'other',
+      upvotes: [],
+      downvotes: [],
+      status: 'open',
+      created_at: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    const id = await DB.addDoc('ideas', doc);
+    SS.showToast('Idea proposed!', 'success');
+    return id;
+  },
+
+  async voteIdea(ideaId, direction) {
+    const user = Auth.getUser();
+    if (!user) { SS.showToast('Log in to vote', 'error'); return; }
+    const idea = await DB.getDoc(`ideas/${ideaId}`);
+    if (!idea) return;
+    const uid = user.uid;
+    const ups = idea.upvotes || [];
+    const downs = idea.downvotes || [];
+
+    if (direction === 'up') {
+      if (ups.includes(uid)) {
+        await DB.removeFromArray(`ideas/${ideaId}`, 'upvotes', uid);
+      } else {
+        await DB.addToArray(`ideas/${ideaId}`, 'upvotes', uid);
+        if (downs.includes(uid)) await DB.removeFromArray(`ideas/${ideaId}`, 'downvotes', uid);
+      }
+    } else {
+      if (downs.includes(uid)) {
+        await DB.removeFromArray(`ideas/${ideaId}`, 'downvotes', uid);
+      } else {
+        await DB.addToArray(`ideas/${ideaId}`, 'downvotes', uid);
+        if (ups.includes(uid)) await DB.removeFromArray(`ideas/${ideaId}`, 'upvotes', uid);
+      }
+    }
+  },
+
+  /* ═══════════════════════════════════
+     SOCIAL — Follow System
+     ═══════════════════════════════════ */
+  _followDocId(followerUid, followingUid) {
+    return `${followerUid}_${followingUid}`;
+  },
+
+  async followUser(targetUid) {
+    const user = Auth.getUser();
+    if (!user) { SS.showToast('Log in to follow', 'error'); return; }
+    if (user.uid === targetUid) return;
+    const docId = this._followDocId(user.uid, targetUid);
+    await DB.setDoc(`devhub_follows/${docId}`, {
+      follower_uid: user.uid,
+      following_uid: targetUid,
+      created_at: firebase.firestore.FieldValue.serverTimestamp()
+    }, false);
+    SS.showToast('Following!', 'success');
+  },
+
+  async unfollowUser(targetUid) {
+    const user = Auth.getUser();
+    if (!user) return;
+    const docId = this._followDocId(user.uid, targetUid);
+    await DB.deleteDoc(`devhub_follows/${docId}`);
+    SS.showToast('Unfollowed', 'info');
+  },
+
+  async isFollowing(targetUid) {
+    const user = Auth.getUser();
+    if (!user) return false;
+    const docId = this._followDocId(user.uid, targetUid);
+    const doc = await DB.getDoc(`devhub_follows/${docId}`);
+    return !!doc;
+  },
+
+  async getFollowerCount(uid) {
+    const docs = await DB.queryDocs('devhub_follows', [['following_uid','==',uid]], null, 'desc', 1000);
+    return docs.length;
+  },
+
+  async getFollowingCount(uid) {
+    const docs = await DB.queryDocs('devhub_follows', [['follower_uid','==',uid]], null, 'desc', 1000);
+    return docs.length;
+  },
+
+  /* ═══════════════════════════════════
+     COMMENTS
+     ═══════════════════════════════════ */
+  async addComment(targetType, targetId, text) {
+    const user = Auth.getUser();
+    const profile = Auth.getProfile();
+    if (!user || !profile) { SS.showToast('Log in to comment', 'error'); return null; }
+    const doc = {
+      target_type: targetType,
+      target_id: targetId,
+      author_uid: user.uid,
+      author_name: profile.name || 'Anonymous',
+      text: text.trim(),
+      created_at: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    const id = await DB.addDoc('devhub_comments', doc);
+    // Increment comment count on parent (posts only)
+    if (targetType === 'post') {
+      await DB.incrementField(`devhub_posts/${targetId}`, 'comment_count', 1);
+    }
+    return id;
+  },
+
+  async getComments(targetType, targetId) {
+    try {
+      const docs = await DB.queryDocs('devhub_comments', [['target_type','==',targetType],['target_id','==',targetId]], null, null, 500);
+      return docs.sort((a,b) => (a.created_at?.toMillis?.()||0) - (b.created_at?.toMillis?.()||0));
+    } catch(e) { return []; }
+  },
+
+  async deleteComment(commentId, targetType, targetId) {
+    const user = Auth.getUser();
+    if (!user) return;
+    const c = await DB.getDoc(`devhub_comments/${commentId}`);
+    if (!c) return;
+    if (c.author_uid !== user.uid && !Auth.isAdmin()) {
+      SS.showToast('Not authorized', 'error'); return;
+    }
+    await DB.deleteDoc(`devhub_comments/${commentId}`);
+    if (targetType === 'post') {
+      await DB.incrementField(`devhub_posts/${targetId}`, 'comment_count', -1);
+    }
+    SS.showToast('Comment deleted', 'info');
+  },
+
+  /* ═══════════════════════════════════
+     RENDERING HELPERS
+     ═══════════════════════════════════ */
+
+  renderPostCard(post) {
+    const uid = Auth.getUser()?.uid;
+    const liked = (post.likes || []).includes(uid);
+    const likeCount = (post.likes || []).length;
+    const initials = SS.getInitials(post.author_name);
+    const time = SS.formatDateRelative(post.created_at);
+    const isOwner = uid === post.author_uid || Auth.isAdmin();
+
+    let mediaHTML = '';
+    if (post.image_url) {
+      mediaHTML = `<img class="dh-post-image" src="${SS.sanitizeHTML(post.image_url)}" alt="Post image" onerror="this.style.display='none'"/>`;
+    }
+    if (post.link_url) {
+      mediaHTML += `<a class="dh-post-link" href="${SS.sanitizeHTML(post.link_url)}" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        ${SS.truncateText(post.link_url, 60)}
+      </a>`;
+    }
+
+    // Shared content preview card
+    let sharedHTML = '';
+    if (post.shared_content) {
+      const sc = post.shared_content;
+      const typeIcons = { project: '🖥️', snippet: '📝', pdf: '📄' };
+      const typeLabels = { project: 'Project', snippet: 'Snippet', pdf: 'Resource' };
+      const linkMap = { project: `projects.html`, snippet: `snippets.html`, pdf: `../archives/viewer.html?id=${sc.id}` };
+      sharedHTML = `<a href="${linkMap[sc.type] || '#'}" class="dh-shared-card" target="_blank">
+        <div class="dh-shared-icon">${typeIcons[sc.type] || '📎'}</div>
+        <div class="dh-shared-info">
+          <div class="dh-shared-label">${typeLabels[sc.type] || 'Content'}</div>
+          <div class="dh-shared-title">${SS.sanitizeHTML(sc.title || 'Untitled')}</div>
+          ${sc.description ? `<div class="dh-shared-desc">${SS.sanitizeHTML(SS.truncateText(sc.description, 80))}</div>` : ''}
+        </div>
+        <div class="dh-shared-arrow"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </a>`;
+    }
+
+    return `
+    <div class="dh-post" id="post-${post.id}" data-id="${post.id}">
+      <div class="dh-post-header">
+        <a href="profile.html?uid=${post.author_uid}" class="avatar">${initials}</a>
+        <div class="dh-post-meta">
+          <a href="profile.html?uid=${post.author_uid}" class="dh-post-author">${SS.sanitizeHTML(post.author_name)}</a>
+          <div class="dh-post-time">${time}</div>
+        </div>
+        ${isOwner ? `<button class="dh-post-menu" onclick="DevHub._confirmDelete('post','${post.id}')" title="Delete post">
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>` : ''}
+      </div>
+      <div class="dh-post-content">${SS.sanitizeHTML(post.content)}</div>
+      ${mediaHTML}
+      ${sharedHTML}
+      <div class="dh-post-actions">
+        <button class="dh-action-btn ${liked ? 'liked' : ''}" onclick="DevHub._handleLike('devhub_posts','${post.id}', this)">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>${likeCount}</span>
+        </button>
+        <button class="dh-action-btn" onclick="DevHub._toggleComments('${post.id}')">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>${post.comment_count || 0}</span>
+        </button>
+      </div>
+      <div class="dh-comments" id="comments-${post.id}">
+        <div class="dh-comments-list" id="comments-list-${post.id}"></div>
+        ${uid ? `<div class="dh-comment-input">
+          <input type="text" placeholder="Write a comment..." id="comment-input-${post.id}" onkeydown="if(event.key==='Enter')DevHub._submitComment('post','${post.id}')"/>
+          <button onclick="DevHub._submitComment('post','${post.id}')">Send</button>
+        </div>` : ''}
+      </div>
+    </div>`;
+  },
+
+  renderProjectCard(project) {
+    const uid = Auth.getUser()?.uid;
+    const liked = (project.likes || []).includes(uid);
+    const likeCount = (project.likes || []).length;
+    const initials = SS.getInitials(project.author_name);
+    const tags = (project.tech_stack || []).map(t => `<span class="dh-project-tag">${SS.sanitizeHTML(t)}</span>`).join('');
+    const thumbHTML = project.thumbnail_url
+      ? `<div class="dh-project-thumb"><img src="${SS.sanitizeHTML(project.thumbnail_url)}" alt="${SS.sanitizeHTML(project.title)}" onerror="this.parentElement.innerHTML='🖥️'"/></div>`
+      : `<div class="dh-project-thumb">🖥️</div>`;
+
+    let linksHTML = '';
+    if (project.github_url) {
+      linksHTML += `<a href="${SS.sanitizeHTML(project.github_url)}" class="dh-project-link" target="_blank" rel="noopener" title="GitHub">
+        <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      </a>`;
+    }
+    if (project.live_url) {
+      linksHTML += `<a href="${SS.sanitizeHTML(project.live_url)}" class="dh-project-link" target="_blank" rel="noopener" title="Live Demo">
+        <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      </a>`;
+    }
+
+    return `
+    <div class="dh-project-card" data-id="${project.id}">
+      ${thumbHTML}
+      <div class="dh-project-body">
+        <div class="dh-project-title">${SS.sanitizeHTML(project.title)}</div>
+        <div class="dh-project-desc">${SS.sanitizeHTML(project.description)}</div>
+        <div class="dh-project-tags">${tags}</div>
+        <div class="dh-project-footer">
+          <a href="profile.html?uid=${project.author_uid}" class="dh-project-author">
+            <span class="avatar">${initials}</span>
+            ${SS.sanitizeHTML(project.author_name)}
+          </a>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button class="dh-action-btn ${liked ? 'liked' : ''}" onclick="DevHub._handleLike('projects','${project.id}', this)" style="padding:4px 8px;">
+              <svg viewBox="0 0 24 24" style="width:13px;height:13px;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              <span>${likeCount}</span>
+            </button>
+            <div class="dh-project-links">${linksHTML}</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  },
+
+  renderSnippetBlock(snippet) {
+    const uid = Auth.getUser()?.uid;
+    const liked = (snippet.likes || []).includes(uid);
+    const likeCount = (snippet.likes || []).length;
+    const initials = SS.getInitials(snippet.author_name);
+    const time = SS.formatDateRelative(snippet.created_at);
+    const langClass = `dh-lang-${snippet.language || 'other'}`;
+    const escapedCode = SS.sanitizeHTML(snippet.code || '');
+    const isOwner = uid === snippet.author_uid || Auth.isAdmin();
+
+    return `
+    <div class="dh-snippet" data-id="${snippet.id}">
+      <div class="dh-snippet-header">
+        <div class="dh-snippet-title">${SS.sanitizeHTML(snippet.title)}</div>
+        <span class="dh-snippet-lang ${langClass}">${SS.sanitizeHTML(snippet.language || 'other')}</span>
+        ${isOwner ? `<button class="dh-post-menu" onclick="DevHub._confirmDelete('snippet','${snippet.id}')" title="Delete" style="margin-left:4px;">
+          <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>` : ''}
+      </div>
+      ${snippet.description ? `<div style="padding:0 20px 10px;font-size:.82rem;color:var(--text-2);">${SS.sanitizeHTML(snippet.description)}</div>` : ''}
+      <div class="dh-snippet-code">
+        <button class="dh-snippet-copy" onclick="DevHub.copySnippet(${JSON.stringify(snippet.code || '').replace(/</g,'\\x3c')})">Copy</button>
+        <pre>${escapedCode}</pre>
+      </div>
+      <div class="dh-snippet-footer">
+        <a href="profile.html?uid=${snippet.author_uid}" class="dh-snippet-author">
+          <span class="avatar">${initials}</span>
+          ${SS.sanitizeHTML(snippet.author_name)} · ${time}
+        </a>
+        <button class="dh-action-btn ${liked ? 'liked' : ''}" onclick="DevHub._handleLike('snippets','${snippet.id}', this)" style="padding:4px 10px;">
+          <svg viewBox="0 0 24 24" style="width:13px;height:13px;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>${likeCount}</span>
+        </button>
+      </div>
+    </div>`;
+  },
+
+  renderIdeaCard(idea) {
+    const uid = Auth.getUser()?.uid;
+    const ups = idea.upvotes || [];
+    const downs = idea.downvotes || [];
+    const score = ups.length - downs.length;
+    const votedUp = ups.includes(uid);
+    const votedDown = downs.includes(uid);
+    const initials = SS.getInitials(idea.author_name);
+    const time = SS.formatDateRelative(idea.created_at);
+    const catClass = `dh-cat-${idea.category || 'other'}`;
+    const statusClass = `dh-status-${(idea.status || 'open').replace(' ','_')}`;
+
+    return `
+    <div class="dh-idea" data-id="${idea.id}">
+      <div class="dh-idea-votes">
+        <button class="dh-vote-btn ${votedUp ? 'active-up' : ''}" onclick="DevHub._handleVote('${idea.id}','up')">
+          <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+        </button>
+        <div class="dh-vote-score">${score}</div>
+        <button class="dh-vote-btn ${votedDown ? 'active-down' : ''}" onclick="DevHub._handleVote('${idea.id}','down')">
+          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </div>
+      <div class="dh-idea-body">
+        <div class="dh-idea-title">${SS.sanitizeHTML(idea.title)}</div>
+        <div class="dh-idea-desc">${SS.sanitizeHTML(idea.description)}</div>
+        <div class="dh-idea-meta">
+          <a href="profile.html?uid=${idea.author_uid}" class="dh-idea-author">
+            <span class="avatar">${initials}</span>
+            ${SS.sanitizeHTML(idea.author_name)}
+          </a>
+          <span style="color:var(--pale-slate-2);">·</span>
+          <span style="font-size:.7rem;color:var(--text-3);font-family:var(--mono);">${time}</span>
+          <span class="dh-cat ${catClass}">${SS.sanitizeHTML(idea.category || 'other')}</span>
+          <span class="dh-status ${statusClass}">${(idea.status || 'open').replace('_',' ')}</span>
+        </div>
+      </div>
+    </div>`;
+  },
+
+  /* ═══════════════════════════════════
+     UI INTERACTION HANDLERS
+     ═══════════════════════════════════ */
+  async _handleLike(collection, docId, btnEl) {
+    if (!Auth.getUser()) { SS.showToast('Log in to like', 'error'); return; }
+    const wasLiked = btnEl.classList.contains('liked');
+    btnEl.classList.toggle('liked');
+    const countEl = btnEl.querySelector('span');
+    const current = parseInt(countEl.textContent) || 0;
+    countEl.textContent = wasLiked ? Math.max(0, current - 1) : current + 1;
+    try {
+      await DevHub.toggleLike(collection, docId);
+    } catch(e) {
+      // Revert on error
+      btnEl.classList.toggle('liked');
+      countEl.textContent = current;
+    }
+  },
+
+  async _handleVote(ideaId, direction) {
+    if (!Auth.getUser()) { SS.showToast('Log in to vote', 'error'); return; }
+    try {
+      await DevHub.voteIdea(ideaId, direction);
+      if (window._refreshIdeas) window._refreshIdeas();
+    } catch(e) { console.error(e); }
+  },
+
+  async _toggleComments(postId) {
+    const container = document.getElementById(`comments-${postId}`);
+    if (!container) return;
+    const isOpen = container.classList.contains('open');
+    if (!isOpen) {
+      container.classList.add('open');
+    }
+    // Always refresh comments when opening or when already open
+    await DevHub._loadCommentsList(postId);
+  },
+
+  async _loadCommentsList(postId) {
+    const listEl = document.getElementById(`comments-list-${postId}`);
+    if (!listEl) return;
+    listEl.innerHTML = '<div style="text-align:center;padding:12px;color:var(--text-3);font-size:.8rem;">Loading...</div>';
+    const comments = await DevHub.getComments('post', postId);
+    if (comments.length === 0) {
+      listEl.innerHTML = '<div style="text-align:center;padding:12px;color:var(--text-3);font-size:.8rem;">No comments yet — be the first!</div>';
+    } else {
+      listEl.innerHTML = comments.map(c => `
+        <div class="dh-comment">
+          <span class="avatar">${SS.getInitials(c.author_name)}</span>
+          <div class="dh-comment-body">
+            <div class="dh-comment-author">${SS.sanitizeHTML(c.author_name)}</div>
+            <div class="dh-comment-text">${SS.sanitizeHTML(c.text)}</div>
+            <div class="dh-comment-time">${SS.formatDateRelative(c.created_at)}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+  },
+
+  async _submitComment(targetType, targetId) {
+    const input = document.getElementById(`comment-input-${targetId}`);
+    if (!input) return;
+    const text = input.value.trim();
+    if (!text) return;
+    input.disabled = true;
+    const btn = input.nextElementSibling;
+    if (btn) { btn.disabled = true; btn.textContent = '...'; }
+    try {
+      await DevHub.addComment(targetType, targetId, text);
+      input.value = '';
+      // Refresh comments (container already open, just reload list)
+      await DevHub._loadCommentsList(targetId);
+      // Update comment count in the action button
+      const postEl = document.getElementById(`post-${targetId}`);
+      if (postEl) {
+        const btns = postEl.querySelectorAll('.dh-action-btn');
+        if (btns[1]) {
+          const s = btns[1].querySelector('span');
+          if (s) s.textContent = parseInt(s.textContent || 0) + 1;
+        }
+      }
+    } catch(e) { SS.showToast('Error posting comment', 'error'); }
+    input.disabled = false;
+    if (btn) { btn.disabled = false; btn.textContent = 'Send'; }
+    input.focus();
+  },
+
+  _confirmDelete(type, id) {
+    const nice = type.charAt(0).toUpperCase() + type.slice(1);
+    SS.showModal(`
+      <p style="font-size:.9rem;color:var(--text-2);margin-bottom:20px;">Are you sure you want to delete this ${type}? This cannot be undone.</p>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button class="btn" onclick="SS.closeModal()">Cancel</button>
+        <button class="btn btn-primary" style="background:#d32f2f;border-color:#d32f2f;" onclick="DevHub._executeDelete('${type}','${id}')">Delete</button>
+      </div>
+    `, { title: `Delete ${nice}?`, closeable: true });
+  },
+
+  async _executeDelete(type, id) {
+    SS.closeModal();
+    if (type === 'post') await DevHub.deletePost(id);
+    else if (type === 'project') await DevHub.deleteProject(id);
+    else if (type === 'snippet') await DevHub.deleteSnippet(id);
+    // Remove from DOM
+    const el = document.querySelector(`[data-id="${id}"]`);
+    if (el) { el.style.transition = 'opacity .3s'; el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }
+  },
+
+  /* ═══════════════════════════════════
+     MODAL — Create Forms
+     ═══════════════════════════════════ */
+  showProjectModal() {
+    if (!Auth.getUser()) { SS.showToast('Please log in first', 'error'); return; }
+    SS.showModal(`
+      <form id="projectForm" style="display:flex;flex-direction:column;gap:14px;">
+        <div class="form-group"><label class="form-label">Project Title *</label><input name="title" class="form-input" required placeholder="My Awesome Project"/></div>
+        <div class="form-group"><label class="form-label">Description</label><textarea name="description" class="form-textarea" rows="3" placeholder="What does it do?"></textarea></div>
+        <div class="form-group"><label class="form-label">Thumbnail URL</label><input name="thumbnail_url" class="form-input" placeholder="https://..."/></div>
+        <div class="form-group"><label class="form-label">Tech Stack</label><input name="tech_stack" class="form-input" placeholder="React, Node.js, Firebase"/><div class="form-hint">Comma-separated</div></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">GitHub URL</label><input name="github_url" class="form-input" placeholder="https://github.com/..."/></div>
+          <div class="form-group"><label class="form-label">Live URL</label><input name="live_url" class="form-input" placeholder="https://..."/></div>
+        </div>
+        <button type="submit" class="form-submit" style="align-self:flex-end;">Add Project</button>
+      </form>
+    `, { title: 'Add Project' });
+    document.getElementById('projectForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const data = Object.fromEntries(fd);
+      const btn = e.target.querySelector('button[type=submit]'); btn.disabled = true; btn.textContent = 'Adding...';
+      const projectId = await DevHub.createProject(data);
+      SS.closeModal();
+      if (window._refreshProjects) window._refreshProjects();
+      // Offer to share as post
+      if (projectId) DevHub._showShareAsPostPrompt('project', projectId, data.title, data.description);
+    });
+  },
+
+  showSnippetModal() {
+    if (!Auth.getUser()) { SS.showToast('Please log in first', 'error'); return; }
+    SS.showModal(`
+      <form id="snippetForm" style="display:flex;flex-direction:column;gap:14px;">
+        <div class="form-group"><label class="form-label">Snippet Title *</label><input name="title" class="form-input" required placeholder="Array Flatten Utility"/></div>
+        <div class="form-group"><label class="form-label">Description</label><input name="description" class="form-input" placeholder="Short description..."/></div>
+        <div class="form-group"><label class="form-label">Language</label>
+          <select name="language" class="form-select">
+            <option value="javascript">JavaScript</option>
+            <option value="python">Python</option>
+            <option value="html">HTML</option>
+            <option value="css">CSS</option>
+            <option value="java">Java</option>
+            <option value="cpp">C++</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Code *</label><textarea name="code" class="form-textarea" rows="8" required style="font-family:var(--mono);font-size:.82rem;tab-size:2;" placeholder="Paste your code here..."></textarea></div>
+        <button type="submit" class="form-submit" style="align-self:flex-end;">Share Snippet</button>
+      </form>
+    `, { title: 'Share Snippet' });
+    document.getElementById('snippetForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const data = Object.fromEntries(fd);
+      const btn = e.target.querySelector('button[type=submit]'); btn.disabled = true; btn.textContent = 'Sharing...';
+      const snippetId = await DevHub.createSnippet(data);
+      SS.closeModal();
+      if (window._refreshSnippets) window._refreshSnippets();
+      // Offer to share as post
+      if (snippetId) DevHub._showShareAsPostPrompt('snippet', snippetId, data.title, data.description);
+    });
+  },
+
+  showIdeaModal() {
+    if (!Auth.getUser()) { SS.showToast('Please log in first', 'error'); return; }
+    SS.showModal(`
+      <form id="ideaForm" style="display:flex;flex-direction:column;gap:14px;">
+        <div class="form-group"><label class="form-label">Idea Title *</label><input name="title" class="form-input" required placeholder="Build a collaborative code editor"/></div>
+        <div class="form-group"><label class="form-label">Description *</label><textarea name="description" class="form-textarea" rows="4" required placeholder="Describe the idea in detail..."></textarea></div>
+        <div class="form-group"><label class="form-label">Category</label>
+          <select name="category" class="form-select">
+            <option value="project">Project</option>
+            <option value="feature">Feature</option>
+            <option value="tool">Tool</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <button type="submit" class="form-submit" style="align-self:flex-end;">Propose Idea</button>
+      </form>
+    `, { title: 'Propose an Idea' });
+    document.getElementById('ideaForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const btn = e.target.querySelector('button[type=submit]'); btn.disabled = true; btn.textContent = 'Proposing...';
+      await DevHub.createIdea(Object.fromEntries(fd));
+      SS.closeModal();
+      if (window._refreshIdeas) window._refreshIdeas();
+    });
+  },
+
+  /* ═══════════════════════════════════
+     SHARE AS POST — Auto-create post from content
+     ═══════════════════════════════════ */
+  _showShareAsPostPrompt(type, contentId, title, description) {
+    const typeLabels = { project: 'Project', snippet: 'Snippet', pdf: 'Resource' };
+    const typeIcons = { project: '🖥️', snippet: '📝', pdf: '📄' };
+    setTimeout(() => {
+      SS.showModal(`
+        <div style="text-align:center;padding:8px 0 16px;">
+          <div style="font-size:2.5rem;margin-bottom:12px;">🎉</div>
+          <p style="font-size:1rem;font-weight:600;color:var(--carbon-black);margin-bottom:6px;">Your ${typeLabels[type] || 'content'} is live!</p>
+          <p style="font-size:.88rem;color:var(--text-2);margin-bottom:20px;">Would you like to share it as a post so the community can discover it?</p>
+          <div style="background:var(--tint);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:left;margin-bottom:20px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:1.5rem;">${typeIcons[type] || '📎'}</span>
+              <div>
+                <div style="font-weight:700;font-size:.92rem;color:var(--carbon-black);">${SS.sanitizeHTML(title || 'Untitled')}</div>
+                ${description ? `<div style="font-size:.8rem;color:var(--text-2);margin-top:2px;">${SS.sanitizeHTML(SS.truncateText(description, 80))}</div>` : ''}
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:center;">
+            <button class="btn" onclick="SS.closeModal()" style="padding:10px 24px;">Skip</button>
+            <button class="btn btn-primary" onclick="DevHub._executeShareAsPost('${type}','${contentId}',${JSON.stringify(title||'').replace(/'/g,"\\'")},${JSON.stringify(description||'').replace(/'/g,"\\'")}); SS.closeModal();" style="padding:10px 24px;background:var(--accent);border-color:var(--accent);">Share as Post 🚀</button>
+          </div>
+        </div>
+      `, { title: 'Share with Community', closeable: true });
+    }, 400);
+  },
+
+  async _executeShareAsPost(type, contentId, title, description) {
+    const typeLabels = { project: 'project', snippet: 'snippet', pdf: 'resource' };
+    const content = `Check out my new ${typeLabels[type] || 'content'}: ${title || 'Untitled'}${description ? '\n\n' + SS.truncateText(description, 120) : ''}`;
+    const user = Auth.getUser();
+    const profile = Auth.getProfile();
+    if (!user || !profile) return;
+    try {
+      const data = {
+        author_uid: user.uid,
+        author_name: profile.name || user.displayName || 'Anonymous',
+        content: content.trim(),
+        image_url: '',
+        link_url: '',
+        shared_content: { type, id: contentId, title: title || 'Untitled', description: description || '' },
+        likes: [],
+        comment_count: 0,
+        created_at: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      await DB.addDoc('devhub_posts', data);
+      SS.showToast('Shared as post!', 'success');
+    } catch(e) {
+      SS.showToast('Error sharing post', 'error');
+    }
+  }
+};
+
+window.DevHub = DevHub;

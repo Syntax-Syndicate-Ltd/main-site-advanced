@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Premium Library — Syntax Archives</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../css/global.css"/>
+
+<style>
+:root {
+  --white:#ffffff;--tint:#f0f4ff;--tint-2:#e4eaf8;--border:#d0d7e8;--border-2:#b8c2d8;
+  --text:#0a0e1a;--text-2:#3d4a66;--text-3:#7985a0;
+  --accent:#4169e1;--accent-hi:#2a52cc;--accent-bg:rgba(65,105,225,0.08);--accent-bg2:rgba(65,105,225,0.15);
+  --ui-bar:#1a2035;--carbon-black:#0a0e1a;--gunmetal:#1a2035;--iron-grey:#3d4a66;
+  --pale-slate:#d0d7e8;--pale-slate-2:#b8c2d8;--platinum:#f0f4ff;
+  --gold:#f59e0b;--gold-bg:rgba(245,158,11,0.08);--gold-border:rgba(245,158,11,0.25);
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --max:1100px;--pad:max(40px,calc((100vw - 1100px)/2));
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font);background:var(--white);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased;line-height:1.6;padding-top:72px;}
+
+
+/* ── HERO ── */
+.prem-hero{background:linear-gradient(180deg,var(--carbon-black) 0%,#141e30 100%);padding:60px var(--pad) 56px;text-align:center;color:#fff;}
+.prem-hero .sh-tag{color:var(--gold);}
+.prem-hero h1{font-size:clamp(1.7rem,2.8vw,2.4rem);font-weight:700;letter-spacing:-.025em;line-height:1.15;margin-bottom:12px;}
+.prem-hero h1 em{font-style:normal;background:linear-gradient(135deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.prem-hero p{font-size:.95rem;color:rgba(255,255,255,.6);max-width:520px;margin:0 auto;line-height:1.7;}
+
+/* ── LOCKED BANNER ── */
+.locked-section{max-width:var(--max);margin:0 auto;padding:60px var(--pad);text-align:center;}
+.lock-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:48px 40px;box-shadow:0 8px 48px rgba(10,14,26,.06);}
+.lock-card h3{font-size:1.15rem;font-weight:700;margin-bottom:8px;}
+.lock-card p{color:var(--text-2);font-size:.92rem;margin-bottom:24px;max-width:440px;margin-left:auto;margin-right:auto;}
+.lock-features{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:24px;}
+.lock-feat{display:flex;align-items:center;gap:6px;font-size:.82rem;color:var(--text-2);}
+.lock-feat::before{content:'✓';width:18px;height:18px;border-radius:50%;background:var(--gold-bg);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;flex-shrink:0;}
+.btn-upgrade{display:inline-block;padding:14px 32px;border-radius:8px;font-size:.95rem;font-weight:700;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;text-decoration:none;border:none;cursor:pointer;transition:transform .15s,box-shadow .15s;}
+.btn-upgrade:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(245,158,11,.3);}
+
+/* ── FILTER BAR ── */
+.filter-bar{background:var(--tint);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:16px var(--pad);display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.search-box{flex:1;min-width:240px;padding:10px 16px 10px 40px;border:1px solid var(--border);border-radius:8px;font-family:var(--font);font-size:.85rem;outline:none;background:var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237985a0' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") 14px center no-repeat;}
+.search-box:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(65,105,225,0.1);}
+.filter-tag{padding:7px 16px;border-radius:6px;font-size:.78rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--text-2);transition:all .15s;font-family:var(--font);}
+.filter-tag:hover,.filter-tag.active{background:var(--carbon-black);color:#fff;border-color:var(--carbon-black);}
+
+/* ── PDF GRID ── */
+.lib-content{max-width:var(--max);margin:0 auto;padding:40px var(--pad) 80px;}
+.pdf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.pdf-card{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color .2s,box-shadow .2s,transform .2s;display:flex;flex-direction:column;box-shadow:0 6px 16px rgba(10,14,26,0.03);}
+.pdf-card:hover{border-color:rgba(245,158,11,0.45);box-shadow:0 12px 36px rgba(245,158,11,0.12);transform:translateY(-4px);}
+.pdf-thumb{height:140px;background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--border);position:relative;}
+.pdf-thumb-icon{font-size:2.2rem;}
+.premium-star{position:absolute;top:14px;right:14px;font-family:var(--mono);font-size:.58rem;font-weight:700;padding:3px 10px;border-radius:100px;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;letter-spacing:.04em;}
+.pdf-body{padding:20px 22px;display:flex;flex-direction:column;gap:8px;flex:1;}
+.pdf-title{font-size:.92rem;font-weight:700;color:var(--carbon-black);}
+.pdf-desc{font-size:.8rem;color:var(--text-2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex:1;}
+.pdf-meta{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--border);margin-top:6px;}
+.pdf-domain{font-family:var(--mono);font-size:.62rem;font-weight:600;color:var(--gold);background:var(--gold-bg);padding:3px 10px;border-radius:100px;border:1px solid var(--gold-border);}
+.pdf-rating{display:flex;align-items:center;gap:4px;font-size:.78rem;color:#e6a817;font-family:var(--mono);}
+.pdf-actions{display:flex;gap:8px;padding:0 22px 20px;}
+.pdf-actions a{flex:1;text-align:center;font-size:.8rem;font-weight:600;padding:9px;border-radius:7px;text-decoration:none;transition:all .15s;}
+.btn-view{background:var(--tint);color:var(--text);border:1px solid var(--border);}
+.btn-view:hover{background:var(--gold-bg);border-color:var(--gold-border);color:var(--gold);}
+.btn-download{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;border:1px solid transparent;}
+.btn-download:hover{opacity:.9;}
+
+.empty-state{grid-column:1/-1;text-align:center;padding:80px 20px;}
+.empty-state h3{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:8px;}
+.empty-state p{color:var(--text-2);font-size:.92rem;}
+
+.lib-footer{background:var(--carbon-black);padding:40px var(--pad);text-align:center;}
+.lib-footer p{font-size:.78rem;color:rgba(255,255,255,.4);}
+
+@media(max-width:860px){.pdf-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.pdf-grid{grid-template-columns:1fr;}.filter-bar{flex-direction:column;}.search-box{min-width:unset;width:100%;}nav{width:calc(100% - 24px);padding:0 12px;}}
+</style>
+</head>
+<body>
+
+<div id="navbar-placeholder"></div>
+
+<!-- ── HERO ── -->
+<div class="prem-hero">
+  <div class="sh-tag">// premium_resources</div>
+  <h1>Unlock the <em>Premium Library</em></h1>
+  <p>Exclusive deep-dive guides, interview prep, and industry-level materials for premium members.</p>
+</div>
+
+<!-- ── LOCKED (non-premium) ── -->
+<div class="locked-section" id="lockedBanner" style="display:none;">
+  <div class="lock-card">
+    <h3>🔒 This content is for Premium members</h3>
+    <p>Get access to our exclusive library of advanced resources, interview prep materials, and deep-dive technical guides.</p>
+    <div class="lock-features">
+      <div class="lock-feat">100+ exclusive resources</div>
+      <div class="lock-feat">Interview prep kits</div>
+      <div class="lock-feat">Portfolio builder</div>
+      <div class="lock-feat">Resume templates</div>
+    </div>
+    <a href="../upgrade.html" class="btn-upgrade">Upgrade to Premium — ₹299/mo</a>
+  </div>
+</div>
+
+<!-- ── PREMIUM CONTENT ── -->
+<div id="premiumContent" style="display:none;">
+  <div class="filter-bar">
+    <input type="text" class="search-box" placeholder="Search premium resources..." id="searchInput" oninput="filterPDFs()"/>
+    <div class="filter-tag active" onclick="setFilter('all')">All</div>
+    <div class="filter-tag" onclick="setFilter('pdf')">PDFs</div>
+    <div class="filter-tag" onclick="setFilter('guide')">Guides</div>
+    <div class="filter-tag" onclick="setFilter('course')">Courses</div>
+  </div>
+  <div class="lib-content">
+    <div class="pdf-grid" id="pdfGrid"><div class="empty-state"><h3>Loading...</h3></div></div>
+  </div>
+</div>
+
+<div class="lib-footer"><p>© 2025 Syntax Syndicate. All rights reserved.</p></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/db.js"></script>
+<script src="../js/navbar.js"></script>
+<script>
+let allPDFs = [];
+let currentFilter = 'all';
+
+Auth.onAuthChange(async (user, profile) => {
+  const isPremium = profile && ['premium','team','superadmin'].includes(profile.role);
+  document.getElementById('lockedBanner').style.display = isPremium ? 'none' : 'block';
+  document.getElementById('premiumContent').style.display = isPremium ? 'block' : 'none';
+  if (isPremium) {
+    allPDFs = await DB.queryDocs('pdfs', [['access', '==', 'premium']], 'created_at', 'desc', 100);
+    renderPDFs();
+  }
+});
+
+function renderPDFs() {
+  const grid = document.getElementById('pdfGrid');
+  let filtered = allPDFs;
+  const query = document.getElementById('searchInput').value.toLowerCase();
+  if (currentFilter !== 'all') filtered = filtered.filter(p => p.type === currentFilter);
+  if (query) filtered = filtered.filter(p => (p.title||'').toLowerCase().includes(query) || (p.domain||'').toLowerCase().includes(query));
+  if (filtered.length === 0) { grid.innerHTML = '<div class="empty-state"><h3>No premium resources found</h3><p>Our team is adding new premium content regularly.</p></div>'; return; }
+  const icons = { pdf:'📄', guide:'📖', course:'🎓', other:'📦' };
+  grid.innerHTML = filtered.map(p => `<div class="pdf-card"><div class="pdf-thumb"><span class="pdf-thumb-icon">${icons[p.type]||'📄'}</span><span class="premium-star">⚡ PREMIUM</span></div>
+  <div class="pdf-body"><div class="pdf-title">${p.title}</div><div class="pdf-desc">${p.description||''}</div>
+  <div class="pdf-meta"><span class="pdf-domain">${p.domain||'General'}</span><span class="pdf-rating">★ ${p.avg_rating?.toFixed(1)||'—'}</span></div></div>
+  <div class="pdf-actions"><a href="viewer.html?id=${p.id}" class="btn-view">Read →</a><a href="${p.url||'#'}" target="_blank" class="btn-download">Download</a></div></div>`).join('');
+}
+
+function setFilter(f) { currentFilter = f; document.querySelectorAll('.filter-tag').forEach(t=>t.classList.remove('active')); event.target.classList.add('active'); renderPDFs(); }
+function filterPDFs() { renderPDFs(); }
+</script>
+</body>
+</html>
