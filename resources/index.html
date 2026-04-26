@@ -452,6 +452,10 @@
       try { roadmaps = await DB.fetchLatestRoadmaps(100); } catch (e) { console.error('Roadmaps fetch error:', e); }
       try { cheatsheets = await DB.fetchLatestCheatsheets(100); } catch (e) { console.error('Cheatsheets fetch error:', e); }
       renderRoadmaps(); renderCheatsheets();
+
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get('tab');
+      if (tab === 'cheatsheets') showTab('cheatsheets');
     }
 
     function renderRoadmaps() {

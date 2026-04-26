@@ -3494,9 +3494,12 @@
             </div>
             <h4>${SS.sanitizeHTML(p.title)}</h4>
             <p>${p.description ? SS.sanitizeHTML(SS.truncateText(p.description, 80)) : 'High-quality community resource.'}</p>
-            <div class="pdf-meta" style="display:flex;align-items:center;gap:8px;">
-              ${SS.renderAvatar({ name: p.poster_name, avatar_url: p.poster_avatar_url }, 'xs circle')}
-              <span style="font-size:0.75rem;font-weight:600;color:var(--text-3);">By ${SS.sanitizeHTML(p.poster_name || 'Syndicate Member')}</span>
+            <div class="pdf-meta" style="display:flex;align-items:center;gap:10px;margin-top:auto;padding-top:12px;border-top:1px solid rgba(0,0,0,0.04);">
+              ${SS.renderAvatar({ name: p.poster_name, avatar_url: p.poster_avatar_url }, 'sm circle')}
+              <div style="display:flex;flex-direction:column;">
+                <span style="font-size:0.8rem;font-weight:700;color:var(--text);line-height:1.2;">${SS.sanitizeHTML(p.poster_name || 'Syndicate Member')}</span>
+                <span style="font-size:0.65rem;color:var(--text-3);">${p.domain || 'General'}</span>
+              </div>
             </div>
             <div class="pdf-actions">
               <a href="archives/viewer.html?id=${p.id}" class="pdf-btn pdf-btn-primary"><i class="bi bi-eye"></i> Read</a>

@@ -104,7 +104,13 @@ body{font-family:var(--font);background:var(--tint);color:var(--text);overflow-x
     <div class="card pdf-info" style="margin-top:20px;">
       <div class="title" id="pdfTitle">Loading...</div>
       <div class="desc" id="pdfDesc"></div>
-      <div style="font-size:0.85rem;color:var(--text-3);margin-bottom:12px;">By: <strong style="color:var(--text-2)" id="pdfAuthor">—</strong></div>
+      <div id="pdfAuthorWrap" style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding:12px;background:var(--tint);border-radius:12px;border:1px solid var(--border);">
+        <div id="pdfAuthorAvatar"></div>
+        <div style="display:flex;flex-direction:column;">
+          <span style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-3);font-weight:700;">Published By</span>
+          <strong style="color:var(--text-2);font-size:1rem;" id="pdfAuthor">Loading...</strong>
+        </div>
+      </div>
       <div class="meta-row">
         <span class="domain-tag" id="pdfDomain">—</span>
         <span class="meta-item" id="pdfType">📄 PDF</span>
@@ -194,6 +200,7 @@ async function init() {
   document.getElementById('pdfTitle').innerText = pdf.title || 'Untitled';
   document.getElementById('pdfDesc').innerText = pdf.description || '';
   document.getElementById('pdfAuthor').innerText = pdf.poster_name || 'Syntax Syndicate';
+  document.getElementById('pdfAuthorAvatar').innerHTML = SS.renderAvatar({ name: pdf.poster_name, avatar_url: pdf.poster_avatar_url }, 'md circle');
   document.getElementById('pdfDomain').innerText = pdf.domain || 'General';
   document.getElementById('pdfType').innerText = '📄 ' + (pdf.type || 'PDF').toUpperCase();
   document.getElementById('pdfDate').innerText = pdf.created_at ? SS.formatDate(pdf.created_at) : '';

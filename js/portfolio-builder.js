@@ -74,7 +74,18 @@ const PB = {
       return `<div class="pb-fg"><label class="pb-fl">${label}</label><input class="pb-fi" value="${this.esc(val)}" oninput="PB.setField('${key}','${field}',this.value)"></div>`;
     };
     switch(key){
-      case 'hero': return `<div class="pb-row">${F('name','Full Name')}${F('role','Role / Title')}</div>${F('tagline','Tagline','textarea')}${F('photoUrl','Photo URL')}`;
+      case 'hero': 
+        return `
+          <div class="pb-row">${F('name','Full Name')}${F('role','Role / Title')}</div>
+          ${F('tagline','Tagline','textarea')}
+          <div class="pb-fg">
+            <label class="pb-fl">Photo URL (Portrait recommended)</label>
+            <div style="display:flex;gap:8px;">
+              <input type="text" class="pb-fi" id="heroPhotoInput" value="${this.esc(this.getFieldVal('hero','photoUrl'))}" oninput="PB.setField('hero','photoUrl',this.value)">
+              <button class="pb-btn" onclick="PB.useProfilePhoto()" title="Use Profile Photo"><i class="bi bi-person-circle"></i></button>
+            </div>
+          </div>
+        `;
       case 'about': return `${F('text','Bio / About Me','textarea')}<div class="pb-row">${F('yearsExp','Years of Experience')}${F('location','Location')}</div>`;
       case 'skills': return F('text','Skills (comma separated or grouped)','textarea');
       case 'contact': return `<div class="pb-row">${F('email','Email')}${F('phone','Phone')}</div><div class="pb-row">${F('linkedin','LinkedIn')}${F('github','GitHub')}</div><div class="pb-row">${F('twitter','Twitter/X')}${F('website','Website')}</div>`;
@@ -377,11 +388,23 @@ const PB = {
     this.data.contact.phone = profile.mobile || '';
     this.data.contact.linkedin = profile.linkedin || '';
     this.data.contact.github = profile.github || '';
+    this.data.hero.photoUrl = profile.avatar_url || '';
     this.data.contact.website = profile.portfolio_link || '';
     this.data.skills.text = profile.skills || '';
     this.renderSections();
     this.renderPreview();
     SS.showToast('Profile data loaded!','success');
+  },
+
+  useProfilePhoto(){
+    if(window._profile && window._profile.avatar_url){
+      this.setField('hero','photoUrl',window._profile.avatar_url);
+      const input = document.getElementById('heroPhotoInput');
+      if(input) input.value = window._profile.avatar_url;
+      SS.showToast('Using profile photo','success');
+    } else {
+      SS.showToast('No profile photo found','error');
+    }
   },
 
   async save(){
