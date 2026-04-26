@@ -66,6 +66,7 @@ const DevHub = {
     const doc = {
       author_uid: user.uid,
       author_name: profile.name || 'Anonymous',
+      author_avatar_url: profile.avatar_url || '',
       title: data.title.trim(),
       description: (data.description || '').trim(),
       thumbnail_url: (data.thumbnail_url || '').trim(),
@@ -102,6 +103,7 @@ const DevHub = {
     const doc = {
       author_uid: user.uid,
       author_name: profile.name || 'Anonymous',
+      author_avatar_url: profile.avatar_url || '',
       title: data.title.trim(),
       description: (data.description || '').trim(),
       language: data.language || 'other',
@@ -140,6 +142,7 @@ const DevHub = {
     const doc = {
       author_uid: user.uid,
       author_name: profile.name || 'Anonymous',
+      author_avatar_url: profile.avatar_url || '',
       title: data.title.trim(),
       description: (data.description || '').trim(),
       category: data.category || 'other',
@@ -299,7 +302,7 @@ const DevHub = {
     }
     if (post.link_url) {
       mediaHTML += `<a class="dh-post-link" href="${SS.sanitizeHTML(post.link_url)}" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        <i class="bi bi-link-45deg" style="font-size:1.1rem;margin-right:4px;"></i>
         ${SS.truncateText(post.link_url, 60)}
       </a>`;
     }
@@ -433,7 +436,7 @@ const DevHub = {
           ${SS.sanitizeHTML(snippet.author_name)} · ${time}
         </a>
         <button class="dh-action-btn ${liked ? 'liked' : ''}" onclick="DevHub._handleLike('snippets','${snippet.id}', this)" style="padding:4px 10px;">
-          <svg viewBox="0 0 24 24" style="width:13px;height:13px;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <i class="bi ${liked ? 'bi-heart-fill' : 'bi-heart'}" style="font-size:0.85rem;"></i>
           <span>${likeCount}</span>
         </button>
       </div>
@@ -468,7 +471,7 @@ const DevHub = {
         <div class="dh-idea-desc">${SS.sanitizeHTML(idea.description)}</div>
         <div class="dh-idea-meta">
           <a href="profile.html?uid=${idea.author_uid}" class="dh-idea-author">
-            <span class="avatar">${initials}</span>
+            ${SS.renderAvatar({ name: idea.author_name, avatar_url: idea.author_avatar_url }, 'xs circle')}
             ${SS.sanitizeHTML(idea.author_name)}
           </a>
           <span style="color:var(--pale-slate-2);">·</span>

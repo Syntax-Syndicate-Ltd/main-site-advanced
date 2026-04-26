@@ -113,13 +113,17 @@ body.dh-page {
   padding: 0 20px 24px; text-align: center; margin-top: -36px;
 }
 .dh-identity-avatar {
-  width: 72px; height: 72px; border-radius: 20px;
+  width: 72px; height: 72px; border-radius: 50%;
   background: linear-gradient(135deg, #4169e1, #6366f1);
   border: 4px solid var(--white);
   display: flex; align-items: center; justify-content: center;
   font-family: var(--mono); font-size: 1.4rem; font-weight: 700;
   color: #fff; margin: 0 auto 12px;
   box-shadow: 0 8px 24px rgba(10, 14, 26, 0.1);
+  overflow: hidden;
+}
+.dh-identity-avatar .avatar-img, .dh-identity-avatar .avatar-fallback {
+  width: 100%; height: 100%; border-radius: 0 !important;
 }
 .dh-identity-name { font-size: 1rem; font-weight: 800; color: var(--carbon-black); }
 .dh-identity-role { font-size: 0.72rem; color: var(--text-3); font-family: var(--mono); margin-top: 4px; font-weight: 600; }

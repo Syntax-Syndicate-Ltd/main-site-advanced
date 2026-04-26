@@ -244,10 +244,11 @@ Auth.onAuthChange(async (user, profile) => {
     // Identity card
     const card = document.getElementById('identityCard');
     card.style.display = 'block';
-    document.getElementById('identAvatar').textContent = SS.getInitials(profile.name || '');
+    document.getElementById('identAvatar').innerHTML = SS.renderAvatar(profile, 'circle');
     document.getElementById('identName').textContent = profile.name || 'Developer';
     const roleMap = {superadmin:'Admin', team:'Team', premium:'Premium', user:'Member', institute_admin:'Institute'};
     document.getElementById('identRole').textContent = roleMap[profile.role] || 'Member';
+    document.getElementById('composeAvatar').innerHTML = SS.renderAvatar(profile, 'circle');
 
     // Load user's stats
     try {

@@ -2448,49 +2448,71 @@
     }
 
     /* ── DevHub Homepage Cards ── */
+    /* ── DevHub Rectangular Grid ── */
+    .dh-masonry-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 24px;
+      width: 100%;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+    @media (max-width: 1400px) { .dh-masonry-grid { grid-template-columns: repeat(4, 1fr); } }
+    @media (max-width: 1100px) { .dh-masonry-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 850px) { .dh-masonry-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 550px) { .dh-masonry-grid { grid-template-columns: 1fr; } }
+
     .devhub-home-card {
+      height: 100%;
       background: var(--white);
       border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 0;
+      border-radius: 20px;
       display: flex;
       flex-direction: column;
       text-decoration: none;
       color: inherit;
       transition: all .3s cubic-bezier(0.25, 0.8, 0.25, 1);
       overflow: hidden;
-      box-shadow: 0 4px 20px rgba(10, 14, 26, 0.04);
+      box-shadow: 0 4px 12px rgba(10, 14, 26, 0.03);
     }
     .devhub-home-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 16px 40px rgba(65, 105, 225, 0.12);
-      border-color: rgba(65, 105, 225, 0.25);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(65, 105, 225, 0.1);
+      border-color: rgba(65, 105, 225, 0.2);
+    }
+    .dhc-img-wrap {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      overflow: hidden;
+      border-bottom: 1px solid rgba(0,0,0,0.03);
+      background: var(--bright-snow);
+    }
+    .dhc-img-wrap img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
     }
     .dhc-body {
-      padding: 22px 22px 18px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      flex: 1;
+      gap: 10px;
+    }
+    .dhc-content {
+      font-size: .82rem;
+      color: var(--text-2);
+      line-height: 1.55;
+      display: -webkit-box;
+      -webkit-line-clamp: 5;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
     .dhc-author {
       display: flex;
       align-items: center;
       gap: 10px;
-    }
-    .dhc-avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), #6366f1);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: .7rem;
-      font-weight: 800;
-      font-family: var(--mono);
-      flex-shrink: 0;
+      margin-top: 4px;
     }
     .dhc-author-info {
       display: flex;
@@ -2500,46 +2522,33 @@
       font-size: .82rem;
       font-weight: 700;
       color: var(--carbon-black);
-      line-height: 1.2;
     }
     .dhc-author-time {
-      font-family: var(--mono);
-      font-size: .6rem;
+      font-size: .68rem;
       color: var(--text-3);
-    }
-    .dhc-content {
-      font-size: .85rem;
-      color: var(--text-2);
-      line-height: 1.65;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+      font-family: var(--mono);
     }
     .dhc-footer {
-      padding: 12px 22px;
-      border-top: 1px solid var(--border);
-      background: var(--tint);
+      padding: 12px 20px;
+      background: rgba(10, 14, 26, 0.01);
+      border-top: 1px solid rgba(0, 0, 0, 0.03);
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
     }
     .dhc-type-badge {
-      font-family: var(--mono);
-      font-size: .58rem;
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 100px;
+      font-size: .65rem;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: .04em;
+      letter-spacing: .05em;
+      padding: 4px 10px;
+      border-radius: 100px;
+      font-family: var(--mono);
     }
     .dhc-read-more {
-      font-size: .72rem;
+      font-size: .75rem;
       font-weight: 700;
       color: var(--accent);
-      display: flex;
-      align-items: center;
-      gap: 3px;
     }
 
     /* ── RESPONSIVE TABLET & MEDIUM DESKTOP ── */
@@ -2868,20 +2877,20 @@
 
   <!-- ── LATEST FROM DEVHUB ── -->
   <section class="section-white" id="latest-devhub">
-    <div class="section-inner">
+    <div class="section-inner" style="max-width: 100%; padding-left: 5vw; padding-right: 5vw;">
       <div class="sh-center reveal">
         <span class="sh-tag">community</span>
         <h2 class="sh-h2">Latest from DevHub</h2>
         <p class="sh-sub">See what developers are building, sharing, and discussing in our community.</p>
       </div>
-      <div class="resource-grid reveal" id="homepage-devhub-grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">
-        <div class="skeleton" style="height:240px;border-radius:18px"></div>
-        <div class="skeleton" style="height:240px;border-radius:18px"></div>
-        <div class="skeleton" style="height:240px;border-radius:18px"></div>
-        <div class="skeleton" style="height:240px;border-radius:18px"></div>
+      <div class="dh-masonry-grid reveal" id="homepage-devhub-grid">
+        <!-- Skeletons -->
+        <div class="skeleton" style="height:320px;border-radius:20px;margin-bottom:24px;"></div>
+        <div class="skeleton" style="height:200px;border-radius:20px;margin-bottom:24px;"></div>
+        <div class="skeleton" style="height:280px;border-radius:20px;margin-bottom:24px;"></div>
       </div>
-      <div style="text-align:center;margin-top:36px" class="reveal">
-        <a href="archives/devhub.html" class="btn-outline" style="padding:12px 28px">Follow the Feed →</a>
+      <div style="text-align:center;margin-top:24px" class="reveal">
+        <a href="devhub/feed.html" class="btn-outline" style="padding:14px 36px; background:var(--carbon-black); color:#fff; border-color:var(--carbon-black);">Explore DevHub Community →</a>
       </div>
     </div>
   </section>
@@ -3343,7 +3352,7 @@
       const grid = document.getElementById('homepage-devhub-grid');
       if (!grid || !window.DB) return;
       try {
-        const posts = await DB.fetchLatestDevhubPosts(4);
+        const posts = await DB.fetchLatestDevhubPosts(10);
         if (posts.length === 0) { grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-3)">No posts yet</div>'; return; }
         
         const TYPE_STYLES = {
@@ -3355,18 +3364,21 @@
 
         grid.innerHTML = posts.map(p => {
           const ts = TYPE_STYLES[p.type] || TYPE_STYLES.post;
+          const avatar = SS.renderAvatar({ name: p.author_name, avatar_url: p.author_avatar_url }, 'sm circle');
+          const mediaHTML = p.image_url || p.media_url ? `<div class="dhc-img-wrap"><img src="${SS.sanitizeHTML(p.image_url || p.media_url)}" alt="Post image" onerror="this.parentElement.style.display='none'"></div>` : '';
+          
           return `
-          <a href="devhub/feed.html?post=${p.id}" class="devhub-home-card" style="text-decoration:none">
+          <a href="devhub/feed.html?post=${p.id}" class="devhub-home-card">
+            ${mediaHTML}
             <div class="dhc-body">
               <div class="dhc-author">
-                <div class="dhc-avatar">${SS.getInitials(p.author_name || 'U')}</div>
+                ${avatar}
                 <div class="dhc-author-info">
-                  <div class="dhc-author-name">${SS.sanitizeHTML(p.author_name || 'Unknown')}${p.author_verified ? ' <span style="color:var(--accent);font-size:10px">✓</span>' : ''}</div>
+                  <div class="dhc-author-name">${SS.sanitizeHTML(p.author_name || 'Unknown')}</div>
                   <div class="dhc-author-time">${SS.formatDateRelative(p.created_at)}</div>
                 </div>
               </div>
               <div class="dhc-content">${SS.sanitizeHTML(p.content || '')}</div>
-              ${p.media_url ? `<div style="margin-top:14px;border-radius:12px;overflow:hidden;border:1px solid rgba(0,0,0,0.05);"><img src="${p.media_url}" style="width:100%;height:auto;display:block;max-height:220px;object-fit:cover;" alt="Post attachment"></div>` : ''}
             </div>
             <div class="dhc-footer">
               <span class="dhc-type-badge" style="color:${ts.color};background:${ts.bg};border:1px solid ${ts.border}">${p.type || 'post'}</span>
