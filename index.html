@@ -2460,7 +2460,10 @@
     @media (max-width: 1400px) { .dh-masonry-grid { grid-template-columns: repeat(4, 1fr); } }
     @media (max-width: 1100px) { .dh-masonry-grid { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 850px) { .dh-masonry-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 550px) { .dh-masonry-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 550px) { 
+      .dh-masonry-grid { grid-template-columns: 1fr; } 
+      .devhub-home-card:nth-child(n+4) { display: none; }
+    }
 
     .devhub-home-card {
       height: 100%;
