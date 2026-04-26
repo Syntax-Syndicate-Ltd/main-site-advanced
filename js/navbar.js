@@ -232,6 +232,20 @@
         // Subscribe to hydrated state changes
         Auth.onAuthChange(() => this.updateAuthState());
       }
+
+      // Add Mobile Click Handlers for Dropdowns
+      placeholder.querySelectorAll('.nav-item-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          if (window.innerWidth <= 850) {
+            const item = btn.parentElement;
+            const isOpen = item.classList.contains('open');
+            // Close others
+            placeholder.querySelectorAll('.nav-item').forEach(i => i.classList.remove('open'));
+            // Toggle current
+            if (!isOpen) item.classList.add('open');
+          }
+        });
+      });
     },
 
     updateAuthState: function() {

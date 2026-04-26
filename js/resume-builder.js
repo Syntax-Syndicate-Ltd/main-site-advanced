@@ -8,32 +8,32 @@ const RB = {
   uid: null,
 
   SECTION_DEFS: {
-    contact:      { label:'Contact & Header', emoji:'📇', single:true },
-    summary:      { label:'Professional Summary', emoji:'📝', single:true },
-    education:    { label:'Education', emoji:'🎓', multi:true },
-    experience:   { label:'Work Experience', emoji:'💼', multi:true },
-    projects:     { label:'Projects', emoji:'🚀', multi:true },
-    skills:       { label:'Technical Skills', emoji:'⚡', single:true },
-    certifications:{ label:'Certifications', emoji:'🏅', multi:true },
-    awards:       { label:'Awards & Achievements', emoji:'🏆', multi:true },
-    publications: { label:'Publications & Research', emoji:'📄', multi:true },
-    volunteer:    { label:'Volunteer Experience', emoji:'🤝', multi:true },
-    languages:    { label:'Languages', emoji:'🌐', multi:true },
-    extracurricular:{ label:'Extracurriculars', emoji:'🎯', multi:true },
-    references:   { label:'References', emoji:'👥', multi:true },
-    hobbies:      { label:'Hobbies & Interests', emoji:'🎨', single:true },
-    custom:       { label:'Custom Section', emoji:'✏️', single:true }
+    contact:      { label:'Contact & Header', icon:'bi-person-vcard', single:true },
+    summary:      { label:'Professional Summary', icon:'bi-file-text', single:true },
+    education:    { label:'Education', icon:'bi-mortarboard', multi:true },
+    experience:   { label:'Work Experience', icon:'bi-briefcase', multi:true },
+    projects:     { label:'Projects', icon:'bi-rocket-takeoff', multi:true },
+    skills:       { label:'Technical Skills', icon:'bi-lightning-charge', single:true },
+    certifications:{ label:'Certifications', icon:'bi-patch-check', multi:true },
+    awards:       { label:'Awards & Achievements', icon:'bi-trophy', multi:true },
+    publications: { label:'Publications & Research', icon:'bi-journal-text', multi:true },
+    volunteer:    { label:'Volunteer Experience', icon:'bi-heart', multi:true },
+    languages:    { label:'Languages', icon:'bi-translate', multi:true },
+    extracurricular:{ label:'Extracurriculars', icon:'bi-bullseye', multi:true },
+    references:   { label:'References', icon:'bi-people', multi:true },
+    hobbies:      { label:'Hobbies & Interests', icon:'bi-palette', single:true },
+    custom:       { label:'Custom Section', icon:'bi-pencil-square', single:true }
   },
 
   TEMPLATES: [
-    { id:'minimal', name:'Minimal', icon:'📄' },
-    { id:'modern', name:'Modern', icon:'💎' },
-    { id:'executive', name:'Executive', icon:'👔' },
-    { id:'twocol', name:'Two-Col', icon:'📐' },
-    { id:'creative', name:'Creative', icon:'🎨' },
-    { id:'developer', name:'Developer', icon:'💻' },
-    { id:'compact', name:'Compact', icon:'📏' },
-    { id:'professional', name:'Pro', icon:'⭐' }
+    { id:'minimal', name:'Minimal', icon:'bi-file-earmark' },
+    { id:'modern', name:'Modern', icon:'bi-gem' },
+    { id:'executive', name:'Executive', icon:'bi-person-badge' },
+    { id:'twocol', name:'Two-Col', icon:'bi-columns-gap' },
+    { id:'creative', name:'Creative', icon:'bi-palette2' },
+    { id:'developer', name:'Developer', icon:'bi-code-slash' },
+    { id:'compact', name:'Compact', icon:'bi-distribute-vertical' },
+    { id:'professional', name:'Pro', icon:'bi-star-fill' }
   ],
 
   init() {
@@ -55,7 +55,7 @@ const RB = {
     const g = document.getElementById('tplGrid');
     g.innerHTML = this.TEMPLATES.map(t =>
       `<div class="rb-tpl-item ${t.id===this.template?'active':''}" data-tpl="${t.id}">
-        <div class="rb-tpl-icon">${t.icon}</div>${t.name}
+        <div class="rb-tpl-icon"><i class="bi ${t.icon}"></i></div>${t.name}
       </div>`
     ).join('');
     g.querySelectorAll('.rb-tpl-item').forEach(el => {
@@ -75,7 +75,7 @@ const RB = {
     grid.innerHTML = Object.entries(this.SECTION_DEFS).map(([k,v])=>{
       const dis = used.includes(k) && k!=='custom' ? 'disabled' : '';
       return `<div class="rb-picker-item ${dis}" data-type="${k}">
-        <span class="rb-picker-emoji">${v.emoji}</span>
+        <span class="rb-picker-emoji"><i class="bi ${v.icon}"></i></span>
         <span class="rb-picker-name">${v.label}</span>
       </div>`;
     }).join('');
@@ -129,7 +129,7 @@ const RB = {
       return `<div class="rb-sec open" data-id="${sec.id}">
         <div class="rb-sec-head" onclick="RB.toggleSec('${sec.id}')">
           <span class="rb-sec-drag" draggable="true" ondragstart="RB.dragStart(event,'${sec.id}')" ondragover="event.preventDefault()" ondrop="RB.drop(event,'${sec.id}')">⠿</span>
-          <span class="rb-sec-label">${def.emoji} ${def.label}</span>
+          <span class="rb-sec-label"><i class="bi ${def.icon}" style="margin-right:8px;font-size:0.9rem;"></i> ${def.label}</span>
           <span class="rb-sec-del" onclick="event.stopPropagation();RB.removeSection('${sec.id}')">✕</span>
           <span class="rb-sec-toggle">▼</span>
         </div>
