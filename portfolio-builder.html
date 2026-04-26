@@ -6,25 +6,16 @@
 <title>Portfolio Builder — Syntax Syndicate</title>
 <meta name="description" content="Build and host a stunning developer portfolio with 6 premium templates."/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <link rel="stylesheet" href="css/portfolio-builder.css"/>
 </head>
 <body>
 
 <nav class="pb-nav">
   <a href="index.html" class="pb-nav-logo"><div class="pb-nav-badge">SS</div> Syntax Syndicate</a>
-  <div class="pb-nav-links" style="display:flex;gap:20px;margin-left:20px">
-    <a href="archives/premium-library.html" class="pb-nav-link" style="text-decoration:none;color:var(--gray-600);font-size:0.85rem;font-weight:600">PDF Library ▾</a>
-    <a href="opportunities.html" class="pb-nav-link" style="text-decoration:none;color:var(--gray-600);font-size:0.85rem;font-weight:600">Opportunities ▾</a>
-    <a href="resources/index.html" class="pb-nav-link" style="text-decoration:none;color:var(--gray-600);font-size:0.85rem;font-weight:600">Resources ▾</a>
-    <a href="#" class="pb-nav-link" style="text-decoration:none;color:var(--gray-600);font-size:0.85rem;font-weight:600">More ▾</a>
-  </div>
   <div class="pb-spacer"></div>
-  <div style="display:flex;align-items:center;gap:24px;margin-right:20px">
-    <span style="font-size:1.2rem;color:var(--gray-600);cursor:pointer">🔔</span>
-    <span style="font-size:0.85rem;font-weight:600;color:var(--gray-700)">Syntax</span>
-  </div>
-  <button class="pb-btn" onclick="PB.autoFill(window._profile,window._user)" id="btnAutoFill" style="display:none;background:var(--accent);color:#fff;border:none">⚡ Auto-Fill</button>
-  <button class="pb-btn pb-btn-primary" onclick="PB.save()" id="btnSave" style="display:none">💾 Save</button>
+  <button class="pb-btn" onclick="PB.autoFill(window._profile,window._user)" id="btnAutoFill" style="display:none;background:var(--accent);color:#fff;border:none"><i class="bi bi-lightning-charge-fill"></i> Auto-Fill</button>
+  <button class="pb-btn pb-btn-primary" onclick="PB.save()" id="btnSave" style="display:none"><i class="bi bi-floppy"></i> Save</button>
   <a href="profile.html" class="pb-btn pb-btn-primary">Dashboard</a>
 </nav>
 
@@ -55,7 +46,7 @@
   <div class="pb-preview">
     <div class="pb-preview-frame" id="pbPreview">
       <div style="text-align:center;padding:80px 40px;color:#64748b">
-        <div style="font-size:2rem;margin-bottom:8px">🌐</div>
+        <div style="font-size:2rem;margin-bottom:8px"><i class="bi bi-globe"></i></div>
         <div style="font-size:1rem;font-weight:600">Your portfolio preview will appear here</div>
       </div>
     </div>
@@ -64,7 +55,7 @@
 
 <!-- Premium Lock -->
 <div class="pb-lock" id="premiumLock" style="display:none">
-  <div class="pb-lock-icon">🔒</div>
+  <div class="pb-lock-icon"><i class="bi bi-lock-fill" style="color:var(--accent)"></i></div>
   <div class="pb-lock-title">Premium Feature</div>
   <div class="pb-lock-desc">Upgrade to Premium to build and host your developer portfolio with professional templates.</div>
   <a href="upgrade.html" class="pb-lock-btn">Upgrade to Premium →</a>

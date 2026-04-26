@@ -111,10 +111,21 @@ const DB = {
   async fetchAllOpportunities(limitPerCol = null) {
     const categories = Object.values(this.COLS).filter(c => c !== 'ss_ads');
     const results = await Promise.all(categories.map(async col => {
-      let ref = db.collection(col).orderBy('postedAt', 'desc');
-      if (limitPerCol) ref = ref.limit(limitPerCol);
-      const snap = await ref.get();
-      return snap.docs.map(d => ({ id: d.id, _collection: col, ...d.data() }));
+      try {
+        let ref = db.collection(col).orderBy('postedAt', 'desc');
+        if (limitPerCol) ref = ref.limit(limitPerCol);
+        const snap = await ref.get();
+        return snap.docs.map(d => ({ id: d.id, _collection: col, ...d.data() }));
+      } catch(e) {
+        try {
+          let ref = db.collection(col);
+          if (limitPerCol) ref = ref.limit(limitPerCol);
+          const snap = await ref.get();
+          return snap.docs.map(d => ({ id: d.id, _collection: col, ...d.data() }));
+        } catch(e2) {
+          return [];
+        }
+      }
     }));
 
     // Flatten and sort globally by date

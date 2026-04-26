@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio Builder — Syntax Syndicate</title>
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    .builder-hero {
+      padding-top: 140px;
+      padding-bottom: 80px;
+      text-align: center;
+      background: radial-gradient(circle at 50% 0%, #ffffff 0%, #f4f7ff 100%);
+      border-bottom: 1px solid var(--border);
+    }
+    .builder-hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: rgba(65, 105, 225, 0.08);
+      border: 1px solid rgba(65, 105, 225, 0.2);
+      border-radius: 100px;
+      font-size: .8rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 24px;
+    }
+    .builder-title {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      color: var(--carbon-black);
+      line-height: 1.1;
+      letter-spacing: -.03em;
+      margin-bottom: 20px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .builder-sub {
+      font-size: 1.15rem;
+      color: var(--text-2);
+      max-width: 600px;
+      margin: 0 auto 40px;
+      line-height: 1.6;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .feature-card {
+      background: var(--white);
+      border: 1px solid rgba(0,0,0,0.04);
+      border-radius: 20px;
+      padding: 32px 28px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.02);
+      transition: all 0.3s ease;
+    }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(65, 105, 225, 0.08);
+      border-color: rgba(65, 105, 225, 0.15);
+    }
+    .fc-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(65, 105, 225, 0.08);
+      color: var(--accent);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .fc-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--carbon-black);
+      margin-bottom: 12px;
+    }
+    .fc-desc {
+      font-size: .95rem;
+      color: var(--text-2);
+      line-height: 1.6;
+    }
+    .pricing-cta-section {
+      background: var(--carbon-black);
+      color: var(--white);
+      text-align: center;
+      padding: 80px 24px;
+      border-radius: 24px;
+      max-width: 1100px;
+      margin: 80px auto;
+      position: relative;
+      overflow: hidden;
+    }
+    .pricing-cta-section::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(circle at top right, rgba(65, 105, 225, 0.2) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .pcta-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 1;
+    }
+    .pcta-sub {
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 32px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      position: relative;
+      z-index: 1;
+    }
+    .pcta-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent);
+      color: #fff;
+      padding: 16px 40px;
+      border-radius: 100px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+    .pcta-btn:hover {
+      background: #3366d6;
+      transform: scale(1.02);
+      box-shadow: 0 8px 24px rgba(65, 105, 225, 0.4);
+    }
+  </style>
+</head>
+<body>
+  <div id="navbar-placeholder" data-type="main"></div>
+
+  <!-- HERO -->
+  <section class="builder-hero">
+    <div class="builder-hero-badge">Syntax Syndicate Tools</div>
+    <h1 class="builder-title">Host Your Developer Portfolio in Seconds</h1>
+    <p class="builder-sub">Showcase your projects, skills, and GitHub repositories on a beautifully designed, personalized developer profile hosted entirely on our ecosystem.</p>
+    
+    <div style="display:flex; justify-content:center; gap:16px; margin-bottom: 60px;">
+      <a href="portfolio-builder.html" class="btn-fill" style="padding: 16px 32px; font-size: 1.1rem; background: var(--accent); border-color: var(--accent); color: #fff;">Launch Builder</a>
+      <a href="#features" class="btn-outline" style="padding: 16px 32px; font-size: 1.1rem;">Learn More</a>
+    </div>
+
+    <div style="max-width: 1000px; margin: 0 auto; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.1); border: 1px solid var(--border);">
+      <img src="portfolio_builder_mockup.png" style="width: 100%; display: block; object-fit: cover;" alt="Portfolio Builder Interface">
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section-white" id="features">
+    <div class="section-inner">
+      <div class="sh-center">
+        <span class="sh-tag">Why Use Our Platform</span>
+        <h2 class="sh-h2">A Portfolio That Works for You</h2>
+        <p class="sh-sub">Everything you need to showcase your work effectively and securely.</p>
+      </div>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="fc-icon"><i class="bi bi-github"></i></div>
+          <h3 class="fc-title">Live GitHub Sync</h3>
+          <p class="fc-desc">Connect your GitHub username and instantly showcase your top-starred repositories, complete with language metrics and stargazers.</p>
+        </div>
+        <div class="feature-card">
+          <div class="fc-icon"><i class="bi bi-magic"></i></div>
+          <h3 class="fc-title">Premium Themes</h3>
+          <p class="fc-desc">Choose from beautifully crafted premium themes, ranging from sleek developer dark modes to sophisticated, minimal light profiles.</p>
+        </div>
+        <div class="feature-card">
+          <div class="fc-icon"><i class="bi bi-globe2"></i></div>
+          <h3 class="fc-title">Instant Hosting</h3>
+          <p class="fc-desc">Zero configuration required. Hit publish and your portfolio goes live instantly on the platform, fully optimized and responsive.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section-tint">
+    <div class="section-inner" style="padding-top:20px; padding-bottom:20px;">
+      <div class="pricing-cta-section">
+        <h2 class="pcta-title">Unlock Premium Hosting</h2>
+        <p class="pcta-sub">Upgrade your account to access all premium portfolio templates, remove watermarks, and gain comprehensive traffic analytics.</p>
+        <a href="archives/premium-projects.html" class="pcta-btn">Purchase Premium Now</a>
+        <p style="margin-top:20px; font-size:0.85rem; color:rgba(255,255,255,0.5); position:relative; z-index:1;">Secure checkout. Cancel anytime.</p>
+      </div>
+    </div>
+  </section>
+
+  <div id="footer-placeholder"></div>
+
+  <!-- Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/navbar.js"></script>
+  <script src="js/footer.js"></script>
+  <script>
+    if (window.Navbar) Navbar.init('main');
+    if (window.Footer) Footer.init();
+  </script>
+</body>
+</html>

@@ -249,6 +249,7 @@ body { font-family:var(--font); background:var(--tint); color:var(--text); line-
           description: document.getElementById('shareDesc').value.trim()
         },
         poster_name: currentUser.name || firebase.auth().currentUser.displayName || 'Anonymous User',
+        poster_avatar_url: currentUser.avatar_url || '',
         company_name: 'Community User',
         posted_by: currentUser.id,
         created_at: firebase.firestore.FieldValue.serverTimestamp()

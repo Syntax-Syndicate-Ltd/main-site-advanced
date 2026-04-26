@@ -6,6 +6,7 @@
 <title>Developer Portfolio — Syntax Syndicate</title>
 <meta name="description" content="A developer portfolio hosted on Syntax Syndicate"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <link rel="stylesheet" href="css/portfolio-builder.css"/>
 <style>
 body{height:auto;overflow:auto;background:#0f0f23}
@@ -81,6 +82,9 @@ function copyLink(){
     // Set background based on template
     const tplBgs={midnight:'#0b0f1a',daylight:'#f9fafb',gradient:'#fdf2f8',terminal:'#000000',bento:'#f9fafb',elegant:'#ffffff'};
     document.body.style.background=tplBgs[doc.template]||'#f9fafb';
+
+    // Fetch GitHub Repos
+    PB.initGithubSync();
 
     // Interaction Scripts
     setTimeout(() => {

@@ -177,7 +177,7 @@ async function loadRoadmap() {
             ${rm.domain ? `<span class="rm-badge rm-badge-domain">${SS.sanitizeHTML(rm.domain)}</span>` : ''}
             ${rm.role ? `<span class="rm-badge rm-badge-domain">${SS.sanitizeHTML(rm.role)}</span>` : ''}
           </div>
-          <h1 class="rm-title">${rm.cover_emoji || '🗺️'} ${SS.sanitizeHTML(rm.title)}</h1>
+          <h1 class="rm-title"><i class="bi ${rm.icon || rm.cover_emoji || 'bi-signpost-split'}" style="margin-right:8px; color:var(--accent);"></i> ${SS.sanitizeHTML(rm.title)}</h1>
           ${rm.description ? `<p class="rm-desc">${SS.sanitizeHTML(rm.description)}</p>` : ''}
           <div class="rm-meta">
             <div class="rm-meta-item"><i class="bi bi-list-ol"></i> ${steps.length} steps</div>

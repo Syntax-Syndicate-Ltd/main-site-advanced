@@ -580,6 +580,7 @@ window.approveContent = async function(id) {
       const resourceData = Object.assign({}, docData.data);
       resourceData.posted_by = docData.posted_by;
       resourceData.poster_name = (docData.company_name && docData.company_name !== 'Community User') ? docData.company_name : docData.poster_name;
+      resourceData.poster_avatar_url = docData.poster_avatar_url || '';
       resourceData.poster_type = docData.company_name !== 'Community User' ? 'company' : 'user';
       resourceData.created_at = firebase.firestore.FieldValue.serverTimestamp();
       
@@ -850,7 +851,7 @@ function collectRoadmapData() {
     level: document.getElementById('rm-level')?.value || 'beginner',
     description: document.getElementById('rm-desc')?.value?.trim() || '',
     estimated_time: document.getElementById('rm-time')?.value?.trim() || '',
-    cover_emoji: document.getElementById('rm-emoji')?.value?.trim() || '🗺️',
+    icon: document.getElementById('rm-icon')?.value?.trim() || 'bi-map',
     tags: (document.getElementById('rm-tags')?.value || '').split(',').map(t => t.trim()).filter(Boolean),
     is_featured: document.getElementById('rm-featured')?.checked || false,
     steps,
@@ -884,8 +885,8 @@ window.clearRoadmapForm = function() {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
-  const emoji = document.getElementById('rm-emoji');
-  if (emoji) emoji.value = '🗺️';
+  const icon = document.getElementById('rm-icon');
+  if (icon) icon.value = '';
   const lvl = document.getElementById('rm-level');
   if (lvl) lvl.value = 'beginner';
   const feat = document.getElementById('rm-featured');
@@ -917,7 +918,7 @@ window.editRoadmapAdmin = async function(id) {
     document.getElementById('rm-level').value = rm.level || 'beginner';
     document.getElementById('rm-desc').value = rm.description || '';
     document.getElementById('rm-time').value = rm.estimated_time || '';
-    document.getElementById('rm-emoji').value = rm.cover_emoji || '🗺️';
+    document.getElementById('rm-icon').value = rm.icon || rm.cover_emoji || 'bi-map';
     document.getElementById('rm-tags').value = (rm.tags || []).join(', ');
     document.getElementById('rm-featured').checked = !!rm.is_featured;
     
@@ -1058,7 +1059,7 @@ function collectCheatsheetData() {
     title,
     domain: document.getElementById('cs-domain')?.value?.trim() || '',
     description: document.getElementById('cs-desc')?.value?.trim() || '',
-    cover_emoji: document.getElementById('cs-emoji')?.value?.trim() || '📋',
+    icon: document.getElementById('cs-icon')?.value?.trim() || 'bi-file-code',
     download_url: document.getElementById('cs-download')?.value?.trim() || '',
     tags: (document.getElementById('cs-tags')?.value || '').split(',').map(t => t.trim()).filter(Boolean),
     is_featured: document.getElementById('cs-featured')?.checked || false,
@@ -1092,8 +1093,8 @@ window.clearCheatsheetForm = function() {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
-  const emoji = document.getElementById('cs-emoji');
-  if (emoji) emoji.value = '📋';
+  const icon = document.getElementById('cs-icon');
+  if (icon) icon.value = '';
   const feat = document.getElementById('cs-featured');
   if (feat) feat.checked = false;
   document.getElementById('cs-sections-container').innerHTML = '';
@@ -1120,7 +1121,7 @@ window.editCheatsheetAdmin = async function(id) {
     document.getElementById('cs-title').value = cs.title || '';
     document.getElementById('cs-domain').value = cs.domain || '';
     document.getElementById('cs-desc').value = cs.description || '';
-    document.getElementById('cs-emoji').value = cs.cover_emoji || '📋';
+    document.getElementById('cs-icon').value = cs.icon || cs.cover_emoji || 'bi-file-code';
     document.getElementById('cs-download').value = cs.download_url || '';
     document.getElementById('cs-tags').value = (cs.tags || []).join(', ');
     document.getElementById('cs-featured').checked = !!cs.is_featured;

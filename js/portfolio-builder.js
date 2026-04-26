@@ -8,26 +8,27 @@ const PB = {
   isPublished: false,
 
   TEMPLATES: [
-    {id:'midnight',name:'Midnight',icon:'🌙', sections:['hero','about','skills','experience','timeline','projects','education','certifications','testimonials','contact','custom']},
-    {id:'daylight',name:'Daylight',icon:'☀️', sections:['hero','about','skills','experience','timeline','projects','education','certifications','testimonials','contact','custom']},
-    {id:'gradient',name:'Gradient',icon:'🎨', sections:['hero','about','skills','experience','timeline','projects','education','certifications','testimonials','contact','custom']},
-    {id:'terminal',name:'Terminal',icon:'💻', sections:['hero','skills','projects','certifications','contact']},
-    {id:'bento',name:'Bento',icon:'🧱', sections:['hero','skills','projects','education','certifications','testimonials','contact']},
-    {id:'elegant',name:'Elegant',icon:'✨', sections:['hero','about','experience','timeline','education','certifications','contact']}
+    {id:'midnight',name:'Midnight',icon:'<i class="bi bi-moon-stars"></i>', sections:['hero','about','skills','experience','timeline','projects','github','education','certifications','testimonials','contact','custom']},
+    {id:'daylight',name:'Daylight',icon:'<i class="bi bi-sun"></i>', sections:['hero','about','skills','experience','timeline','projects','github','education','certifications','testimonials','contact','custom']},
+    {id:'gradient',name:'Gradient',icon:'<i class="bi bi-palette"></i>', sections:['hero','about','skills','experience','timeline','projects','github','education','certifications','testimonials','contact','custom']},
+    {id:'terminal',name:'Terminal',icon:'<i class="bi bi-terminal"></i>', sections:['hero','skills','projects','github','certifications','contact']},
+    {id:'bento',name:'Bento',icon:'<i class="bi bi-grid-1x2"></i>', sections:['hero','skills','projects','github','education','certifications','testimonials','contact']},
+    {id:'elegant',name:'Elegant',icon:'<i class="bi bi-feather"></i>', sections:['hero','about','experience','timeline','education','certifications','contact']}
   ],
 
   SECTIONS: [
-    {key:'hero',label:'Hero / Header',emoji:'👤'},
-    {key:'about',label:'About Me',emoji:'📝'},
-    {key:'skills',label:'Skills & Tech Stack',emoji:'⚡'},
-    {key:'experience',label:'Work Experience',emoji:'💼'},
-    {key:'timeline',label:'Career Timeline',emoji:'⏳'},
-    {key:'projects',label:'Projects',emoji:'🚀'},
-    {key:'education',label:'Education',emoji:'🎓'},
-    {key:'certifications',label:'Certifications',emoji:'📜'},
-    {key:'testimonials',label:'Testimonials',emoji:'💬'},
-    {key:'contact',label:'Contact & Social',emoji:'📧'},
-    {key:'custom',label:'Custom Section',emoji:'✏️'}
+    {key:'hero',label:'Hero / Header',icon:'<i class="bi bi-person-badge"></i>'},
+    {key:'about',label:'About Me',icon:'<i class="bi bi-file-person"></i>'},
+    {key:'skills',label:'Skills & Tech Stack',icon:'<i class="bi bi-lightning"></i>'},
+    {key:'experience',label:'Work Experience',icon:'<i class="bi bi-briefcase"></i>'},
+    {key:'timeline',label:'Career Timeline',icon:'<i class="bi bi-clock-history"></i>'},
+    {key:'projects',label:'Projects',icon:'<i class="bi bi-rocket"></i>'},
+    {key:'github',label:'GitHub Live Repos',icon:'<i class="bi bi-github"></i>'},
+    {key:'education',label:'Education',icon:'<i class="bi bi-mortarboard"></i>'},
+    {key:'certifications',label:'Certifications',icon:'<i class="bi bi-patch-check"></i>'},
+    {key:'testimonials',label:'Testimonials',icon:'<i class="bi bi-chat-quote"></i>'},
+    {key:'contact',label:'Contact & Social',icon:'<i class="bi bi-envelope"></i>'},
+    {key:'custom',label:'Custom Section',icon:'<i class="bi bi-pencil-square"></i>'}
   ],
 
   init(){
@@ -58,7 +59,7 @@ const PB = {
     c.innerHTML=this.SECTIONS
       .filter(s => allowed.includes(s.key))
       .map(s=>`<div class="pb-sec open" data-key="${s.key}">
-      <div class="pb-sec-head" onclick="PB.toggleSec('${s.key}')"><span class="pb-sec-label">${s.emoji} ${s.label}</span><span class="pb-sec-toggle">▼</span></div>
+      <div class="pb-sec-head" onclick="PB.toggleSec('${s.key}')"><span class="pb-sec-label">${s.icon} ${s.label}</span><span class="pb-sec-toggle">▼</span></div>
       <div class="pb-sec-body">${this.renderFields(s.key)}</div>
     </div>`).join('');
   },
@@ -77,6 +78,7 @@ const PB = {
       case 'about': return `${F('text','Bio / About Me','textarea')}<div class="pb-row">${F('yearsExp','Years of Experience')}${F('location','Location')}</div>`;
       case 'skills': return F('text','Skills (comma separated or grouped)','textarea');
       case 'contact': return `<div class="pb-row">${F('email','Email')}${F('phone','Phone')}</div><div class="pb-row">${F('linkedin','LinkedIn')}${F('github','GitHub')}</div><div class="pb-row">${F('twitter','Twitter/X')}${F('website','Website')}</div>`;
+      case 'github': return `${F('username','GitHub Username (e.g. torvalds)')}`;
       case 'custom': return `${F('title','Section Title')}${F('text','Content','textarea')}`;
       default: return this.renderMultiFields(key);
     }
@@ -105,20 +107,26 @@ const PB = {
     ).join('') + `<div class="pb-add-entry" onclick="PB.addEntry('${key}')">+ Add Entry</div>`;
   },
 
+  previewTimeout: null,
+  requestPreview(){
+    clearTimeout(this.previewTimeout);
+    this.previewTimeout = setTimeout(() => this.renderPreview(), 400);
+  },
   getFieldVal(key,field){ return this.data[key]?.[field] || ''; },
-  setField(key,field,val){ if(!this.data[key])this.data[key]={};this.data[key][field]=val;this.renderPreview(); },
-  updateEntry(key,i,field,val){ if(this.data[key]?.entries?.[i])this.data[key].entries[i][field]=val;this.renderPreview(); },
+  setField(key,field,val){ if(!this.data[key])this.data[key]={};this.data[key][field]=val;this.requestPreview(); },
+  updateEntry(key,i,field,val){ if(this.data[key]?.entries?.[i])this.data[key].entries[i][field]=val;this.requestPreview(); },
   addEntry(key){ if(!this.data[key])this.data[key]={entries:[]};if(!this.data[key].entries)this.data[key].entries=[];
     const empty={experience:{title:'',company:'',dates:'',description:''},timeline:{year:'',title:'',description:''},projects:{name:'',tech:'',description:'',liveUrl:'',githubUrl:'',imageUrl:''},education:{degree:'',institution:'',dates:''},certifications:{name:'',issuer:'',url:''},testimonials:{quote:'',author:'',role:''}};
-    this.data[key].entries.push(empty[key]||{});this.renderSections();this.renderPreview();
+    this.data[key].entries.push(empty[key]||{});this.renderSections();this.requestPreview();
   },
-  removeEntry(key,i){ this.data[key].entries.splice(i,1);this.renderSections();this.renderPreview(); },
+  removeEntry(key,i){ this.data[key].entries.splice(i,1);this.renderSections();this.requestPreview(); },
   esc(s){ return (s||'').replace(/"/g,'&quot;'); },
 
   renderPreview(){
     const frame=document.getElementById('pbPreview');
     if(!frame)return;
     frame.innerHTML = PB.generatePortfolioHTML(this.data, this.template, true);
+    this.initGithubSync();
   },
 
   generatePortfolioHTML(d, tpl, isPreview){
@@ -130,6 +138,7 @@ const PB = {
       d.about?.text ? {id:'about', label:'About'} : null,
       d.skills?.text ? {id:'skills', label:'Skills'} : null,
       d.projects?.entries?.length ? {id:'projects', label:'Projects'} : null,
+      d.github?.username ? {id:'github_sync', label:'Open Source'} : null,
       d.experience?.entries?.length ? {id:'experience', label:'Experience'} : null,
       d.timeline?.entries?.length ? {id:'timeline', label:'Timeline'} : null,
       d.education?.entries?.length ? {id:'education', label:'Education'} : null,
@@ -253,6 +262,21 @@ const PB = {
                   </div>
                 </div>
               </div>`).join('')}
+          </div>
+        </div>
+      </section>`;
+    }
+
+    // GitHub Sync Section
+    if(d.github?.username) {
+      h += `<section id="github_sync" class="p-section ${isPreview?'':'scroll-reveal'}">
+        <div class="p-container">
+          <h2 class="p-sec-title">Open Source Contributions</h2>
+          <div class="p-grid p-project-grid p-github-grid" data-user="${e(d.github.username)}">
+            <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--gray-500)">
+              <div class="spinner" style="border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;width:24px;height:24px;animation:spin 1s linear infinite;margin:0 auto 12px;"></div>
+              Fetching repositories...
+            </div>
           </div>
         </div>
       </section>`;
@@ -389,6 +413,33 @@ const PB = {
     const link=document.getElementById('portfolioLink');
     if(sw){sw.className='pb-switch'+(this.isPublished?' on':'');}
     if(link){link.value=this.isPublished?window.location.origin+'/portfolio.html?uid='+this.uid:'Not published';link.style.display=this.isPublished?'block':'none';}
+  },
+
+  initGithubSync(){
+    document.querySelectorAll('.p-github-grid[data-user]').forEach(el => {
+      const user = el.getAttribute('data-user');
+      if(el.dataset.fetched === user) return;
+      el.dataset.fetched = user;
+      fetch(`https://api.github.com/users/${user}/repos?sort=updated&per_page=6`)
+        .then(res => res.json())
+        .then(repos => {
+          if(!Array.isArray(repos) || repos.length === 0) { el.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--gray-500)">No public repositories found.</div>'; return; }
+          el.innerHTML = repos.filter(r=>!r.fork).slice(0,6).map(r => `
+            <a href="${r.html_url}" target="_blank" class="p-card p-project-card" style="text-decoration:none;">
+              <div class="p-project-content">
+                <h3 class="p-card-title" style="display:flex;align-items:center;gap:8px"><i class="bi bi-github"></i> ${r.name}</h3>
+                <p class="p-card-desc" style="margin-top:12px;flex:1">${r.description || 'No description available'}</p>
+                <div style="display:flex;gap:12px;margin-top:20px;font-size:0.85rem;color:var(--gray-600);font-weight:600">
+                  <span>⭐ ${r.stargazers_count}</span>
+                  <span><i class="bi bi-circle-fill" style="color:var(--accent);font-size:0.5rem;vertical-align:middle;margin-right:4px;margin-top:-2px;display:inline-block"></i>${r.language || 'Code'}</span>
+                </div>
+              </div>
+            </a>
+          `).join('');
+        }).catch(err => {
+          el.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--gray-500)">Failed to load repositories.</div>';
+        });
+    });
   }
 };
 window.PB=PB;

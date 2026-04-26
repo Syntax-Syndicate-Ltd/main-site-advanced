@@ -103,16 +103,16 @@
       More
       <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
-    <div class="dropdown-mega" style="width:520px;">
+    <div class="dropdown-mega">
       <div class="dropdown-label">Services & Community</div>
       <div class="dropdown-grid">
-        <a class="dropdown-item" href="${root}index.html#services">
-          <div class="dropdown-icon-box" style="background:#f0f9ff; color:#0369a1"><i class="bi bi-layers"></i></div>
-          <div class="dropdown-info"><strong>Services</strong><span>Tech solutions</span></div>
+        <a class="dropdown-item" href="${root}about-resume.html">
+          <div class="dropdown-icon-box" style="background:#f0f9ff; color:#0369a1"><i class="bi bi-file-earmark-person"></i></div>
+          <div class="dropdown-info"><strong>Resume Builder</strong><span>ATS-friendly templates</span></div>
         </a>
-        <a class="dropdown-item" href="${root}index.html#consulting">
-          <div class="dropdown-icon-box" style="background:#fdf4ff; color:#a21caf"><i class="bi bi-person-video3"></i></div>
-          <div class="dropdown-info"><strong>Consulting</strong><span>Expert advice</span></div>
+        <a class="dropdown-item" href="${root}about-portfolio.html">
+          <div class="dropdown-icon-box" style="background:#fdf4ff; color:#a21caf"><i class="bi bi-globe2"></i></div>
+          <div class="dropdown-info"><strong>Portfolio Builder</strong><span>Host your projects</span></div>
         </a>
         <a class="dropdown-item" href="https://whatsapp.com/channel/0029Val68sC23n3Z7mJ3f33E" target="_blank">
           <div class="dropdown-icon-box" style="background:#ecfdf5; color:#059669"><i class="bi bi-whatsapp"></i></div>
@@ -132,6 +132,25 @@
 
   <div class="nav-spacer"></div>
 
+  <!-- Notification Bell (Always accessible on mobile) -->
+  <div class="nav-item nav-notif-bell" id="notifBellWrap" style="display:none;">
+    <button class="nav-notif-btn" aria-label="Notifications" onclick="toggleNotifs()">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span id="notifBadge" class="nav-notif-badge" style="display:none;"></span>
+    </button>
+    
+    <!-- Desktop Dropdown -->
+    <div class="nav-dropdown notif-dropdown-desktop" style="right:0;left:auto; width: 340px; padding: 0;">
+      <div style="padding: 12px 14px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+        <div class="nav-dd-label" style="padding:0;">Notifications</div>
+        <button onclick="markAllNotifsRead()" style="background:none; border:none; color:var(--accent); font-size:11px; font-weight:600; cursor:pointer;">Mark all as read</button>
+      </div>
+      <div class="notif-list-container" style="max-height: 400px; overflow-y: auto; padding: 4px 0;">
+        <div style="padding:20px;text-align:center;color:var(--text-3);font-size:12px;">Loading notifications...</div>
+      </div>
+    </div>
+  </div>
+
   <div class="nav-right">
     <div id="navGuest">
       <div class="nav-item">
@@ -150,23 +169,6 @@
     </div>
 
     <div id="navUser" style="display:none; align-items: center; gap: 6px;">
-      <!-- Notification Dropdown -->
-      <div class="nav-item" id="notifBellWrap" style="display:none;">
-        <button class="nav-notif-btn" aria-label="Notifications">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-          <span id="notifBadge" class="nav-notif-badge" style="display:none;"></span>
-        </button>
-        <div class="nav-dropdown" style="right:0;left:auto; width: 340px; padding: 0;">
-          <div style="padding: 12px 14px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-            <div class="nav-dd-label" style="padding:0;">Notifications</div>
-            <button onclick="markAllNotifsRead()" style="background:none; border:none; color:var(--accent); font-size:11px; font-weight:600; cursor:pointer;">Mark all as read</button>
-          </div>
-          <div id="notifModalList" style="max-height: 400px; overflow-y: auto; padding: 4px 0;">
-            <div style="padding:20px;text-align:center;color:var(--text-3);font-size:12px;">Loading notifications...</div>
-          </div>
-        </div>
-      </div>
-
       <div class="nav-item">
         <button class="nav-item-btn" id="navUserName">My Account</button>
         <div class="nav-dropdown" style="right:0;left:auto;">
@@ -180,7 +182,24 @@
       <a href="${root}profile.html" class="nav-cta" id="navDashCta">Dashboard</a>
     </div>
   </div>
+
 </nav>
+
+<!-- Mobile Notifications Popup Overlay -->
+<div id="notifMobilePopup" class="notif-mobile-popup">
+  <div class="notif-popup-content">
+    <div class="notif-popup-header">
+      <h3>Notifications</h3>
+      <button onclick="toggleNotifs()" class="notif-popup-close">✕</button>
+    </div>
+    <div class="notif-popup-actions">
+      <button onclick="markAllNotifsRead()" style="color:var(--accent); background:none; border:none; font-weight:600; font-size:12px;">Mark all as read</button>
+    </div>
+    <div class="notif-list-container mobile-list">
+      <div style="padding:40px;text-align:center;color:var(--text-3);font-size:14px;">Loading notifications...</div>
+    </div>
+  </div>
+</div>
         `;
       },
       dashboard: function(root) {
@@ -232,7 +251,13 @@
         if (guestEl) guestEl.style.display = 'none';
         if (userEl) userEl.style.display = 'flex';
         if (bellWrap) bellWrap.style.display = 'flex';
-        if (nameEl) nameEl.innerText = (profile.name || user.displayName || 'Account').split(' ')[0];
+        
+        // Update Name + Avatar
+        if (nameEl) {
+          const initials = SS.renderAvatar(profile, 'sm circle');
+          const firstName = (profile.name || user.displayName || 'Account').split(' ')[0];
+          nameEl.innerHTML = `<div class="nav-avatar-wrap">${initials}</div> ${firstName}`;
+        }
         
         // Set public profile link
         if (publicProfile) publicProfile.href = this.getRootPath() + 'devhub/profile.html?uid=' + user.uid;
@@ -269,29 +294,28 @@
   window.SyntaxNavbar = Navbar;
   window.Navbar = Navbar;
 
-  // Load notifications into the dropdown
   async function loadNotifModalContent() {
     const user = firebase.auth().currentUser;
     if (!user || !window.DB) return;
-    const list = document.getElementById('notifModalList');
-    if (!list) return;
+    const containers = document.querySelectorAll('.notif-list-container');
+    if (!containers.length) return;
 
     try {
       const notifs = await DB.fetchUserNotifications(user.uid, 20);
       if (!notifs.length) {
-        list.innerHTML = `
+        containers.forEach(c => c.innerHTML = `
           <div style="padding:48px 20px;text-align:center;">
             <div style="font-size:2.5rem;margin-bottom:12px;">🔕</div>
             <div style="font-size:.95rem;font-weight:600;color:var(--carbon-black);margin-bottom:4px;">No notifications yet</div>
             <div style="font-size:.82rem;color:var(--text-3);">You're all caught up!</div>
-          </div>`;
+          </div>`);
         return;
       }
 
       const readIds = JSON.parse(localStorage.getItem('ss_read_notifs') || '[]');
       const root = Navbar.getRootPath();
 
-      list.innerHTML = notifs.map(n => {
+      const html = notifs.map(n => {
         const isRead = readIds.includes(n.id);
         const link = n.link ? root + n.link : '#';
         const timeStr = n.created_at ? (() => {
@@ -303,7 +327,7 @@
           return Math.floor(diff/86400) + 'd ago';
         })() : '';
 
-        return `<a href="${link}" onclick="markNotifRead('${n.id}');SS.closeModal();" class="notif-modal-item ${isRead ? '' : 'unread'}">
+        return `<a href="${link}" onclick="markNotifRead('${n.id}'); if(window.innerWidth < 850) toggleNotifs();" class="notif-modal-item ${isRead ? '' : 'unread'}">
           <div class="notif-modal-dot ${isRead ? '' : 'active'}"></div>
           <div class="notif-modal-content">
             <div class="notif-modal-title">${n.title || 'Notification'}</div>
@@ -312,10 +336,26 @@
           </div>
         </a>`;
       }).join('');
+      containers.forEach(c => c.innerHTML = html);
     } catch(e) {
-      list.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-3);font-size:13px;">Unable to load notifications</div>';
+      containers.forEach(c => c.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-3);font-size:13px;">Unable to load notifications</div>');
     }
   }
+
+  window.toggleNotifs = function() {
+    if (window.innerWidth <= 850) {
+      const popup = document.getElementById('notifMobilePopup');
+      if (popup) {
+        const isOpen = popup.classList.contains('active');
+        popup.classList.toggle('active');
+        if (!isOpen) {
+          // Close main nav if open
+          const navbar = document.getElementById('navbar');
+          if (navbar) navbar.classList.remove('mobile-open');
+        }
+      }
+    }
+  };
 
   window.loadNavNotifications = async function() {
     const user = firebase.auth().currentUser;

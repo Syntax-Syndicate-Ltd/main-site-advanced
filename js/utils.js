@@ -123,6 +123,15 @@ SS.formatDateRelative = function (ts) {
 };
 SS.truncateText = (s, max = 120) => (!s || s.length <= max) ? (s || '') : s.substring(0, max).trim() + '…';
 SS.getInitials = (name) => name ? name.split(' ').map(w => w[0]).join('').toUpperCase().substring(0, 2) : '?';
+SS.renderAvatar = (p, sizeClass = '') => {
+  const name = p.name || 'User';
+  const url = p.avatar_url || p.author_avatar_url || '';
+  if (url && typeof url === 'string' && url.trim()) {
+    const sanitizedUrl = SS.sanitizeHTML(url.trim());
+    return `<img src="${sanitizedUrl}" alt="${SS.sanitizeHTML(name)}" class="avatar-img ${sizeClass}" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\\'avatar-fallback ${sizeClass}\\\'>${SS.getInitials(name)}</div>';">`;
+  }
+  return `<div class="avatar-fallback ${sizeClass}">${SS.getInitials(name)}</div>`;
+};
 SS.sanitizeHTML = (s) => { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
 SS.slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 SS.getQueryParam = (name) => new URLSearchParams(window.location.search).get(name);

@@ -144,7 +144,7 @@ async function loadCheatsheet() {
             ${cs.domain ? `<span class="cs-badge">${SS.sanitizeHTML(cs.domain)}</span>` : ''}
             ${(cs.tags || []).slice(0, 3).map(t => `<span class="cs-badge">${SS.sanitizeHTML(t)}</span>`).join('')}
           </div>
-          <h1 class="cs-title">${cs.cover_emoji || '📋'} ${SS.sanitizeHTML(cs.title)}</h1>
+          <h1 class="cs-title"><i class="bi ${cs.icon || cs.cover_emoji || 'bi-file-earmark-code'}" style="margin-right:8px; color:var(--accent);"></i> ${SS.sanitizeHTML(cs.title)}</h1>
           ${cs.description ? `<p class="cs-desc">${SS.sanitizeHTML(cs.description)}</p>` : ''}
           <div class="cs-meta">
             <a href="${cs.poster_type === 'company' ? '../company/profile.html?uid=' + cs.posted_by : '#'}" class="cs-poster">

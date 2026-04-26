@@ -15,6 +15,7 @@ const DevHub = {
     const data = {
       author_uid: user.uid,
       author_name: profile.name || user.displayName || 'Anonymous',
+      author_avatar_url: profile.avatar_url || '',
       content: content.trim(),
       image_url: (imageUrl || '').trim(),
       link_url: (linkUrl || '').trim(),
@@ -224,6 +225,16 @@ const DevHub = {
     return docs.length;
   },
 
+  async getFollowers(uid) {
+    const docs = await DB.queryDocs('devhub_follows', [['following_uid','==',uid]], null, 'desc', 200);
+    return docs.sort((a,b) => (b.created_at?.toMillis?.()||0) - (a.created_at?.toMillis?.()||0));
+  },
+
+  async getFollowing(uid) {
+    const docs = await DB.queryDocs('devhub_follows', [['follower_uid','==',uid]], null, 'desc', 200);
+    return docs.sort((a,b) => (b.created_at?.toMillis?.()||0) - (a.created_at?.toMillis?.()||0));
+  },
+
   /* ═══════════════════════════════════
      COMMENTS
      ═══════════════════════════════════ */
@@ -236,6 +247,7 @@ const DevHub = {
       target_id: targetId,
       author_uid: user.uid,
       author_name: profile.name || 'Anonymous',
+      author_avatar_url: profile.avatar_url || '',
       text: text.trim(),
       created_at: firebase.firestore.FieldValue.serverTimestamp()
     };
@@ -277,7 +289,7 @@ const DevHub = {
     const uid = Auth.getUser()?.uid;
     const liked = (post.likes || []).includes(uid);
     const likeCount = (post.likes || []).length;
-    const initials = SS.getInitials(post.author_name);
+    const avatar = SS.renderAvatar({ name: post.author_name, avatar_url: post.author_avatar_url }, 'sm circle');
     const time = SS.formatDateRelative(post.created_at);
     const isOwner = uid === post.author_uid || Auth.isAdmin();
 
@@ -296,30 +308,30 @@ const DevHub = {
     let sharedHTML = '';
     if (post.shared_content) {
       const sc = post.shared_content;
-      const typeIcons = { project: '🖥️', snippet: '📝', pdf: '📄' };
+      const typeIcons = { project: '<i class="bi bi-rocket-takeoff"></i>', snippet: '<i class="bi bi-file-earmark-code"></i>', pdf: '<i class="bi bi-file-earmark-pdf"></i>' };
       const typeLabels = { project: 'Project', snippet: 'Snippet', pdf: 'Resource' };
       const linkMap = { project: `projects.html`, snippet: `snippets.html`, pdf: `../archives/viewer.html?id=${sc.id}` };
       sharedHTML = `<a href="${linkMap[sc.type] || '#'}" class="dh-shared-card" target="_blank">
-        <div class="dh-shared-icon">${typeIcons[sc.type] || '📎'}</div>
+        <div class="dh-shared-icon" style="color:var(--accent);">${typeIcons[sc.type] || '📎'}</div>
         <div class="dh-shared-info">
           <div class="dh-shared-label">${typeLabels[sc.type] || 'Content'}</div>
           <div class="dh-shared-title">${SS.sanitizeHTML(sc.title || 'Untitled')}</div>
           ${sc.description ? `<div class="dh-shared-desc">${SS.sanitizeHTML(SS.truncateText(sc.description, 80))}</div>` : ''}
         </div>
-        <div class="dh-shared-arrow"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+        <div class="dh-shared-arrow"><i class="bi bi-chevron-right"></i></div>
       </a>`;
     }
 
     return `
     <div class="dh-post" id="post-${post.id}" data-id="${post.id}">
       <div class="dh-post-header">
-        <a href="profile.html?uid=${post.author_uid}" class="avatar">${initials}</a>
+        <a href="profile.html?uid=${post.author_uid}" class="avatar">${avatar}</a>
         <div class="dh-post-meta">
           <a href="profile.html?uid=${post.author_uid}" class="dh-post-author">${SS.sanitizeHTML(post.author_name)}</a>
           <div class="dh-post-time">${time}</div>
         </div>
         ${isOwner ? `<button class="dh-post-menu" onclick="DevHub._confirmDelete('post','${post.id}')" title="Delete post">
-          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <i class="bi bi-x-lg" style="font-size:0.85rem;"></i>
         </button>` : ''}
       </div>
       <div class="dh-post-content">${SS.sanitizeHTML(post.content)}</div>
@@ -327,11 +339,11 @@ const DevHub = {
       ${sharedHTML}
       <div class="dh-post-actions">
         <button class="dh-action-btn ${liked ? 'liked' : ''}" onclick="DevHub._handleLike('devhub_posts','${post.id}', this)">
-          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <i class="bi ${liked ? 'bi-heart-fill' : 'bi-heart'}"></i>
           <span>${likeCount}</span>
         </button>
         <button class="dh-action-btn" onclick="DevHub._toggleComments('${post.id}')">
-          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <i class="bi bi-chat-dots"></i>
           <span>${post.comment_count || 0}</span>
         </button>
       </div>
@@ -349,7 +361,7 @@ const DevHub = {
     const uid = Auth.getUser()?.uid;
     const liked = (project.likes || []).includes(uid);
     const likeCount = (project.likes || []).length;
-    const initials = SS.getInitials(project.author_name);
+    const avatar = SS.renderAvatar({ name: project.author_name, avatar_url: project.author_avatar_url }, 'sm circle');
     const tags = (project.tech_stack || []).map(t => `<span class="dh-project-tag">${SS.sanitizeHTML(t)}</span>`).join('');
     const thumbHTML = project.thumbnail_url
       ? `<div class="dh-project-thumb"><img src="${SS.sanitizeHTML(project.thumbnail_url)}" alt="${SS.sanitizeHTML(project.title)}" onerror="this.parentElement.innerHTML='🖥️'"/></div>`
@@ -358,12 +370,12 @@ const DevHub = {
     let linksHTML = '';
     if (project.github_url) {
       linksHTML += `<a href="${SS.sanitizeHTML(project.github_url)}" class="dh-project-link" target="_blank" rel="noopener" title="GitHub">
-        <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+        <i class="bi bi-github"></i>
       </a>`;
     }
     if (project.live_url) {
       linksHTML += `<a href="${SS.sanitizeHTML(project.live_url)}" class="dh-project-link" target="_blank" rel="noopener" title="Live Demo">
-        <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        <i class="bi bi-link-45deg"></i>
       </a>`;
     }
 
@@ -376,12 +388,12 @@ const DevHub = {
         <div class="dh-project-tags">${tags}</div>
         <div class="dh-project-footer">
           <a href="profile.html?uid=${project.author_uid}" class="dh-project-author">
-            <span class="avatar">${initials}</span>
+            <span class="avatar">${avatar}</span>
             ${SS.sanitizeHTML(project.author_name)}
           </a>
           <div style="display:flex;align-items:center;gap:8px;">
             <button class="dh-action-btn ${liked ? 'liked' : ''}" onclick="DevHub._handleLike('projects','${project.id}', this)" style="padding:4px 8px;">
-              <svg viewBox="0 0 24 24" style="width:13px;height:13px;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              <i class="bi ${liked ? 'bi-heart-fill' : 'bi-heart'}" style="font-size:0.85rem;"></i>
               <span>${likeCount}</span>
             </button>
             <div class="dh-project-links">${linksHTML}</div>
@@ -395,7 +407,7 @@ const DevHub = {
     const uid = Auth.getUser()?.uid;
     const liked = (snippet.likes || []).includes(uid);
     const likeCount = (snippet.likes || []).length;
-    const initials = SS.getInitials(snippet.author_name);
+    const avatar = SS.renderAvatar({ name: snippet.author_name, avatar_url: snippet.author_avatar_url }, 'sm circle');
     const time = SS.formatDateRelative(snippet.created_at);
     const langClass = `dh-lang-${snippet.language || 'other'}`;
     const escapedCode = SS.sanitizeHTML(snippet.code || '');
@@ -407,7 +419,7 @@ const DevHub = {
         <div class="dh-snippet-title">${SS.sanitizeHTML(snippet.title)}</div>
         <span class="dh-snippet-lang ${langClass}">${SS.sanitizeHTML(snippet.language || 'other')}</span>
         ${isOwner ? `<button class="dh-post-menu" onclick="DevHub._confirmDelete('snippet','${snippet.id}')" title="Delete" style="margin-left:4px;">
-          <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <i class="bi bi-trash3" style="font-size:0.85rem;"></i>
         </button>` : ''}
       </div>
       ${snippet.description ? `<div style="padding:0 20px 10px;font-size:.82rem;color:var(--text-2);">${SS.sanitizeHTML(snippet.description)}</div>` : ''}
@@ -417,7 +429,7 @@ const DevHub = {
       </div>
       <div class="dh-snippet-footer">
         <a href="profile.html?uid=${snippet.author_uid}" class="dh-snippet-author">
-          <span class="avatar">${initials}</span>
+          <span class="avatar">${avatar}</span>
           ${SS.sanitizeHTML(snippet.author_name)} · ${time}
         </a>
         <button class="dh-action-btn ${liked ? 'liked' : ''}" onclick="DevHub._handleLike('snippets','${snippet.id}', this)" style="padding:4px 10px;">
@@ -444,11 +456,11 @@ const DevHub = {
     <div class="dh-idea" data-id="${idea.id}">
       <div class="dh-idea-votes">
         <button class="dh-vote-btn ${votedUp ? 'active-up' : ''}" onclick="DevHub._handleVote('${idea.id}','up')">
-          <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+          <i class="bi bi-chevron-up"></i>
         </button>
         <div class="dh-vote-score">${score}</div>
         <button class="dh-vote-btn ${votedDown ? 'active-down' : ''}" onclick="DevHub._handleVote('${idea.id}','down')">
-          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          <i class="bi bi-chevron-down"></i>
         </button>
       </div>
       <div class="dh-idea-body">
@@ -516,7 +528,7 @@ const DevHub = {
     } else {
       listEl.innerHTML = comments.map(c => `
         <div class="dh-comment">
-          <span class="avatar">${SS.getInitials(c.author_name)}</span>
+          <span class="avatar">${SS.renderAvatar({ name: c.author_name, avatar_url: c.author_avatar_url }, 'sm circle')}</span>
           <div class="dh-comment-body">
             <div class="dh-comment-author">${SS.sanitizeHTML(c.author_name)}</div>
             <div class="dh-comment-text">${SS.sanitizeHTML(c.text)}</div>
@@ -708,6 +720,7 @@ const DevHub = {
       const data = {
         author_uid: user.uid,
         author_name: profile.name || user.displayName || 'Anonymous',
+        author_avatar_url: profile.avatar_url || '',
         content: content.trim(),
         image_url: '',
         link_url: '',

@@ -4,117 +4,251 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Developer Profile — Syntax Syndicate</title>
-<meta name="description" content="View a developer's public profile on Syntax Syndicate — projects, snippets, and contributions."/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
 <link rel="stylesheet" href="../css/global.css"/>
 <link rel="stylesheet" href="../css/components.css"/>
-<link rel="stylesheet" href="../css/devhub.css"/>
+<style id="premium-profile-styles">
+  /* 🏁 RESET & OVERRIDES */
+  body { 
+    margin: 0 !important; 
+    padding: 0 !important; 
+    background-color: #f8fafc !important; 
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    color: #1e293b !important;
+    padding-top: 80px !important; /* Space for fixed navbar */
+  }
+
+  /* 🏛️ GRID SYSTEM */
+  .profile-grid-container {
+    display: grid !important;
+    grid-template-columns: 340px 1fr !important;
+    gap: 48px !important;
+    max-width: 1240px !important;
+    margin: 40px auto !important;
+    padding: 0 32px !important;
+    align-items: start !important;
+  }
+
+  /* 🛡️ SIDEBAR */
+  .sidebar-box { position: sticky !important; top: 110px !important; }
+  .profile-hero-card {
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    border-radius: 32px !important;
+    padding: 48px 32px !important;
+    box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.08) !important;
+    text-align: center !important;
+  }
+  .profile-avatar-box {
+    width: 120px !important; height: 120px !important;
+    background: #fff !important; border-radius: 40px !important;
+    display: flex !important; align-items: center !important; justify-content: center !important;
+    font-size: 3rem !important; font-weight: 800 !important; color: #4169e1 !important;
+    margin: 0 auto 24px !important; border: 4px solid #fff !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
+    transform: rotate(-3deg) !important; transition: 0.3s !important;
+  }
+  .profile-name-text { font-size: 1.8rem !important; font-weight: 800 !important; color: #0f172a !important; margin-bottom: 8px !important; }
+  .profile-headline-text { font-size: 0.95rem !important; color: #64748b !important; margin-bottom: 24px !important; }
+  
+  .profile-stats-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 12px !important; margin-top: 32px !important; }
+  .stat-card-item { background: rgba(255,255,255,0.6) !important; padding: 16px !important; border-radius: 20px !important; text-align: left !important; border: 1px solid rgba(0,0,0,0.03) !important; }
+  .stat-card-item strong { display: block !important; font-size: 1.25rem !important; font-weight: 800 !important; color: #0f172a !important; }
+  .stat-card-item span { font-size: 0.65rem !important; color: #94a3b8 !important; font-weight: 700 !important; text-transform: uppercase !important; }
+
+  /* 📑 TABS (GitHub Style) */
+  .profile-tabs-nav { 
+    display: flex !important; gap: 32px !important; border-bottom: 1px solid #e2e8f0 !important;
+    width: 100% !important; margin-bottom: 32px !important; padding: 0 4px !important;
+  }
+  .profile-tab-btn {
+    padding: 12px 4px !important; border: none !important; background: transparent !important;
+    font-size: 0.9rem !important; font-weight: 600 !important; color: #64748b !important; cursor: pointer !important;
+    display: flex !important; align-items: center !important; gap: 8px !important; transition: 0.2s !important;
+    border-bottom: 2px solid transparent !important;
+    margin-bottom: -1px !important;
+  }
+  .profile-tab-btn:hover { color: #0f172a !important; }
+  .profile-tab-btn.active { color: #0f172a !important; border-bottom-color: #4169e1 !important; }
+  .profile-tab-btn i, .profile-tab-btn svg { width: 18px !important; height: 18px !important; color: #94a3b8 !important; }
+  .profile-tab-btn.active i, .profile-tab-btn.active svg { color: #4169e1 !important; }
+
+  /* 📦 CONTENT */
+  .content-section { display: none !important; }
+  .content-section.active { display: block !important; animation: fadeInProfile 0.4s ease-out !important; }
+  @keyframes fadeInProfile { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .profile-content-grid { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important; gap: 24px !important; }
+  .premium-item-card {
+    background: #fff !important; border: 1px solid #e2e8f0 !important; border-radius: 24px !important; padding: 24px !important;
+    display: flex !important; flex-direction: column !important; gap: 12px !important;
+    transition: 0.3s !important; text-decoration: none !important; color: inherit !important;
+  }
+  .premium-item-card:hover { transform: translateY(-5px) !important; border-color: #4169e1 !important; box-shadow: 0 20px 40px rgba(0,0,0,0.08) !important; }
+
+  /* 🗞️ POSTS STYLING */
+  .dh-post { background: #fff !important; border: 1px solid #e2e8f0 !important; border-radius: 24px !important; padding: 24px !important; margin-bottom: 20px !important; }
+  .dh-post-header { display: flex !important; align-items: center !important; gap: 12px !important; margin-bottom: 16px !important; }
+  .dh-post-header .avatar { 
+    width: 44px !important; height: 44px !important; border-radius: 12px !important; 
+    background: #edf2ff !important; color: #4169e1 !important; font-weight: 800 !important; 
+    display: flex !important; align-items: center !important; justify-content: center !important;
+    font-size: 0.8rem !important; border: none !important;
+  }
+  .dh-post-meta { flex: 1 !important; }
+  .dh-post-author { display: block !important; font-weight: 700 !important; color: #0f172a !important; font-size: 0.95rem !important; text-decoration: none !important; margin-bottom: 2px !important; line-height: 1.2 !important; }
+  .dh-post-time { font-size: 0.75rem !important; color: #94a3b8 !important; font-weight: 600 !important; line-height: 1 !important; }
+  .dh-post-content { font-size: 1rem !important; color: #1e293b !important; line-height: 1.6 !important; margin-bottom: 16px !important; white-space: pre-wrap !important; }
+  .dh-post-image { width: 100% !important; max-height: 480px !important; object-fit: cover !important; border-radius: 16px !important; margin-bottom: 16px !important; display: block !important; }
+  .dh-post-actions { display: flex !important; gap: 16px !important; border-top: 1px solid #f1f5f9 !important; padding-top: 16px !important; }
+  .dh-action-btn { 
+    background: transparent !important; border: none !important; color: #64748b !important; 
+    font-size: 0.85rem !important; font-weight: 700 !important; display: flex !important; align-items: center !important; gap: 6px !important; padding: 0 !important; cursor: pointer !important;
+  }
+  .dh-action-btn svg { width: 18px !important; height: 18px !important; }
+  .dh-action-btn.liked { color: #ef4444 !important; }
+  .dh-action-btn.liked svg { fill: #ef4444 !important; }
+  .dh-post-menu { background: none !important; border: none !important; color: #cbd5e1 !important; cursor: pointer !important; padding: 4px !important; }
+  .dh-post-menu:hover { color: #ef4444 !important; }
+
+  /* 💬 COMMENTS STYLING */
+  .dh-comments { display: none !important; margin-top: 16px !important; background: #f8fafc !important; border-radius: 16px !important; padding: 16px !important; }
+  .dh-comments.open { display: block !important; }
+  .dh-comment { display: flex !important; gap: 12px !important; margin-bottom: 16px !important; }
+  .dh-comment .avatar { 
+    width: 32px !important; height: 32px !important; border-radius: 10px !important; 
+    background: #4169e1 !important; color: #fff !important; font-size: 0.65rem !important; 
+    display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important;
+  }
+  .dh-comment-body { flex: 1 !important; background: #fff !important; padding: 12px 16px !important; border-radius: 14px !important; border: 1px solid #e2e8f0 !important; }
+  .dh-comment-author { font-weight: 700 !important; font-size: 0.85rem !important; color: #0f172a !important; margin-bottom: 4px !important; }
+  .dh-comment-text { font-size: 0.88rem !important; color: #334155 !important; line-height: 1.5 !important; }
+  .dh-comment-time { font-size: 0.7rem !important; color: #94a3b8 !important; margin-top: 6px !important; font-weight: 600 !important; }
+  .dh-comment-input { display: flex !important; gap: 8px !important; margin-top: 16px !important; border-top: 1px solid #e2e8f0 !important; padding-top: 16px !important; }
+  .dh-comment-input input { 
+    flex: 1 !important; padding: 10px 16px !important; border-radius: 12px !important; border: 1px solid #e2e8f0 !important; 
+    font-family: inherit !important; font-size: 0.85rem !important; outline: none !important;
+  }
+  .dh-comment-input input:focus { border-color: #4169e1 !important; box-shadow: 0 0 0 3px rgba(65,105,225,0.1) !important; }
+  .dh-comment-input button { background: #4169e1 !important; color: #fff !important; border: none !important; padding: 8px 16px !important; border-radius: 12px !important; font-weight: 700 !important; font-size: 0.82rem !important; cursor: pointer !important; }
+
+  /* 🏗️ PROJECTS STYLING */
+  .dh-project-card { 
+    background: #fff !important; border: 1px solid #e2e8f0 !important; border-radius: 24px !important; 
+    overflow: hidden !important; display: flex !important; flex-direction: column !important; 
+    transition: 0.3s !important; text-decoration: none !important; color: inherit !important;
+  }
+  .dh-project-card:hover { transform: translateY(-8px) !important; box-shadow: 0 20px 40px rgba(0,0,0,0.08) !important; border-color: #4169e1 !important; }
+  .dh-project-thumb { width: 100% !important; height: 180px !important; background: #f1f5f9 !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 2.5rem !important; overflow: hidden !important; }
+  .dh-project-thumb img { width: 100% !important; height: 100% !important; object-fit: cover !important; }
+  .dh-project-body { padding: 24px !important; display: flex !important; flex-direction: column !important; gap: 12px !important; flex: 1 !important; }
+  .dh-project-title { font-size: 1.1rem !important; font-weight: 800 !important; color: #0f172a !important; }
+  .dh-project-desc { font-size: 0.9rem !important; color: #64748b !important; line-height: 1.5 !important; display: -webkit-box !important; -webkit-line-clamp: 2 !important; -webkit-box-orient: vertical !important; overflow: hidden !important; }
+  .dh-project-tags { display: flex !important; flex-wrap: wrap !important; gap: 8px !important; }
+  .dh-project-tag { background: #f8fafc !important; border: 1px solid #e2e8f0 !important; color: #64748b !important; padding: 4px 10px !important; border-radius: 8px !important; font-size: 0.7rem !important; font-weight: 700 !important; text-transform: uppercase !important; }
+  .dh-project-footer { margin-top: auto !important; padding-top: 16px !important; border-top: 1px solid #f1f5f9 !important; display: flex !important; justify-content: space-between !important; align-items: center !important; }
+  .dh-project-author { display: flex !important; align-items: center !important; gap: 8px !important; font-size: 0.8rem !important; font-weight: 700 !important; color: #475569 !important; text-decoration: none !important; }
+  .dh-project-author .avatar { width: 24px !important; height: 24px !important; border-radius: 6px !important; background: #edf2ff !important; color: #4169e1 !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 0.6rem !important; }
+  .dh-project-links { display: flex !important; gap: 10px !important; }
+  .dh-project-link { color: #94a3b8 !important; transition: 0.2s !important; }
+  .dh-project-link:hover { color: #4169e1 !important; }
+  .dh-project-link svg { width: 18px !important; height: 18px !important; }
+
+  /* 📝 SNIPPETS STYLING */
+  .dh-snippet { background: #0f172a !important; border-radius: 24px !important; overflow: hidden !important; margin-bottom: 24px !important; border: 1px solid rgba(255,255,255,0.1) !important; }
+  .dh-snippet-header { background: rgba(255,255,255,0.05) !important; padding: 16px 24px !important; display: flex !important; align-items: center !important; gap: 12px !important; border-bottom: 1px solid rgba(255,255,255,0.1) !important; }
+  .dh-snippet-title { font-weight: 700 !important; color: #f8fafc !important; font-size: 0.95rem !important; flex: 1 !important; }
+  .dh-snippet-lang { font-family: var(--mono) !important; font-size: 0.7rem !important; font-weight: 700 !important; color: #94a3b8 !important; text-transform: uppercase !important; background: rgba(255,255,255,0.1) !important; padding: 4px 10px !important; border-radius: 6px !important; }
+  .dh-snippet-code { position: relative !important; padding: 24px !important; background: #0f172a !important; }
+  .dh-snippet-code pre { margin: 0 !important; font-family: var(--mono) !important; font-size: 0.85rem !important; color: #e2e8f0 !important; overflow-x: auto !important; line-height: 1.6 !important; }
+  .dh-snippet-copy { position: absolute !important; top: 16px !important; right: 16px !important; background: rgba(255,255,255,0.1) !important; border: none !important; color: #fff !important; padding: 6px 12px !important; border-radius: 8px !important; font-size: 0.75rem !important; font-weight: 700 !important; cursor: pointer !important; opacity: 0 !important; transition: 0.2s !important; }
+  .dh-snippet:hover .dh-snippet-copy { opacity: 1 !important; }
+  .dh-snippet-footer { padding: 16px 24px !important; background: rgba(255,255,255,0.02) !important; display: flex !important; justify-content: space-between !important; align-items: center !important; }
+  .dh-snippet-author { display: flex !important; align-items: center !important; gap: 10px !important; font-size: 0.8rem !important; color: #94a3b8 !important; text-decoration: none !important; font-weight: 600 !important; }
+  .dh-snippet-author .avatar { width: 28px !important; height: 28px !important; border-radius: 8px !important; background: #4169e1 !important; color: #fff !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 0.65rem !important; }
+
+  /* 📱 MOBILE */
+  @media (max-width: 980px) {
+    .profile-grid-container { grid-template-columns: 1fr !important; padding: 0 20px !important; }
+    .sidebar-box { position: static !important; }
+    .profile-tabs-nav { width: 100% !important; overflow-x: auto !important; padding-bottom: 12px !important; }
+  }
+</style>
 </head>
-<body class="dh-page">
+<body>
 <div id="navbar-placeholder" data-type="main"></div>
 
-<!-- PROFILE CONTENT -->
-<div style="max-width:1100px;margin:28px auto 60px;padding:0 var(--pad);">
+<div class="profile-grid-container" id="mainContainer" style="display:none !important;">
+  
+  <!-- LEFT -->
+  <aside class="sidebar-box">
+    <div class="profile-hero-card">
+      <div class="profile-avatar-box" id="avatarBox">?</div>
+      <h1 class="profile-name-text" id="userName">Loading...</h1>
+      <p class="profile-headline-text" id="userHeadline"></p>
+      
+      <div id="userLocation" style="color:#64748b; font-size:0.85rem; font-weight:700; display:flex; align-items:center; justify-content:center; gap:8px;"></div>
+      
+      <div id="userSocials" style="display:flex; justify-content:center; gap:16px; margin-top:24px;"></div>
 
-  <!-- HERO CARD -->
-  <div class="dh-profile-hero" id="profileHero" style="display:none;">
-    <div class="dh-profile-cover"></div>
-    <div class="dh-profile-info">
-      <div class="dh-profile-avatar" id="heroAvatar">?</div>
-      <div class="dh-profile-text">
-        <div class="dh-profile-name" id="heroName">Loading...</div>
-        <div style="font-size:1.1rem;color:var(--text-2);font-weight:500;margin-top:4px;" id="heroHeadline"></div>
-        <div class="dh-profile-detail" id="heroDetail" style="margin-top:8px;">
-          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          <span id="heroCollege">—</span>
-          <span id="heroLocation" style="margin-left:12px;color:var(--text-3);"></span>
+      <div id="userPortfolioBtn" style="margin-top:24px; display:none;">
+        <a id="portfolioBtnLink" href="#" target="_blank" class="premium-btn-primary" style="display:flex; align-items:center; justify-content:center; gap:12px; padding:16px; border-radius:20px; font-weight:800; text-decoration:none; background: var(--accent); color:#fff; box-shadow: 0 12px 24px rgba(65,105,225,0.25); transition: all 0.3s var(--ease);">
+          <i class="bi bi-box-arrow-up-right"></i> View Portfolio
+        </a>
+      </div>
+
+      <div id="userActions" style="margin-top:16px; display:none;">
+        <button class="dh-follow-btn" id="followBtn" onclick="handleFollow()" style="width:100%; padding:14px; border-radius:16px; font-weight:800;">Follow</button>
+      </div>
+
+      <div class="profile-stats-grid" id="statsContainer">
+        <!-- JS Populated -->
+      </div>
+    </div>
+  </aside>
+
+  <!-- RIGHT -->
+  <main class="main-content-box">
+    <nav class="profile-tabs-nav">
+      <button class="profile-tab-btn active" onclick="changeTab('posts', this)"><i class="bi bi-grid-1x2"></i> Posts</button>
+      <button class="profile-tab-btn" onclick="changeTab('projects', this)"><i class="bi bi-rocket-takeoff"></i> Projects</button>
+      <button class="profile-tab-btn" onclick="changeTab('repositories', this)"><i class="bi bi-github"></i> Repos</button>
+      <button class="profile-tab-btn" onclick="changeTab('snippets', this)"><i class="bi bi-file-earmark-code"></i> Snippets</button>
+      <button class="profile-tab-btn" onclick="changeTab('contributions', this)"><i class="bi bi-file-earmark-pdf"></i> PDF</button>
+      <button class="profile-tab-btn" onclick="changeTab('about', this)"><i class="bi bi-person"></i> About</button>
+    </nav>
+
+    <!-- Sections -->
+    <div class="content-section active" id="sec-posts"><div id="postsList" style="display:flex; flex-direction:column; gap:20px;"></div></div>
+    <div class="content-section" id="sec-projects"><div class="profile-content-grid" id="projectsGrid"></div></div>
+    <div class="content-section" id="sec-repositories"><div class="profile-content-grid" id="reposGrid"></div></div>
+    <div class="content-section" id="sec-snippets"><div id="snippetsList" style="display:flex; flex-direction:column; gap:20px;"></div></div>
+    <div class="content-section" id="sec-contributions"><div class="profile-content-grid" id="pdfsGrid"></div></div>
+    
+    <div class="content-section" id="sec-about">
+      <div class="premium-item-card" style="padding:40px; border-radius:32px;">
+        <div id="bioArea" style="margin-bottom:32px; display:none;">
+          <h3 style="font-size:1.1rem; font-weight:800; margin-bottom:12px;"><i class="bi bi-info-circle" style="margin-right:8px; color:var(--accent);"></i> Bio</h3>
+          <div id="bioContent" style="font-size:0.95rem; color:#475569; line-height:1.7; white-space:pre-wrap;"></div>
         </div>
-        <div style="display:flex;gap:12px;margin-top:12px;" id="heroSocials"></div>
-        <div class="dh-profile-stats" id="profileStatsContainer" style="margin-top:16px;">
-          <!-- Populated by JS -->
+        <div id="skillsArea" style="margin-bottom:32px; display:none;">
+          <h3 style="font-size:1.1rem; font-weight:800; margin-bottom:16px;"><i class="bi bi-lightning-charge" style="margin-right:8px; color:var(--accent);"></i> Expertise</h3>
+          <div id="skillsContent" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
         </div>
-      </div>
-      <div class="dh-profile-actions" id="profileActions" style="display:none;">
-        <button class="dh-follow-btn" id="followBtn" onclick="toggleFollow()">Follow</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB BAR -->
-  <div style="margin-top:24px;">
-    <div class="dh-filter-bar" style="width:fit-content;">
-      <button class="dh-filter-tab active" onclick="switchTab('posts', this)">Posts</button>
-      <button class="dh-filter-tab" onclick="switchTab('projects', this)">Projects</button>
-      <button class="dh-filter-tab" onclick="switchTab('snippets', this)">Snippets</button>
-      <button class="dh-filter-tab" onclick="switchTab('contributions', this)">Contributions</button>
-      <button class="dh-filter-tab" onclick="switchTab('about', this)">About</button>
-    </div>
-  </div>
-
-  <!-- Posts -->
-  <div class="tab-content active" id="tab-posts" style="margin-top:20px;">
-    <div id="userPostsContainer" style="display:flex;flex-direction:column;gap:16px;">
-      <div class="empty-state"><div class="empty-state-title">Loading...</div></div>
-    </div>
-  </div>
-
-  <!-- Projects -->
-  <div class="tab-content" id="tab-projects" style="margin-top:20px;">
-    <div class="dh-projects-grid" id="userProjectsContainer">
-      <div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-title">Loading...</div></div>
-    </div>
-  </div>
-
-  <!-- Snippets -->
-  <div class="tab-content" id="tab-snippets" style="margin-top:20px;">
-    <div id="userSnippetsContainer" style="display:flex;flex-direction:column;gap:16px;">
-      <div class="empty-state"><div class="empty-state-title">Loading...</div></div>
-    </div>
-  </div>
-
-  <!-- Contributions -->
-  <div class="tab-content" id="tab-contributions" style="margin-top:20px;">
-    <div id="userContributionsContainer" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;">
-      <div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-title">Loading...</div></div>
-    </div>
-  </div>
-
-  <!-- About -->
-  <div class="tab-content" id="tab-about" style="margin-top:20px;">
-    <div class="dh-widget" style="padding:28px;">
-      <div style="margin-bottom:24px;display:none;" id="aboutBioBox">
-        <h3 style="font-size:1rem;font-weight:700;margin-bottom:8px;">About Me</h3>
-        <div style="font-size:0.9rem;color:var(--text-2);line-height:1.6;white-space:pre-wrap;" id="aboutBio"></div>
-      </div>
-      <div style="margin-bottom:24px;display:none;" id="aboutSkillsBox">
-        <h3 style="font-size:1rem;font-weight:700;margin-bottom:12px;">Skills</h3>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;" id="aboutSkills"></div>
-      </div>
-      <h3 style="font-size:1rem;font-weight:700;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:10px;">Details</h3>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;" id="aboutGrid">
-        <div id="gridEmail"><div style="font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:4px;font-family:var(--mono);display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Email</div><div style="font-size:.88rem;color:var(--text);" id="aboutEmail">—</div></div>
-        <div id="gridMobile"><div style="font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:4px;font-family:var(--mono);display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> Mobile</div><div style="font-size:.88rem;color:var(--text);" id="aboutMobile">—</div></div>
-        <div id="gridCollege"><div style="font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:4px;font-family:var(--mono);display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg> College</div><div style="font-size:.88rem;color:var(--text);" id="aboutCollege">—</div></div>
-        <div id="gridBranch"><div style="font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:4px;font-family:var(--mono);display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Branch</div><div style="font-size:.88rem;color:var(--text);" id="aboutBranch">—</div></div>
-        <div id="gridLevel"><div style="font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:4px;font-family:var(--mono);display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Level</div><div style="font-size:.88rem;color:var(--text);" id="aboutLevel">—</div></div>
-        <div id="gridPortfolio" style="grid-column:1/-1;"><div style="font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:4px;font-family:var(--mono);display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Portfolio</div><div style="font-size:.88rem;" id="aboutPortfolio">—</div></div>
-        <div><div style="font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:4px;font-family:var(--mono);display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Member Since</div><div style="font-size:.88rem;color:var(--text);" id="aboutJoined">—</div></div>
-        <div><div style="font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:4px;font-family:var(--mono);display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Platform Role</div><div id="aboutRole">—</div></div>
+        <h3 style="font-size:1.1rem; font-weight:800; margin-bottom:20px; border-bottom:1px solid #e2e8f0; padding-bottom:12px;">Contact & Info</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;" id="infoGrid"></div>
       </div>
     </div>
-  </div>
+  </main>
 </div>
 
-<!-- Loading -->
-<div id="loadingState" style="text-align:center;padding:80px 20px;">
-  <div class="empty-state-icon" style="margin:0 auto 16px;">
-    <svg viewBox="0 0 24 24" width="28" height="28" stroke="var(--accent)" fill="none" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-  </div>
-  <div style="font-size:1rem;font-weight:600;color:var(--carbon-black);">Loading profile...</div>
-</div>
+<div id="loader" style="text-align:center; padding:150px 20px; font-size:1.2rem; color:#64748b; font-weight:600;">Initializing Profile...</div>
 
 <div id="footer-placeholder"></div>
 
+<!-- SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -125,212 +259,243 @@
 <script src="../js/navbar.js"></script>
 <script src="../js/footer.js"></script>
 <script src="../js/devhub.js"></script>
+
 <script>
-let profileUid = null, profileData = null, isOwnProfile = false, isFollowingUser = false;
+let uid = null, data = null, isFollowing = false;
 
 document.addEventListener('DOMContentLoaded', async () => {
-  profileUid = SS.getQueryParam('uid');
-  if (!profileUid) {
-    document.getElementById('loadingState').innerHTML = '<div class="empty-state"><div class="empty-state-title">No profile specified</div><div class="empty-state-desc">Use ?uid=... to view a profile.</div></div>';
-    return;
-  }
+  uid = SS.getQueryParam('uid');
+  if (!uid) { document.getElementById('loader').innerHTML = 'Missing User ID'; return; }
+  
   try {
-    profileData = await DB.getUserProfile(profileUid);
-    if (!profileData) { document.getElementById('loadingState').innerHTML = '<div class="empty-state"><div class="empty-state-title">Profile not found</div></div>'; return; }
-    document.title = `${profileData.name||'Developer'} — Syntax Syndicate`;
-    renderProfile(); loadUserContent();
+    data = await DB.getUserProfile(uid);
+    if (!data) { document.getElementById('loader').innerHTML = 'User Not Found'; return; }
+    
+    document.title = `${data.name || 'Developer'} — Syntax Syndicate`;
+    startProfile();
+    fetchData();
+    
     Auth.onAuthChange(async (user) => {
-      if (user) {
-        isOwnProfile = user.uid === profileUid;
-        if (!isOwnProfile) { document.getElementById('profileActions').style.display='flex'; isFollowingUser = await DevHub.isFollowing(profileUid); updateFollowBtn(); }
+      if (user && user.uid !== uid) {
+        document.getElementById('userActions').style.display = 'block';
+        isFollowing = await DevHub.isFollowing(uid);
+        updateFollowUI();
       }
     });
-  } catch(e) { document.getElementById('loadingState').innerHTML = '<div class="empty-state"><div class="empty-state-title">Error loading profile</div></div>'; }
+  } catch(e) { document.getElementById('loader').innerHTML = 'Load Error'; }
 });
 
-function renderProfile() {
-  document.getElementById('loadingState').style.display='none';
-  document.getElementById('profileHero').style.display='block';
-  const name = profileData.name||'Anonymous';
-  document.getElementById('heroAvatar').textContent = SS.getInitials(name);
-  let nameHTML = SS.sanitizeHTML(name);
-  const role = profileData.role||'user';
-  if (role!=='user') { const bc=role==='premium'?'badge-premium':(['superadmin','team'].includes(role)?'badge-admin':'badge-accent'); const lb=role==='superadmin'?'Admin':role==='team'?'Team':role==='premium'?'Premium Member':role; nameHTML+=` <span class="badge ${bc}" style="${role==='premium'?'background:linear-gradient(135deg,#f9d423,#ff4e50);color:#fff;border:none;padding:4px 10px;':''}">${lb}</span>`; }
-  document.getElementById('heroName').innerHTML = nameHTML;
-  document.getElementById('heroHeadline').textContent = profileData.headline || '';
-  if (profileData.location) document.getElementById('heroLocation').innerHTML = `📍 ${SS.sanitizeHTML(profileData.location)}`;
+function startProfile() {
+  document.getElementById('loader').style.display = 'none';
+  document.getElementById('mainContainer').style.setProperty('display', 'grid', 'important');
   
-  // Socials
-  let socialsHTML = '';
-  if (profileData.github) socialsHTML += `<a href="${profileData.github}" target="_blank" class="badge badge-admin" style="text-decoration:none;">GitHub</a>`;
-  if (profileData.linkedin) socialsHTML += `<a href="${profileData.linkedin}" target="_blank" class="badge badge-accent" style="text-decoration:none;background:#0077b5;color:#fff;">LinkedIn</a>`;
-  document.getElementById('heroSocials').innerHTML = socialsHTML;
-
-  // Bio & Skills
-  if (profileData.bio) {
-    document.getElementById('aboutBioBox').style.display = 'block';
-    document.getElementById('aboutBio').textContent = profileData.bio;
+  const name = data.name || 'Anonymous';
+  document.getElementById('avatarBox').innerHTML = SS.renderAvatar(data, 'lg circle');
+  
+  let nameHTML = SS.sanitizeHTML(name);
+  const role = data.role || 'user';
+  if (role !== 'user') {
+    const labels = { superadmin: 'Admin', team: 'Team', premium: 'Pro' };
+    nameHTML += ` <span class="badge badge-accent" style="margin-left:8px;">${labels[role] || role}</span>`;
   }
-  if (profileData.skills) {
-    document.getElementById('aboutSkillsBox').style.display = 'block';
-    document.getElementById('aboutSkills').innerHTML = profileData.skills.split(',').map(s => 
-      `<span style="background:var(--accent-bg);color:var(--accent-hi);padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;">${s.trim()}</span>`
+  document.getElementById('userName').innerHTML = nameHTML;
+  document.getElementById('userHeadline').textContent = data.headline || '';
+  
+  if (data.location) document.getElementById('userLocation').innerHTML = `<i data-lucide="map-pin" style="width:14px;"></i> ${SS.sanitizeHTML(data.location)}`;
+
+  // Socials
+  let sHTML = '';
+  if (data.github) sHTML += `<a href="${data.github}" target="_blank" class="p-social-btn"><i data-lucide="github"></i></a>`;
+  if (data.linkedin) sHTML += `<a href="${data.linkedin}" target="_blank" class="p-social-btn"><i data-lucide="linkedin"></i></a>`;
+  document.getElementById('userSocials').innerHTML = sHTML;
+
+  if (data.portfolio_link) {
+    document.getElementById('userPortfolioBtn').style.display = 'block';
+    document.getElementById('portfolioBtnLink').href = data.portfolio_link;
+  }
+
+  // Bio
+  if (data.bio) {
+    document.getElementById('bioArea').style.display = 'block';
+    document.getElementById('bioContent').textContent = data.bio;
+  }
+  if (data.skills) {
+    document.getElementById('skillsArea').style.display = 'block';
+    document.getElementById('skillsContent').innerHTML = data.skills.split(',').map(s => 
+      `<span style="background:#edf2ff; color:#4169e1; padding:6px 14px; border-radius:10px; font-size:12px; font-weight:700;">${s.trim()}</span>`
     ).join('');
   }
 
-  // Privacy Details
-  document.getElementById('gridEmail').style.display = profileData.privacy_email ? 'block' : 'none';
-  document.getElementById('aboutEmail').textContent = profileData.email || '—';
-  
-  document.getElementById('gridMobile').style.display = profileData.privacy_mobile ? 'block' : 'none';
-  document.getElementById('aboutMobile').textContent = profileData.mobile || '—';
-  
-  const showEdu = profileData.privacy_education !== false; // default true if not set
-  document.getElementById('gridCollege').style.display = showEdu ? 'block' : 'none';
-  document.getElementById('gridBranch').style.display = showEdu ? 'block' : 'none';
-  document.getElementById('gridLevel').style.display = showEdu ? 'block' : 'none';
-  document.getElementById('heroCollege').textContent = showEdu ? [profileData.college,profileData.branch,profileData.level].filter(Boolean).join(' · ')||(profileData.college?'': 'Developer') : 'Hidden';
+  // Info Grid
+  const info = [];
+  if (data.privacy_email) info.push({ l: 'Email', v: data.email, i: 'mail' });
+  if (data.privacy_mobile) info.push({ l: 'Mobile', v: data.mobile, i: 'phone' });
+  if (data.privacy_education !== false) {
+    info.push({ l: 'College', v: data.college, i: 'graduation-cap' });
+    info.push({ l: 'Course', v: data.branch, i: 'book' });
+  }
+  info.push({ l: 'Member Since', v: data.created_at ? SS.formatDate(data.created_at) : '—', i: 'calendar' });
 
-  document.getElementById('aboutCollege').textContent = profileData.college||'—';
-  document.getElementById('aboutBranch').textContent = profileData.branch||'—';
-  document.getElementById('aboutLevel').textContent = profileData.level||'—';
-
-  document.getElementById('gridPortfolio').style.display = profileData.portfolio_link ? 'block' : 'none';
-  if (profileData.portfolio_link) document.getElementById('aboutPortfolio').innerHTML = `<a href="${SS.sanitizeHTML(profileData.portfolio_link)}" target="_blank" style="color:var(--accent);text-decoration:none;">${SS.sanitizeHTML(profileData.portfolio_link)}</a>`;
-  
-  document.getElementById('aboutJoined').textContent = profileData.created_at ? SS.formatDate(profileData.created_at) : '—';
-  const rm={superadmin:'badge-admin',team:'badge-admin',premium:'badge-premium',institute_admin:'badge-accent',user:'badge-green'};
-  const rl={superadmin:'Superadmin',team:'Team',premium:'Premium Member',institute_admin:'Institute Admin',user:'Free Member'};
-  document.getElementById('aboutRole').innerHTML = `<span class="badge ${rm[role]||'badge-green'}" style="padding:4px 12px;${role==='premium'?'background:linear-gradient(135deg,#f9d423,#ff4e50);color:#fff;':''}">${rl[role]||'Member'}</span>`;
-  
-  loadProfileStats();
+  document.getElementById('infoGrid').innerHTML = info.map(x => `
+    <div>
+      <div style="font-size:0.65rem; color:#94a3b8; font-weight:800; text-transform:uppercase; display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+        <i class="bi bi-${x.i === 'mail' ? 'envelope' : (x.i === 'phone' ? 'telephone' : (x.i === 'graduation-cap' ? 'mortarboard' : (x.i === 'book' ? 'journal-text' : (x.i === 'calendar' ? 'calendar3' : x.i))))}"></i> ${x.l}
+      </div>
+      <div style="font-size:0.95rem; font-weight:600; color:#1e293b;">${x.v || '—'}</div>
+    </div>
+  `).join('');
 }
 
-async function loadProfileStats() {
-  try {
-    const [pr,sn,fl,fg, contribs] = await Promise.all([
-      DB.queryDocs('projects',[['author_uid','==',profileUid]]),
-      DB.queryDocs('snippets',[['author_uid','==',profileUid]]),
-      DevHub.getFollowerCount(profileUid),
-      DevHub.getFollowingCount(profileUid),
-      DB.queryDocs('pdfs',[['posted_by','==',profileUid]])
-    ]);
-    
-    let statsHTML = `
-      <span class="dh-profile-stat"><strong>${pr.length}</strong>Projects</span>
-      <span class="dh-profile-stat"><strong>${sn.length}</strong>Snippets</span>
-      <span class="dh-profile-stat"><strong>${contribs.length}</strong>Contributions</span>
-      <span class="dh-profile-stat" onclick="showFollowersModal()" style="cursor:pointer;"><strong>${fl}</strong>Followers</span>
-      <span class="dh-profile-stat" onclick="showFollowingModal()" style="cursor:pointer;"><strong>${fg}</strong>Following</span>
-    `;
-
-    if (profileData.privacy_stats) {
-      statsHTML += `
-        <span class="dh-profile-stat" style="color:var(--accent-hi);"><strong>${profileData.books_read||0}</strong>Reads</span>
-        <span class="dh-profile-stat" style="color:var(--accent-hi);"><strong>${profileData.apply_clicks||0}</strong>Apps</span>
-      `;
-    }
-
-    document.getElementById('profileStatsContainer').innerHTML = statsHTML;
-  } catch(e){ console.error(e); }
-}
-
-async function loadUserContent() {
-  const fetchAndRender = async (col, containerId, renderer, emptyMsg) => {
+async function fetchData() {
+  const load = async (col, target, renderer, msg, filterField = 'author_uid') => {
     try {
-      const docs = await DB.queryDocs(col, [['author_uid','==',profileUid]], null, null, 1000);
-      const filtered = docs.filter(d => !d.is_hidden).sort((a,b) => (b.created_at?.toMillis?.()||0) - (a.created_at?.toMillis?.()||0));
-      const c = document.getElementById(containerId);
-      if(!c) return;
-      c.innerHTML = filtered.length ? filtered.map(d => renderer(d)).join('') : `<div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-title">${emptyMsg}</div></div>`;
-    } catch(e) { console.error('Error fetching ' + col, e); }
+      const docs = await DB.queryDocs(col, [[filterField,'==',uid]], null, null, 50);
+      const div = document.getElementById(target);
+      if (!div) return;
+      if (docs.length) {
+        div.innerHTML = docs.map(d => {
+          try { return renderer(d); } catch(err) { console.error(`Render error in ${col}:`, err); return ''; }
+        }).join('');
+      } else {
+        div.innerHTML = `<div style="padding:40px; text-align:center; color:#94a3b8;">${msg}</div>`;
+      }
+    } catch(e) { console.error(`Load error for ${col}:`, e); }
   };
-  
-  await fetchAndRender('devhub_posts', 'userPostsContainer', p => window.DevHub.renderPostCard(p), 'No posts yet');
-  await fetchAndRender('projects', 'userProjectsContainer', p => window.DevHub.renderProjectCard(p), 'No projects yet');
-  await fetchAndRender('snippets', 'userSnippetsContainer', p => window.DevHub.renderSnippetBlock(p), 'No snippets yet');
 
+  load('devhub_posts', 'postsList', p => DevHub.renderPostCard(p), 'No posts published');
+  load('projects', 'projectsGrid', p => DevHub.renderProjectCard(p), 'No projects shared');
+  load('snippets', 'snippetsList', p => DevHub.renderSnippetBlock(p), 'No snippets saved');
+  load('pdfs', 'pdfsGrid', d => `
+    <a class="premium-item-card" href="../archives/viewer.html?id=${d.id}" target="_blank">
+      <div style="font-weight:800; font-size:1.1rem; display:flex; align-items:center; gap:10px;">
+        <i class="bi bi-file-earmark-pdf" style="color:#ef4444;"></i> ${SS.sanitizeHTML(d.title || 'Untitled')}
+      </div>
+      <div style="font-size:0.9rem; color:#64748b;">${SS.sanitizeHTML(d.description || '')}</div>
+      <div style="margin-top:auto; display:flex; gap:8px;">
+        <span class="badge badge-accent">${d.type || 'PDF'}</span>
+        <span style="font-size:0.75rem; color:#94a3b8; align-self:center;">${SS.formatDateRelative(d.created_at)}</span>
+      </div>
+    </a>
+  `, 'No PDFs shared', 'posted_by');
+
+  // Repos
+  if (data.github) {
+    try {
+      const user = data.github.split('/').filter(Boolean).pop();
+      if (!user) throw new Error("Invalid GitHub profile");
+      
+      const res = await fetch(`https://api.github.com/users/${user}/repos?sort=updated&per_page=12`);
+      if (!res.ok) throw new Error("API Limit or User not found");
+      
+      const repos = await res.json();
+      if (!Array.isArray(repos)) throw new Error("Invalid response");
+
+      const filtered = repos.filter(r => !r.fork);
+      if (filtered.length === 0) {
+        document.getElementById('reposGrid').innerHTML = '<div style="padding:40px; text-align:center; color:#94a3b8;">No public repositories found.</div>';
+      } else {
+        document.getElementById('reposGrid').innerHTML = filtered.map(r => `
+          <a href="${r.html_url}" target="_blank" class="premium-item-card">
+            <div style="display:flex; justify-content:space-between;">
+              <div style="font-weight:800; font-size:1.1rem;">${SS.sanitizeHTML(r.name)}</div>
+              <i class="bi bi-github" style="color:#94a3b8;"></i>
+            </div>
+            <div style="font-size:0.9rem; color:#64748b; line-height:1.5;">${SS.sanitizeHTML(r.description || 'No description provided')}</div>
+            <div style="margin-top:auto; display:flex; gap:16px; font-size:0.8rem; font-weight:700; color:#94a3b8;">
+              <span><i class="bi bi-star" style="margin-right:4px;"></i>${r.stargazers_count}</span>
+              <span><i class="bi bi-code-slash" style="margin-right:4px;"></i>${r.language || 'Git'}</span>
+            </div>
+          </a>
+        `).join('');
+      }
+    } catch(e) { 
+      console.error('GitHub Sync Error:', e);
+      document.getElementById('reposGrid').innerHTML = `<div style="padding:40px; text-align:center; color:#94a3b8;">Sync Error: ${e.message}</div>`; 
+    }
+  } else {
+    document.getElementById('reposGrid').innerHTML = '<div style="padding:40px; text-align:center; color:#94a3b8;">GitHub profile not linked.</div>';
+  }
+
+  // Stats
   try {
-     const pdfs = await DB.queryDocs('pdfs', [['posted_by','==',profileUid]], null, null, 1000);
-     const filteredPdfs = pdfs.filter(d => !d.is_hidden).sort((a,b) => (b.created_at?.toMillis?.()||0) - (a.created_at?.toMillis?.()||0));
-     const c = document.getElementById('userContributionsContainer');
-     if (c) {
-       c.innerHTML = filteredPdfs.length ? filteredPdfs.map(d => {
-         return `
-           <a class="dh-snippet" href="../archives/viewer.html?id=${d.id}" target="_blank" style="text-decoration:none;display:block;padding:20px;border-left:4px solid var(--accent);background:var(--white);">
-             <div style="font-weight:700;color:var(--text);font-size:1.05rem;display:flex;align-items:center;gap:10px;">
-               <svg style="width:20px;height:20px;fill:var(--danger);" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-               ${SS.sanitizeHTML(d.title || 'Untitled Resource')}
-             </div>
-             ${d.description ? `<div style="font-size:0.85rem;color:var(--text-2);margin-top:8px;">${SS.sanitizeHTML(d.description)}</div>` : ''}
-             <div style="margin-top:14px;display:flex;gap:10px;">
-               <span class="badge badge-accent">${d.type || 'Resource'}</span>
-               <span class="badge badge-green">${d.access || 'Free'}</span>
-               <span style="font-size:0.75rem;color:var(--text-3);line-height:24px;">Uploaded ${SS.formatDateRelative(d.created_at)}</span>
-             </div>
-           </a>
-         `;
-       }).join('') : `<div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-title">No contributions yet</div></div>`;
-     }
-  } catch(e){}
-}
-
-function switchTab(name, el) {
-  document.querySelectorAll('.dh-filter-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-  document.getElementById(`tab-${name}`).classList.add('active');
-}
-
-async function toggleFollow() {
-  if (!Auth.getUser()){SS.showToast('Log in to follow','error');return;}
-  const btn=document.getElementById('followBtn'); btn.disabled=true;
-  try { if(isFollowingUser){await DevHub.unfollowUser(profileUid);isFollowingUser=false;}else{await DevHub.followUser(profileUid);isFollowingUser=true;} updateFollowBtn(); loadProfileStats(); } catch(e){}
-  btn.disabled=false;
-}
-
-function updateFollowBtn() {
-  const btn=document.getElementById('followBtn');
-  btn.textContent=isFollowingUser?'Following':'Follow';
-  btn.classList.toggle('following',isFollowingUser);
+    const [p, s, fl, fg, contribs] = await Promise.all([
+      DB.queryDocs('projects', [['author_uid','==',uid]]),
+      DB.queryDocs('snippets', [['author_uid','==',uid]]),
+      DevHub.getFollowerCount(uid),
+      DevHub.getFollowingCount(uid),
+      DB.queryDocs('pdfs', [['posted_by','==',uid]])
+    ]);
+    document.getElementById('statsContainer').innerHTML = `
+      <div class="stat-card-item" onclick="changeTab('projects', document.querySelectorAll('.profile-tab-btn')[1])" style="cursor:pointer;"><strong>${p.length}</strong><span>Projects</span></div>
+      <div class="stat-card-item" onclick="changeTab('snippets', document.querySelectorAll('.profile-tab-btn')[3])" style="cursor:pointer;"><strong>${s.length}</strong><span>Snippets</span></div>
+      <div class="stat-card-item" onclick="changeTab('contributions', document.querySelectorAll('.profile-tab-btn')[4])" style="cursor:pointer;"><strong>${contribs.length}</strong><span>PDFs</span></div>
+      <div class="stat-card-item" onclick="showFollowersModal()" style="cursor:pointer; background:#fff !important; border:1px solid #e2e8f0 !important;"><strong>${fl}</strong><span>Followers</span></div>
+      <div class="stat-card-item" onclick="showFollowingModal()" style="cursor:pointer; background:#fff !important; border:1px solid #e2e8f0 !important;"><strong>${fg}</strong><span>Following</span></div>
+    `;
+  } catch(e) { console.error('Stats load error:', e); }
 }
 
 async function showFollowersModal() {
-  SS.showModal('<div style="text-align:center;padding:20px;color:var(--text-3);">Loading followers...</div>', { title: 'Followers' });
+  SS.showModal('<div style="text-align:center;padding:20px;">Loading...</div>', { title: 'Followers' });
   try {
-    const followers = await DevHub.getFollowers(profileUid);
+    const followers = await DevHub.getFollowers(uid);
     if (!followers.length) {
-      document.querySelector('.modal-body').innerHTML = '<div style="text-align:center;padding:40px;"><div style="font-size:1.5rem;margin-bottom:8px;">👥</div><div style="color:var(--text-3);">No followers yet</div></div>';
+      document.querySelector('.modal-body').innerHTML = '<div style="text-align:center;padding:40px;">No followers yet</div>';
       return;
     }
     const profiles = await Promise.all(followers.map(f => DB.getUserProfile(f.follower_uid || f.uid).catch(() => null)));
     const html = profiles.filter(Boolean).map(p => `
-      <a href="profile.html?uid=${p.uid||p.id}" onclick="SS.closeModal()" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);text-decoration:none;color:inherit;">
-        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#4169e1,#6366f1);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.7rem;font-weight:800;font-family:var(--mono);">${SS.getInitials(p.name||'U')}</div>
-        <div><div style="font-weight:700;font-size:.88rem;">${SS.sanitizeHTML(p.name||'User')}</div><div style="font-size:.72rem;color:var(--text-3);">${p.headline||p.college||''}</div></div>
+      <a href="profile.html?uid=${p.uid||p.id}" onclick="SS.closeModal()" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f1f5f9;text-decoration:none;color:inherit;">
+        <div style="width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;">${SS.renderAvatar(p, 'sm circle')}</div>
+        <div><div style="font-weight:700;font-size:0.88rem;">${SS.sanitizeHTML(p.name||'User')}</div><div style="font-size:0.72rem;color:#64748b;">${p.headline||''}</div></div>
       </a>
     `).join('');
     document.querySelector('.modal-body').innerHTML = '<div style="max-height:400px;overflow-y:auto;">' + html + '</div>';
-  } catch(e) { document.querySelector('.modal-body').innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-3);">Unable to load followers</div>'; }
+  } catch(e) { document.querySelector('.modal-body').innerHTML = '<div style="padding:20px;text-align:center;">Error</div>'; }
 }
 
 async function showFollowingModal() {
-  SS.showModal('<div style="text-align:center;padding:20px;color:var(--text-3);">Loading following...</div>', { title: 'Following' });
+  SS.showModal('<div style="text-align:center;padding:20px;">Loading...</div>', { title: 'Following' });
   try {
-    const following = await DevHub.getFollowing(profileUid);
+    const following = await DevHub.getFollowing(uid);
     if (!following.length) {
-      document.querySelector('.modal-body').innerHTML = '<div style="text-align:center;padding:40px;"><div style="font-size:1.5rem;margin-bottom:8px;">👥</div><div style="color:var(--text-3);">Not following anyone yet</div></div>';
+      document.querySelector('.modal-body').innerHTML = '<div style="text-align:center;padding:40px;">Not following anyone yet</div>';
       return;
     }
     const profiles = await Promise.all(following.map(f => DB.getUserProfile(f.following_uid || f.uid).catch(() => null)));
     const html = profiles.filter(Boolean).map(p => `
-      <a href="profile.html?uid=${p.uid||p.id}" onclick="SS.closeModal()" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);text-decoration:none;color:inherit;">
-        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#4169e1,#6366f1);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.7rem;font-weight:800;font-family:var(--mono);">${SS.getInitials(p.name||'U')}</div>
-        <div><div style="font-weight:700;font-size:.88rem;">${SS.sanitizeHTML(p.name||'User')}</div><div style="font-size:.72rem;color:var(--text-3);">${p.headline||p.college||''}</div></div>
+      <a href="profile.html?uid=${p.uid||p.id}" onclick="SS.closeModal()" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f1f5f9;text-decoration:none;color:inherit;">
+        <div style="width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;">${SS.renderAvatar(p, 'sm circle')}</div>
+        <div><div style="font-weight:700;font-size:0.88rem;">${SS.sanitizeHTML(p.name||'User')}</div><div style="font-size:0.72rem;color:#64748b;">${p.headline||''}</div></div>
       </a>
     `).join('');
     document.querySelector('.modal-body').innerHTML = '<div style="max-height:400px;overflow-y:auto;">' + html + '</div>';
-  } catch(e) { document.querySelector('.modal-body').innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-3);">Unable to load following</div>'; }
+  } catch(e) { document.querySelector('.modal-body').innerHTML = '<div style="padding:20px;text-align:center;">Error</div>'; }
+}
+
+function changeTab(name, btn) {
+  document.querySelectorAll('.profile-tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+  document.getElementById(`sec-${name}`).classList.add('active');
+}
+
+async function handleFollow() {
+  if (!Auth.getUser()) return;
+  const btn = document.getElementById('followBtn'); btn.disabled = true;
+  try {
+    if (isFollowing) { await DevHub.unfollowUser(uid); isFollowing = false; }
+    else { await DevHub.followUser(uid); isFollowing = true; }
+    updateFollowUI();
+  } catch(e) {}
+  btn.disabled = false;
+}
+
+function updateFollowUI() {
+  const btn = document.getElementById('followBtn');
+  btn.textContent = isFollowing ? 'Following' : 'Follow';
+  btn.style.background = isFollowing ? '#f1f5f9' : '#4169e1';
+  btn.style.color = isFollowing ? '#0f172a' : '#fff';
 }
 </script>
 </body>

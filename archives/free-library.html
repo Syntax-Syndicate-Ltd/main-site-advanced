@@ -164,8 +164,8 @@ function renderPDFs() {
       <div class="pdf-body">
         <div class="pdf-title">${p.title}</div>
         <div class="pdf-desc">${p.description||'No description available.'}</div>
-        <div style="font-size:0.72rem;color:var(--text-3);margin-top:4px;display:flex;align-items:center;gap:6px;">
-          <span style="width:22px;height:22px;border-radius:50%;background:var(--accent-bg2);display:flex;align-items:center;justify-content:center;font-size:.5rem;font-weight:800;color:var(--accent);font-family:var(--mono);">${(p.poster_name||'SS').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase()}</span>
+        <div style="font-size:0.72rem;color:var(--text-3);margin-top:4px;display:flex;align-items:center;gap:8px;">
+          ${SS.renderAvatar({ name: p.poster_name, avatar_url: p.poster_avatar_url }, 'xs circle')}
           <strong>${p.poster_name || 'Syntax Syndicate'}</strong>
         </div>
         <div class="pdf-meta"><span class="pdf-domain">${p.domain||'General'}</span><span class="pdf-rating">★ ${rating}</span></div>

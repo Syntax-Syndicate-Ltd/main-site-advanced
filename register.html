@@ -1,150 +1,345 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Create Account - Syntax Syndicate</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="css/global.css"/>
-<style>
-:root {
-  --white:#ffffff;--tint:#f0f4ff;--border:#d0d7e8;--text:#0a0e1a;--text-2:#3d4a66;
-  --accent:#4169e1;--carbon-black:#0a0e1a;--font:'DM Sans',sans-serif;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:var(--font);background:var(--tint);color:var(--text);line-height:1.6;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:40px 0;}
-.login-wrap{width:100%;max-width:520px;padding:20px;}
-.login-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:40px;box-shadow:0 12px 48px rgba(10,14,26,0.06);}
-.logo{font-size:1.4rem;font-weight:700;color:var(--carbon-black);text-align:center;display:block;text-decoration:none;margin-bottom:8px;}
-.sub{text-align:center;color:var(--text-2);font-size:.9rem;margin-bottom:28px;}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.form-group{margin-bottom:14px;}
-.form-label{display:block;font-size:.78rem;font-weight:600;margin-bottom:5px;color:var(--text-2);}
-.form-input,.form-select{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:10px;font-family:var(--font);font-size:.9rem;outline:none;transition:border-color .2s;background:var(--white);}
-.form-input:focus,.form-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(65,105,225,0.1);}
-.btn-submit{width:100%;padding:14px;background:var(--carbon-black);color:#fff;border:none;border-radius:10px;font-weight:600;font-family:var(--font);cursor:pointer;font-size:.95rem;margin-top:8px;transition:background .2s;}
-.btn-submit:hover{background:#1a2035;}
-.btn-submit:disabled{opacity:.6;cursor:not-allowed;}
-.links{text-align:center;margin-top:20px;font-size:.85rem;}
-.links a{color:var(--accent);text-decoration:none;font-weight:600;}
-.links a:hover{text-decoration:underline;}
-.err-msg{color:#e63946;font-size:.78rem;margin-top:4px;display:none;}
-@media(max-width:500px){.form-row{grid-template-columns:1fr;}}
-</style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Account — Syntax Syndicate</title>
+  <link rel="stylesheet" href="css/global.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <style>
+    body {
+      background: #fafbfc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+    
+    .bg-mesh {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: -1;
+      background: 
+        radial-gradient(circle at 100% 0%, rgba(65, 105, 225, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 0% 100%, rgba(65, 105, 225, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 1) 0%, transparent 100%);
+    }
+    .bg-orb {
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(65, 105, 225, 0.03) 0%, transparent 70%);
+      filter: blur(60px);
+      z-index: -1;
+      animation: float 20s infinite alternate ease-in-out;
+    }
+    @keyframes float {
+      from { transform: translate(-10%, -10%); }
+      to { transform: translate(10%, 10%); }
+    }
+
+    .register-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      margin-top: 40px;
+    }
+
+    .register-card {
+      width: 100%;
+      max-width: 640px;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 32px;
+      padding: 48px;
+      box-shadow: 0 20px 60px rgba(10, 14, 26, 0.05);
+    }
+
+    .register-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .register-header h1 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--carbon-black);
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .register-header p {
+      color: var(--text-2);
+      font-size: 0.95rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+    .form-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-2);
+      margin-bottom: 8px;
+      margin-left: 4px;
+    }
+    .input-wrap {
+      position: relative;
+    }
+    .input-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-3);
+      font-size: 1.1rem;
+    }
+    .form-input, .form-select {
+      width: 100%;
+      padding: 14px 16px 14px 48px;
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: all 0.3s var(--ease);
+      outline: none;
+    }
+    .form-input:focus, .form-select:focus {
+      background: #fff;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(65, 105, 225, 0.1);
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 16px;
+      background: var(--carbon-black);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s var(--ease);
+      margin-top: 12px;
+    }
+    .btn-submit:hover {
+      background: var(--ui-bar);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(26, 32, 53, 0.2);
+    }
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .err-msg {
+      color: #ef4444;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-top: 6px;
+      margin-left: 4px;
+      display: none;
+    }
+
+    .register-footer {
+      text-align: center;
+      margin-top: 32px;
+      font-size: 0.9rem;
+      color: var(--text-2);
+    }
+    .register-footer a {
+      color: var(--accent);
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .register-footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 640px) {
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+      .register-card {
+        padding: 32px 24px;
+        border-radius: 24px;
+      }
+      .register-header h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
 </head>
 <body>
-<div id="navbar-placeholder"></div>
-<div class="login-wrap">
-  <div class="login-card">
-    <div class="sub">Create your developer profile</div>
+  <div class="bg-mesh"></div>
+  <div class="bg-orb" style="top: -10%; left: -10%;"></div>
+  <div class="bg-orb" style="bottom: -10%; right: -10%; animation-delay: -5s;"></div>
 
-    <form id="registerForm" novalidate>
-      <div class="form-group">
-        <label class="form-label">Full Name *</label>
-        <input type="text" id="r-name" class="form-input" placeholder="John Doe" required />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Email Address *</label>
-        <input type="email" id="r-email" class="form-input" placeholder="you@email.com" required />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Contact Number *</label>
-        <input type="tel" id="r-mobile" class="form-input" placeholder="+91 98765 43210" required />
-      </div>
-      <div class="form-group">
-        <label class="form-label">College / Institute *</label>
-        <input type="text" id="r-college" class="form-input" placeholder="IIT Bombay" required />
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Level / Year of Study</label>
-          <select id="r-level" class="form-select">
-            <option value="">Select level</option>
-            <option value="1st Year">1st Year</option>
-            <option value="2nd Year">2nd Year</option>
-            <option value="3rd Year">3rd Year</option>
-            <option value="4th Year">4th Year</option>
-            <option value="Postgraduate">Postgraduate</option>
-            <option value="Working Professional">Working Professional</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Branch of Study</label>
-          <input type="text" id="r-branch" class="form-input" placeholder="Computer Science" />
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Password *</label>
-          <input type="password" id="r-password" class="form-input" required minlength="6" />
-          <div class="err-msg" id="err-pass">Min 6 characters required</div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Confirm Password *</label>
-          <input type="password" id="r-confirm" class="form-input" required />
-          <div class="err-msg" id="err-confirm">Passwords do not match</div>
-        </div>
-      </div>
-      <button type="submit" class="btn-submit" id="btnReg">Create Account</button>
-    </form>
+  <div id="navbar-placeholder" data-type="main"></div>
 
-    <div class="links">
-      <div style="margin-top:16px;">Already have an account? <a href="login.html">Sign In</a></div>
+  <div class="register-container">
+    <div class="register-card">
+      <div class="register-header">
+        <h1>Create Your Profile</h1>
+        <p>Join the Syntax Syndicate developer collective</p>
+      </div>
+
+      <form id="registerForm" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <div class="input-wrap">
+              <i class="bi bi-person input-icon"></i>
+              <input type="text" id="r-name" class="form-input" placeholder="John Doe" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <div class="input-wrap">
+              <i class="bi bi-envelope input-icon"></i>
+              <input type="email" id="r-email" class="form-input" placeholder="you@email.com" required />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Contact Number</label>
+            <div class="input-wrap">
+              <i class="bi bi-telephone input-icon"></i>
+              <input type="tel" id="r-mobile" class="form-input" placeholder="+91 98765 43210" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">College / Institute</label>
+            <div class="input-wrap">
+              <i class="bi bi-building input-icon"></i>
+              <input type="text" id="r-college" class="form-input" placeholder="IIT Bombay" required />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Level / Year of Study</label>
+            <div class="input-wrap">
+              <i class="bi bi-mortarboard input-icon"></i>
+              <select id="r-level" class="form-select">
+                <option value="">Select level</option>
+                <option value="1st Year">1st Year</option>
+                <option value="2nd Year">2nd Year</option>
+                <option value="3rd Year">3rd Year</option>
+                <option value="4th Year">4th Year</option>
+                <option value="Postgraduate">Postgraduate</option>
+                <option value="Working Professional">Working Professional</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Branch of Study</label>
+            <div class="input-wrap">
+              <i class="bi bi-code-square input-icon"></i>
+              <input type="text" id="r-branch" class="form-input" placeholder="Computer Science" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="input-wrap">
+              <i class="bi bi-shield-lock input-icon"></i>
+              <input type="password" id="r-password" class="form-input" placeholder="Min 6 characters" required minlength="6" />
+            </div>
+            <div class="err-msg" id="err-pass">Min 6 characters required</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm Password</label>
+            <div class="input-wrap">
+              <i class="bi bi-shield-check input-icon"></i>
+              <input type="password" id="r-confirm" class="form-input" placeholder="Repeat password" required />
+            </div>
+            <div class="err-msg" id="err-confirm">Passwords do not match</div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit" id="btnReg">Create My Developer Account</button>
+      </form>
+
+      <div class="register-footer">
+        Already a member? <a href="login.html">Sign In</a>
+      </div>
     </div>
   </div>
-</div>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js"></script>
-<script src="js/utils.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/navbar.js"></script>
+  <!-- Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/navbar.js"></script>
+  <script>
+    if (window.Navbar) Navbar.init('main');
 
-<script>
-  document.getElementById('registerForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const pw = document.getElementById('r-password').value;
-    const confirm = document.getElementById('r-confirm').value;
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const pw = document.getElementById('r-password').value;
+      const confirm = document.getElementById('r-confirm').value;
 
-    // Reset errors
-    document.getElementById('err-pass').style.display = 'none';
-    document.getElementById('err-confirm').style.display = 'none';
+      document.getElementById('err-pass').style.display = 'none';
+      document.getElementById('err-confirm').style.display = 'none';
 
-    if (pw.length < 6) {
-      document.getElementById('err-pass').style.display = 'block';
-      return;
-    }
-    if (pw !== confirm) {
-      document.getElementById('err-confirm').style.display = 'block';
-      return;
-    }
+      if (pw.length < 6) {
+        document.getElementById('err-pass').style.display = 'block';
+        return;
+      }
+      if (pw !== confirm) {
+        document.getElementById('err-confirm').style.display = 'block';
+        return;
+      }
 
-    const btn = document.getElementById('btnReg');
-    btn.disabled = true;
-    btn.innerText = 'Creating Account...';
+      const btn = document.getElementById('btnReg');
+      btn.disabled = true;
+      btn.innerText = 'Initializing Profile...';
 
-    const profileData = {
-      name: document.getElementById('r-name').value.trim(),
-      mobile: document.getElementById('r-mobile').value.trim(),
-      college: document.getElementById('r-college').value.trim(),
-      level: document.getElementById('r-level').value,
-      branch: document.getElementById('r-branch').value.trim()
-    };
+      const profileData = {
+        name: document.getElementById('r-name').value.trim(),
+        mobile: document.getElementById('r-mobile').value.trim(),
+        college: document.getElementById('r-college').value.trim(),
+        level: document.getElementById('r-level').value,
+        branch: document.getElementById('r-branch').value.trim()
+      };
 
-    const res = await Auth.register(
-      document.getElementById('r-email').value.trim(),
-      pw,
-      profileData
-    );
+      const res = await Auth.register(
+        document.getElementById('r-email').value.trim(),
+        pw,
+        profileData
+      );
 
-    if (!res.success) {
-      btn.disabled = false;
-      btn.innerText = 'Create Account';
-    }
-  });
-</script>
+      if (!res.success) {
+        btn.disabled = false;
+        btn.innerText = 'Create My Developer Account';
+      }
+    });
+  </script>
 </body>
 </html>
