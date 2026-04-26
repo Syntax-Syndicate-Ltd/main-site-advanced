@@ -75,14 +75,20 @@ const PB = {
     };
     switch(key){
       case 'hero': 
+        const curPhoto = this.getFieldVal('hero','photoUrl');
         return `
           <div class="pb-row">${F('name','Full Name')}${F('role','Role / Title')}</div>
           ${F('tagline','Tagline','textarea')}
           <div class="pb-fg">
             <label class="pb-fl">Photo URL (Portrait recommended)</label>
-            <div style="display:flex;gap:8px;">
-              <input type="text" class="pb-fi" id="heroPhotoInput" value="${this.esc(this.getFieldVal('hero','photoUrl'))}" oninput="PB.setField('hero','photoUrl',this.value)">
-              <button class="pb-btn" onclick="PB.useProfilePhoto()" title="Use Profile Photo"><i class="bi bi-person-circle"></i></button>
+            <div style="display:flex;gap:12px;align-items:center;">
+              <div id="pbHeroPhotoPreview" style="width:48px;height:48px;border-radius:10px;background:#f3f4f6;flex-shrink:0;overflow:hidden;border:1px solid var(--border);">
+                ${curPhoto ? `<img src="${this.esc(curPhoto)}" style="width:100%;height:100%;object-fit:cover;">` : '<i class="bi bi-person" style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--gray-400)"></i>'}
+              </div>
+              <div style="display:flex;gap:8px;flex:1;">
+                <input type="text" class="pb-fi" id="heroPhotoInput" value="${this.esc(curPhoto)}" oninput="PB.setField('hero','photoUrl',this.value); document.querySelector('#pbHeroPhotoPreview img')?.setAttribute('src',this.value)">
+                <button class="pb-btn" onclick="PB.useProfilePhoto()" title="Use Profile Photo"><i class="bi bi-person-circle"></i></button>
+              </div>
             </div>
           </div>
         `;
@@ -148,12 +154,13 @@ const PB = {
       {id:'hero', label:'Home'},
       d.about?.text ? {id:'about', label:'About'} : null,
       d.skills?.text ? {id:'skills', label:'Skills'} : null,
-      d.projects?.entries?.length ? {id:'projects', label:'Projects'} : null,
-      d.github?.username ? {id:'github_sync', label:'Open Source'} : null,
       d.experience?.entries?.length ? {id:'experience', label:'Experience'} : null,
       d.timeline?.entries?.length ? {id:'timeline', label:'Timeline'} : null,
+      d.projects?.entries?.length ? {id:'projects', label:'Projects'} : null,
+      d.github?.username ? {id:'github_sync', label:'Open Source'} : null,
       d.education?.entries?.length ? {id:'education', label:'Education'} : null,
       d.certifications?.entries?.length ? {id:'certifications', label:'Certifications'} : null,
+      d.testimonials?.entries?.length ? {id:'testimonials', label:'Testimonials'} : null,
       {id:'contact', label:'Contact'}
     ].filter(Boolean);
 
@@ -166,6 +173,13 @@ const PB = {
         <div class="p-nav-links">
           ${navItems.map(item => `<a href="#${item.id}" class="p-nav-link">${item.label}</a>`).join('')}
         </div>
+        <button class="p-nav-toggle" onclick="this.parentElement.parentElement.classList.toggle('mobile-open')">
+          <i class="bi bi-list open"></i>
+          <i class="bi bi-x close"></i>
+        </button>
+      </div>
+      <div class="p-mobile-menu">
+        ${navItems.map(item => `<a href="#${item.id}" class="p-mobile-link" onclick="this.parentElement.parentElement.classList.remove('mobile-open')">${item.label}</a>`).join('')}
       </div>
     </nav>`;
 
@@ -398,9 +412,12 @@ const PB = {
 
   useProfilePhoto(){
     if(window._profile && window._profile.avatar_url){
-      this.setField('hero','photoUrl',window._profile.avatar_url);
+      const url = window._profile.avatar_url;
+      this.setField('hero','photoUrl',url);
       const input = document.getElementById('heroPhotoInput');
-      if(input) input.value = window._profile.avatar_url;
+      if(input) input.value = url;
+      const preview = document.getElementById('pbHeroPhotoPreview');
+      if(preview) preview.innerHTML = `<img src="${this.esc(url)}" style="width:100%;height:100%;object-fit:cover;">`;
       SS.showToast('Using profile photo','success');
     } else {
       SS.showToast('No profile photo found','error');
@@ -435,7 +452,11 @@ const PB = {
     const sw=document.getElementById('publishSwitch');
     const link=document.getElementById('portfolioLink');
     if(sw){sw.className='pb-switch'+(this.isPublished?' on':'');}
-    if(link){link.value=this.isPublished?window.location.origin+'/portfolio.html?uid='+this.uid:'Not published';link.style.display=this.isPublished?'block':'none';}
+    if(link){
+      const baseUrl = window.location.href.split('?')[0].split('#')[0].replace('portfolio-builder.html', '');
+      link.value=this.isPublished?baseUrl+'portfolio.html?uid='+this.uid:'Not published';
+      link.style.display=this.isPublished?'block':'none';
+    }
   },
 
   initGithubSync(){

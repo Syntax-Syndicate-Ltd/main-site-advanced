@@ -88,7 +88,20 @@
     PB.autoFill(profile,user);
     // Try loading saved portfolio
     const saved=await DB.getPortfolio(profile.id);
-    if(saved&&saved.data){PB.data=saved.data;PB.template=saved.template||'midnight';PB.isPublished=!!saved.is_published;PB.renderTemplateSelector();PB.renderSections();PB.renderPreview();PB.updatePublishUI();}
+    if(saved&&saved.data){
+      PB.data=saved.data;
+      // Fallback for photo if missing in saved data
+      if(!PB.data.hero?.photoUrl && profile.avatar_url) {
+        if(!PB.data.hero) PB.data.hero = {};
+        PB.data.hero.photoUrl = profile.avatar_url;
+      }
+      PB.template=saved.template||'midnight';
+      PB.isPublished=!!saved.is_published;
+      PB.renderTemplateSelector();
+      PB.renderSections();
+      PB.renderPreview();
+      PB.updatePublishUI();
+    }
   }catch(e){console.error(e);}
 })();
 </script>
