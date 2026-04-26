@@ -199,8 +199,24 @@ async function init() {
   document.title = (pdf.title || 'PDF Viewer') + ' — Syntax Archives';
   document.getElementById('pdfTitle').innerText = pdf.title || 'Untitled';
   document.getElementById('pdfDesc').innerText = pdf.description || '';
-  document.getElementById('pdfAuthor').innerText = pdf.poster_name || 'Syntax Syndicate';
-  document.getElementById('pdfAuthorAvatar').innerHTML = SS.renderAvatar({ name: pdf.poster_name, avatar_url: pdf.poster_avatar_url }, 'md circle');
+  
+  // Real-time uploader info
+  let pName = pdf.poster_name || 'Syntax Syndicate';
+  let pAvatar = pdf.poster_avatar_url || '../img/default-avatar.png';
+  
+  if (pdf.posted_by && pdf.posted_by.length > 10) {
+    try {
+      const uDoc = await db.collection('users').doc(pdf.posted_by).get();
+      if (uDoc.exists) {
+        const uData = uDoc.data();
+        pName = uData.name || pName;
+        pAvatar = uData.avatar_url || pAvatar;
+      }
+    } catch(e) { console.warn('Failed to fetch uploader profile', e); }
+  }
+
+  document.getElementById('pdfAuthor').innerText = pName;
+  document.getElementById('pdfAuthorAvatar').innerHTML = SS.renderAvatar({ name: pName, avatar_url: pAvatar }, 'md circle');
   document.getElementById('pdfDomain').innerText = pdf.domain || 'General';
   document.getElementById('pdfType').innerText = '📄 ' + (pdf.type || 'PDF').toUpperCase();
   document.getElementById('pdfDate').innerText = pdf.created_at ? SS.formatDate(pdf.created_at) : '';

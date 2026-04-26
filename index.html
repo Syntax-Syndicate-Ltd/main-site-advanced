@@ -3490,7 +3490,23 @@
       try {
         const pdfs = await DB.fetchFreePdfs(6);
         if (pdfs.length === 0) { carousel.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-3);width:100%">No free resources found</div>'; return; }
-        const cardHTML = pdfs.map(p => `
+        
+        // Hydrate real-time profiles
+        const userCache = {};
+        const uids = [...new Set(pdfs.map(p => p.posted_by).filter(id => id && id.length > 10))];
+        await Promise.all(uids.map(async uid => {
+          try {
+            const doc = await db.collection('users').doc(uid).get();
+            if (doc.exists) userCache[uid] = doc.data();
+          } catch (e) {}
+        }));
+
+        const cardHTML = pdfs.map(p => {
+          const profile = userCache[p.posted_by] || {};
+          const pName = profile.name || p.poster_name || p.author_name || 'Syndicate Member';
+          const pAvatar = profile.avatar_url || p.poster_avatar_url || p.author_avatar_url || 'img/default-avatar.png';
+
+          return `
           <div class="pdf-card">
             <div class="cc-header">
               <div class="cc-icon"><i class="bi bi-file-earmark-pdf"></i></div>
@@ -3498,23 +3514,18 @@
             <h4>${SS.sanitizeHTML(p.title)}</h4>
             <p>${p.description ? SS.sanitizeHTML(SS.truncateText(p.description, 80)) : 'High-quality community resource.'}</p>
             <div class="pdf-meta" style="display:flex;align-items:center;gap:10px;margin-top:auto;padding-top:12px;border-top:1px solid rgba(0,0,0,0.04);">
-              ${(() => {
-                const pName = p.poster_name || p.author_name || 'Syndicate Member';
-                const pAvatar = p.poster_avatar_url || p.author_avatar_url || '';
-                return `
-                  ${SS.renderAvatar({ name: pName, avatar_url: pAvatar }, 'sm circle')}
-                  <div style="display:flex;flex-direction:column;">
-                    <span style="font-size:0.8rem;font-weight:700;color:var(--text);line-height:1.2;">${SS.sanitizeHTML(pName)}</span>
-                    <span style="font-size:0.65rem;color:var(--text-3);">${SS.sanitizeHTML(p.domain || 'General')}</span>
-                  </div>
-                `;
-              })()}
+              ${SS.renderAvatar({ name: pName, avatar_url: pAvatar }, 'sm circle')}
+              <div style="display:flex;flex-direction:column;">
+                <span style="font-size:0.8rem;font-weight:700;color:var(--text);line-height:1.2;">${SS.sanitizeHTML(pName)}</span>
+                <span style="font-size:0.65rem;color:var(--text-3);">${SS.sanitizeHTML(p.domain || 'General')}</span>
+              </div>
             </div>
             <div class="pdf-actions">
               <a href="archives/viewer.html?id=${p.id}" class="pdf-btn pdf-btn-primary"><i class="bi bi-eye"></i> Read</a>
               <a href="archives/viewer.html?id=${p.id}" class="pdf-btn pdf-btn-secondary"><i class="bi bi-download"></i> Get</a>
             </div>
-          </div>`).join('');
+          </div>`;
+        }).join('');
         // Duplicate for infinite scroll
         carousel.innerHTML = cardHTML + cardHTML;
       } catch(e) { console.error('PDFs error:', e); carousel.innerHTML = ''; }

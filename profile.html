@@ -6,6 +6,7 @@
 <title>My Profile - Syntax Syndicate</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="css/global.css"/>
+<link rel="stylesheet" href="css/components.css"/>
 
 <style>
 :root {
@@ -635,11 +636,13 @@ async function loadManageContent() {
   const container = document.getElementById('manageContentList');
   container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-3);font-size:0.9rem;">Loading content...</div>';
   try {
-    const [posts, projects, snippets, pdfs] = await Promise.all([
-      DB.queryDocs('devhub_posts', [['author_uid','==',profile.id]], null, null, 1000),
-      DB.queryDocs('projects', [['author_uid','==',profile.id]], null, null, 1000),
-      DB.queryDocs('snippets', [['author_uid','==',profile.id]], null, null, 1000),
-      DB.queryDocs('pdfs', [['posted_by','==',profile.id]], null, null, 1000)
+    console.log('Fetching content for:', profile.id);
+    const [posts, projects, snippets, pdfs, ideas] = await Promise.all([
+      DB.queryDocs('devhub_posts', [['author_uid','==',profile.id]], null, null, 1000).catch(e => { console.error('Posts fetch error:', e); return []; }),
+      DB.queryDocs('projects', [['author_uid','==',profile.id]], null, null, 1000).catch(e => { console.error('Projects fetch error:', e); return []; }),
+      DB.queryDocs('snippets', [['author_uid','==',profile.id]], null, null, 1000).catch(e => { console.error('Snippets fetch error:', e); return []; }),
+      DB.queryDocs('pdfs', [['posted_by','==',profile.id]], null, null, 1000).catch(e => { console.error('PDFs fetch error:', e); return []; }),
+      DB.queryDocs('ideas', [['author_uid','==',profile.id]], null, null, 1000).catch(e => { console.error('Ideas fetch error:', e); return []; })
     ]);
     
     let allContent = [];
@@ -647,6 +650,7 @@ async function loadManageContent() {
     projects.forEach(p => allContent.push({...p, _type: 'projects', _title: 'Project: ' + (p.title||'Untitled')}));
     snippets.forEach(p => allContent.push({...p, _type: 'snippets', _title: 'Snippet: ' + (p.title||'Untitled')}));
     pdfs.forEach(p => allContent.push({...p, _type: 'pdfs', _title: 'Contribution: ' + (p.title||'Untitled Resource')}));
+    ideas.forEach(p => allContent.push({...p, _type: 'ideas', _title: 'Idea: ' + (p.title||'Untitled Idea')}));
 
     allContent.sort((a,b) => {
       if (a._type < b._type) return -1;
@@ -662,9 +666,10 @@ async function loadManageContent() {
     container.innerHTML = allContent.map(item => {
       const isHidden = !!item.is_hidden;
       const typeBadgeClass = 
-        item._type==='devhub_posts' ? 'badge-primary' :
-        item._type==='projects' ? 'badge-accent' :
-        item._type==='snippets' ? 'badge-green' : 'badge-danger';
+        item._type==='devhub_posts' ? 'badge-accent' :
+        item._type==='projects' ? 'badge-green' :
+        item._type==='snippets' ? 'badge-premium' : 
+        item._type==='ideas' ? 'badge-accent' : 'badge-danger';
         
       return `
         <div style="display:flex;align-items:center;justify-content:space-between;background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:16px 20px;border-radius:16px;border:1px solid var(--border);box-shadow:var(--glass-shadow);margin-bottom:12px;transition:transform 0.2s;">
@@ -673,9 +678,9 @@ async function loadManageContent() {
             <span style="font-weight:700;color:var(--text);font-size:1rem;">${SS.sanitizeHTML(item._title)}</span>
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
-            <button class="btn" style="padding:8px 16px;background:rgba(255,255,255,0.8);border:1px solid var(--border);" onclick="editContent('${item._type}', '${item.id}')">Edit</button>
+            <button class="btn" style="padding:8px 16px;background:rgba(255,255,255,0.8);border:1px solid var(--border);" onclick="window.editContent('${item._type}', '${item.id}')">Edit</button>
             <button class="btn" style="padding:8px 16px;color:#ef4444;border:1px solid rgba(239,68,68,0.3);background:rgba(254,226,226,0.5);" onclick="deleteContent('${item._type}', '${item.id}')">Delete</button>
-            <button class="btn ${isHidden ? 'btn-secondary' : 'btn-primary'}" onclick="toggleVisibility('${item._type}', '${item.id}', ${isHidden})" style="padding:8px 16px;display:flex;align-items:center;gap:6px;">
+            <button class="btn ${isHidden ? 'btn-secondary' : 'btn-primary'}" onclick="window.toggleVisibility('${item._type}', '${item.id}', ${isHidden})" style="padding:8px 16px;display:flex;align-items:center;gap:6px;">
               ${isHidden ? '<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg> Hidden' : '<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Visible'}
             </button>
           </div>
@@ -688,11 +693,14 @@ async function loadManageContent() {
 }
 
 window.toggleVisibility = async function(collection, docId, currentlyHidden) {
+  console.log('Toggling visibility:', collection, docId, 'Current:', currentlyHidden);
   try {
-    await DB.updateDoc(`${collection}/${docId}`, { is_hidden: !currentlyHidden });
-    SS.showToast(!currentlyHidden ? 'Item is now hidden from public profile' : 'Item is now visible', 'success');
-    loadManageContent(); // Refresh list
+    const newState = !currentlyHidden;
+    await DB.updateDoc(`${collection}/${docId}`, { is_hidden: newState });
+    SS.showToast(newState ? 'Item is now hidden' : 'Item is now visible', 'success');
+    loadManageContent(); 
   } catch(e) {
+    console.error('Toggle visibility error:', e);
     SS.showToast('Failed to update visibility', 'error');
   }
 };
@@ -709,51 +717,96 @@ window.deleteContent = async function(collection, docId) {
 };
 
 window.editContent = async function(collection, docId) {
+  // alert('Editing content: ' + collection); // Debug alert
+  console.log('Editing content:', collection, docId);
   try {
     const doc = await DB.getDoc(`${collection}/${docId}`);
     if(!doc) return SS.showToast('Item not found', 'error');
+
+    const niceType = (collection || 'content').replace('devhub_','').replace('ss_','').toUpperCase();
 
     let html = '<form id="dynamicEditForm" style="display:flex;flex-direction:column;gap:14px;">';
     html += `<input type="hidden" id="editDocCol" value="${collection}">`;
     html += `<input type="hidden" id="editDocId" value="${docId}">`;
 
-    ['title', 'content', 'description', 'code', 'language', 'demo_link', 'github_link'].forEach(field => {
+    const fieldMap = {
+      title: 'Title',
+      content: 'Content',
+      description: 'Description',
+      code: 'Code',
+      language: 'Language',
+      image_url: 'Image URL',
+      link_url: 'Link URL',
+      thumbnail_url: 'Thumbnail URL',
+      tech_stack: 'Tech Stack (comma separated)',
+      github_url: 'GitHub URL',
+      live_url: 'Live URL',
+      category: 'Category',
+      status: 'Status'
+    };
+
+    let fieldCount = 0;
+    Object.keys(fieldMap).forEach(field => {
       if (doc[field] !== undefined) {
+        fieldCount++;
+        let val = doc[field];
+        if (field === 'tech_stack' && Array.isArray(val)) val = val.join(', ');
+        
+        // Sanitize for display in form
+        const safeVal = SS.sanitizeHTML(val || '');
+        
         html += `<div style="display:flex;flex-direction:column;gap:6px;">
-          <label style="font-size:0.8rem;font-weight:600;text-transform:capitalize;">${field.replace('_', ' ')}</label>
+          <label style="font-size:0.8rem;font-weight:600;text-transform:capitalize;">${fieldMap[field]}</label>
           ${field === 'content' || field === 'description' || field === 'code' ? 
-            `<textarea id="edit_f_${field}" rows="5" class="form-input">${doc[field] || ''}</textarea>` : 
-            `<input type="text" id="edit_f_${field}" class="form-input" value="${doc[field] || ''}">`
+            `<textarea id="edit_f_${field}" rows="5" class="form-input" style="font-family:${field==='code'?'var(--mono)':'inherit'}">${safeVal}</textarea>` : 
+            `<input type="text" id="edit_f_${field}" class="form-input" value="${safeVal}">`
           }
         </div>`;
       }
     });
 
+    if (fieldCount === 0) {
+      html += '<p style="font-size:0.9rem;color:var(--text-3);text-align:center;padding:20px;">No editable fields found for this item.</p>';
+    }
+
     html += `<div style="margin-top:10px;"><button type="submit" class="btn btn-primary" style="width:100%;padding:12px;">Save Changes</button></div>`;
     html += '</form>';
 
-    SS.showModal(html, { title: '✏️ Edit Content' });
+    SS.showModal(html, { title: `✏️ Edit ${niceType}` });
 
-    document.getElementById('dynamicEditForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const col = document.getElementById('editDocCol').value;
-      const id = document.getElementById('editDocId').value;
-      const updates = {};
-      ['title', 'content', 'description', 'code', 'language', 'demo_link', 'github_link'].forEach(field => {
-        const el = document.getElementById(`edit_f_${field}`);
-        if(el) updates[field] = el.value.trim();
+    const form = document.getElementById('dynamicEditForm');
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const col = document.getElementById('editDocCol').value;
+        const id = document.getElementById('editDocId').value;
+        const updates = {};
+        
+        Object.keys(fieldMap).forEach(field => {
+          const el = document.getElementById(`edit_f_${field}`);
+          if(el) {
+            let val = el.value.trim();
+            if (field === 'tech_stack') {
+              val = val.split(',').map(s => s.trim()).filter(Boolean);
+            }
+            updates[field] = val;
+          }
+        });
+
+        try {
+          await DB.updateDoc(`${col}/${id}`, updates);
+          SS.showToast('Updated successfully!', 'success');
+          SS.closeModal();
+          loadManageContent();
+        } catch(ex) {
+          console.error('Save error:', ex);
+          SS.showToast('Error saving updates', 'error');
+        }
       });
-      try {
-        await DB.updateDoc(`${col}/${id}`, updates);
-        SS.showToast('Updated successfully!', 'success');
-        SS.closeModal();
-        loadManageContent();
-      } catch(ex) {
-        SS.showToast('Error saving updates', 'error');
-      }
-    });
+    }
 
   } catch(e) {
+    console.error('Edit error:', e);
     SS.showToast('Error loading item for editing', 'error');
   }
 };

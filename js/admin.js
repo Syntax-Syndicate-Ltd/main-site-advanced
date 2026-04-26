@@ -15,18 +15,18 @@ const COLLECTIONS = {
 };
 
 const FORM_MAP = {
-  'form-job':        COLLECTIONS.JOBS,
+  'form-job': COLLECTIONS.JOBS,
   'form-internship': COLLECTIONS.INTERNSHIPS,
-  'form-hackathon':  COLLECTIONS.HACKATHONS,
-  'form-techevent':  COLLECTIONS.TECH_EVENTS,
-  'form-seminar':    COLLECTIONS.SEMINARS,
-  'form-course':     COLLECTIONS.COURSES,
-  'form-ad':         COLLECTIONS.ADS,
+  'form-hackathon': COLLECTIONS.HACKATHONS,
+  'form-techevent': COLLECTIONS.TECH_EVENTS,
+  'form-seminar': COLLECTIONS.SEMINARS,
+  'form-course': COLLECTIONS.COURSES,
+  'form-ad': COLLECTIONS.ADS,
   'form-premium-project': COLLECTIONS.PREMIUM_PROJECTS,
 };
 
 /* ── Toast helper ── */
-function showToast(msg, type='success') {
+function showToast(msg, type = 'success') {
   const container = document.querySelector('.toast-container');
   if (!container) return;
   const el = document.createElement('div');
@@ -42,10 +42,10 @@ function timeAgo(ts) {
   const d = ts.toDate ? ts.toDate() : new Date(ts);
   const diff = Math.floor((Date.now() - d) / 1000);
   if (diff < 60) return 'Just now';
-  if (diff < 3600) return Math.floor(diff/60) + 'm ago';
-  if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
-  if (diff < 604800) return Math.floor(diff/86400) + 'd ago';
-  return d.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+  if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+  if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
+  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 /* ══════════════════════════════════════════════
@@ -53,7 +53,7 @@ function timeAgo(ts) {
    ══════════════════════════════════════════════ */
 Auth.requireAdmin().then(() => {
   initAdmin();
-}).catch(() => {});
+}).catch(() => { });
 
 function initAdmin() {
   const user = firebase.auth().currentUser;
@@ -118,7 +118,7 @@ function initAdmin() {
 
       try {
         await db.collection(collection).add(data);
-        showToast(`✅ Published to ${collection.replace('ss_','')} successfully!`);
+        showToast(`✅ Published to ${collection.replace('ss_', '')} successfully!`);
         form.reset();
       } catch (err) {
         console.error('Publish error:', err);
@@ -158,7 +158,7 @@ async function loadDashboard() {
       const key = col.replace('ss_', '').toLowerCase();
       const el = document.getElementById(`stat-${key}`);
       if (el) el.textContent = count;
-    } catch(e) {
+    } catch (e) {
       console.warn('Stats error for', col, e);
     }
   }
@@ -171,7 +171,7 @@ async function loadDashboard() {
     const usersSnap = await db.collection('users').get();
     const usersEl = document.getElementById('stat-users');
     if (usersEl) usersEl.textContent = usersSnap.size;
-  } catch(e) {}
+  } catch (e) { }
 }
 
 /* ══════════════════════════════════════════════
@@ -197,11 +197,11 @@ async function loadManagePosts() {
       snap.docs.forEach(d => {
         allItems.push({ id: d.id, _col: col, _display: displayCol, ...d.data() });
       });
-    } catch(e) { console.warn('Load error for', col, e); }
+    } catch (e) { console.warn('Load error for', col, e); }
   }
 
   // Sort by posted date
-  allItems.sort((a,b) => {
+  allItems.sort((a, b) => {
     const da = a.postedAt?.toDate?.() || new Date(0);
     const db2 = b.postedAt?.toDate?.() || new Date(0);
     return db2 - da;
@@ -230,23 +230,23 @@ async function loadManagePosts() {
 }
 
 /* ── Delete post ── */
-window.deletePost = async function(col, id) {
+window.deletePost = async function (col, id) {
   if (!confirm('Are you sure you want to delete this post?')) return;
   try {
     await db.collection(col).doc(id).delete();
     showToast('✅ Post deleted');
     loadManagePosts();
-  } catch(err) {
+  } catch (err) {
     showToast('❌ Delete failed: ' + err.message, 'error');
   }
 };
 
 /* ── Manage Premium Projects ── */
-window.loadManagePremiumProjects = async function() {
+window.loadManagePremiumProjects = async function () {
   const tbody = document.getElementById('premium-projects-tbody');
   if (!tbody) return;
   tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--opp-text3)">Loading premium projects...</td></tr>';
-  
+
   try {
     const snap = await db.collection(COLLECTIONS.PREMIUM_PROJECTS).orderBy('postedAt', 'desc').get();
     if (snap.empty) {
@@ -272,20 +272,20 @@ window.loadManagePremiumProjects = async function() {
   }
 };
 
-window.deletePremiumProject = async function(id) {
+window.deletePremiumProject = async function (id) {
   if (!confirm('Are you sure you want to delete this premium project?')) return;
   try {
     await db.collection(COLLECTIONS.PREMIUM_PROJECTS).doc(id).delete();
     showToast('✅ Premium project deleted');
     loadManagePremiumProjects();
-  } catch(err) {
+  } catch (err) {
     showToast('❌ Delete failed: ' + err.message, 'error');
   }
 };
 
 
 /* ── Edit post ── */
-window.editPost = async function(id, col) {
+window.editPost = async function (id, col) {
   try {
     const snap = await db.collection(col).doc(id).get();
     if (!snap.exists) return showToast('Post not found', 'error');
@@ -295,7 +295,7 @@ window.editPost = async function(id, col) {
   }
 };
 
-window.closeEditModal = function() {
+window.closeEditModal = function () {
   const modal = document.getElementById('edit-modal');
   if (modal) modal.classList.remove('active');
 };
@@ -313,12 +313,12 @@ function openEditModal(id, col, data) {
           <div class="form-group ${f.full ? 'full' : ''}">
             <label class="form-label">${f.label}</label>
             ${f.type === 'textarea'
-              ? `<textarea name="${f.name}" class="form-textarea" ${f.required ? 'required' : ''}>${data[f.name] || ''}</textarea>`
-              : f.type === 'select'
-              ? `<select name="${f.name}" class="form-select">${f.options.map(o =>
-                  `<option value="${o}" ${data[f.name] === o ? 'selected' : ''}>${o}</option>`).join('')}</select>`
-              : `<input type="${f.type||'text'}" name="${f.name}" class="form-input" value="${data[f.name]||''}" ${f.required?'required':''}>`
-            }
+      ? `<textarea name="${f.name}" class="form-textarea" ${f.required ? 'required' : ''}>${data[f.name] || ''}</textarea>`
+      : f.type === 'select'
+        ? `<select name="${f.name}" class="form-select">${f.options.map(o =>
+          `<option value="${o}" ${data[f.name] === o ? 'selected' : ''}>${o}</option>`).join('')}</select>`
+        : `<input type="${f.type || 'text'}" name="${f.name}" class="form-input" value="${data[f.name] || ''}" ${f.required ? 'required' : ''}>`
+    }
           </div>`).join('')}
       </div>
       <div style="display:flex;gap:12px;margin-top:24px">
@@ -362,27 +362,27 @@ function getFieldsForCollection(col) {
     case COLLECTIONS.JOBS:
     case COLLECTIONS.INTERNSHIPS:
       return [...common,
-        { name: 'company', label: 'Company' }, { name: 'location', label: 'Location' },
-        { name: 'experienceLevel', label: 'Experience Level', type: 'select', options: ['','Entry Level','Junior','Mid Level','Senior','Lead'] },
-        { name: 'requirements', label: 'Requirements', type: 'textarea', full: true },
-        { name: 'benefits', label: 'Benefits', type: 'textarea', full: true },
-        ...(col === COLLECTIONS.INTERNSHIPS ? [{ name: 'duration', label: 'Duration' }] : [])];
+      { name: 'company', label: 'Company' }, { name: 'location', label: 'Location' },
+      { name: 'experienceLevel', label: 'Experience Level', type: 'select', options: ['', 'Entry Level', 'Junior', 'Mid Level', 'Senior', 'Lead'] },
+      { name: 'requirements', label: 'Requirements', type: 'textarea', full: true },
+      { name: 'benefits', label: 'Benefits', type: 'textarea', full: true },
+      ...(col === COLLECTIONS.INTERNSHIPS ? [{ name: 'duration', label: 'Duration' }] : [])];
     case COLLECTIONS.HACKATHONS:
       return [...common,
-        { name: 'organizer', label: 'Organizer' },
-        { name: 'mode', label: 'Mode', type: 'select', options: ['Online','Offline','Hybrid'] },
-        { name: 'prizePool', label: 'Prize Pool' },
-        { name: 'deadline', label: 'Deadline', type: 'date' }];
+      { name: 'organizer', label: 'Organizer' },
+      { name: 'mode', label: 'Mode', type: 'select', options: ['Online', 'Offline', 'Hybrid'] },
+      { name: 'prizePool', label: 'Prize Pool' },
+      { name: 'deadline', label: 'Deadline', type: 'date' }];
     case COLLECTIONS.TECH_EVENTS:
     case COLLECTIONS.SEMINARS:
       return [...common,
-        { name: 'speaker', label: 'Speaker' }, { name: 'venue', label: 'Venue' },
-        { name: 'eventDate', label: 'Event Date', type: 'date' }];
+      { name: 'speaker', label: 'Speaker' }, { name: 'venue', label: 'Venue' },
+      { name: 'eventDate', label: 'Event Date', type: 'date' }];
     case COLLECTIONS.COURSES:
       return [
         { name: 'title', label: 'Course Title', required: true },
         { name: 'instructor', label: 'Instructor' }, { name: 'platform', label: 'Platform' },
-        { name: 'level', label: 'Level', type: 'select', options: ['','Beginner','Intermediate','Advanced','All Levels'] },
+        { name: 'level', label: 'Level', type: 'select', options: ['', 'Beginner', 'Intermediate', 'Advanced', 'All Levels'] },
         { name: 'duration', label: 'Duration' }, { name: 'price', label: 'Price' },
         { name: 'description', label: 'Description', type: 'textarea', full: true },
         { name: 'imagePath', label: 'Image URL', full: true },
@@ -393,7 +393,7 @@ function getFieldsForCollection(col) {
         { name: 'title', label: 'Ad Title', required: true },
         { name: 'imagePath', label: 'Image URL', full: true },
         { name: 'redirectLink', label: 'Redirect Link', full: true, required: true },
-        { name: 'placement', label: 'Placement', type: 'select', options: ['top','betweenCards','popup'] }
+        { name: 'placement', label: 'Placement', type: 'select', options: ['top', 'betweenCards', 'popup'] }
       ];
     default: return common;
   }
@@ -420,11 +420,11 @@ async function loadUsers() {
     const clicksEl = document.getElementById('users-clicks');
 
     if (totalEl) totalEl.textContent = allUsers.length;
-    if (adminsEl) adminsEl.textContent = allUsers.filter(u => ['superadmin','team'].includes(u.role)).length;
-    if (clicksEl) clicksEl.textContent = allUsers.reduce((s,u) => s + (u.apply_clicks||0), 0);
+    if (adminsEl) adminsEl.textContent = allUsers.filter(u => ['superadmin', 'team'].includes(u.role)).length;
+    if (clicksEl) clicksEl.textContent = allUsers.reduce((s, u) => s + (u.apply_clicks || 0), 0);
 
     renderUsersTable(allUsers);
-  } catch(err) {
+  } catch (err) {
     console.error('Users load error:', err);
     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--opp-text3)">Failed to load users</td></tr>';
   }
@@ -446,7 +446,7 @@ function renderUsersTable(users) {
     const joined = u.created_at ? timeAgo(u.created_at) : '—';
     const isSuper = u.role === 'superadmin';
     const sel = r => u.role === r ? 'selected' : '';
-    
+
     let roleSelect;
     if (isSuperadmin) {
       roleSelect = `<select class="form-select" style="min-width:120px;padding:4px 8px;font-size:0.8rem;border-color:var(--border); ${isSuper ? 'font-weight:700;color:var(--opp-primary)' : ''}" onchange="updateUserRole('${u.id}', this.value)">
@@ -473,7 +473,7 @@ function renderUsersTable(users) {
   }).join('');
 }
 
-window.updateUserRole = async function(userId, newRole) {
+window.updateUserRole = async function (userId, newRole) {
   if (!confirm(`Are you sure you want to change this user's role to ${newRole}?`)) {
     loadUsers(); // Reset select
     return;
@@ -482,17 +482,17 @@ window.updateUserRole = async function(userId, newRole) {
     await DB.updateDoc(`users/${userId}`, { role: newRole });
     showToast('Role updated successfully');
     loadUsers();
-  } catch(e) {
+  } catch (e) {
     showToast('Error updating role: ' + e.message, 'error');
   }
 };
 
-window.viewUserActivity = function(userId) {
+window.viewUserActivity = function (userId) {
   const user = allUsers.find(u => u.id === userId);
   if (!user) return;
   const body = document.getElementById('edit-modal-body');
   document.querySelector('.modal-title').innerHTML = `👁️ User Activity: ${user.name || user.email}`;
-  
+
   body.innerHTML = `
     <div style="font-size:0.9rem; line-height:1.6; color:var(--opp-text2)">
       <p><strong>Name:</strong> ${user.name || 'N/A'}</p>
@@ -529,15 +529,15 @@ async function loadApprovals() {
 
   try {
     const snap = await db.collection('pending_content').where('status', '==', 'pending').get();
-    
+
     if (snap.empty) {
       tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--opp-text3)">No pending content in the queue.</td></tr>';
       return;
     }
-    
+
     // Sort manually to avoid requiring an index
     let docs = snap.docs;
-    docs.sort((a,b) => {
+    docs.sort((a, b) => {
       const da = a.data().created_at?.toDate?.() || new Date(0);
       const dbDate = b.data().created_at?.toDate?.() || new Date(0);
       return dbDate - da;
@@ -566,15 +566,15 @@ async function loadApprovals() {
   }
 }
 
-window.approveContent = async function(id) {
+window.approveContent = async function (id) {
   if (!confirm('Approve and publish this content directly to the platform?')) return;
-  
+
   try {
     const docRef = db.collection('pending_content').doc(id);
     const snap = await docRef.get();
     if (!snap.exists) throw new Error("Document not found");
     const docData = snap.data();
-    
+
     // Check if it's a resource with a designated target_collection
     if (docData.target_collection) {
       const resourceData = Object.assign({}, docData.data);
@@ -583,9 +583,9 @@ window.approveContent = async function(id) {
       resourceData.poster_avatar_url = docData.poster_avatar_url || '';
       resourceData.poster_type = docData.company_name !== 'Community User' ? 'company' : 'user';
       resourceData.created_at = firebase.firestore.FieldValue.serverTimestamp();
-      
+
       const newDocRef = await db.collection(docData.target_collection).add(resourceData);
-      
+
       // Send notification to the user
       if (docData.posted_by) {
         try {
@@ -595,7 +595,7 @@ window.approveContent = async function(id) {
             link: `archives/viewer.html?id=${newDocRef.id}`,
             sent_by: firebase.auth().currentUser.uid
           });
-        } catch(ne) { console.warn('Failed to notify user', ne); }
+        } catch (ne) { console.warn('Failed to notify user', ne); }
       }
     } else {
       // Opportunity Mapping fallback
@@ -604,9 +604,9 @@ window.approveContent = async function(id) {
         'internship': COLLECTIONS.INTERNSHIPS,
         'hackathon': COLLECTIONS.HACKATHONS
       };
-      
+
       let targetCol = TYPE_TO_COL[docData.type];
-      
+
       if (targetCol) {
         const oppData = {
           title: docData.title,
@@ -620,7 +620,7 @@ window.approveContent = async function(id) {
           postedBy: docData.posted_by || 'institute'
         };
         await db.collection(targetCol).add(oppData);
-        
+
         if (docData.posted_by) {
           try {
             await DB.sendNotificationToUser(docData.posted_by, {
@@ -629,43 +629,43 @@ window.approveContent = async function(id) {
               link: `opportunities/browse.html`,
               sent_by: firebase.auth().currentUser.uid
             });
-          } catch(ne) { console.warn('Failed to notify user', ne); }
+          } catch (ne) { console.warn('Failed to notify user', ne); }
         }
       }
     }
-    
+
     // Mark as approved in queue
     await docRef.update({ status: 'approved' });
     showToast('✅ Content approved and published!');
     loadApprovals();
-  } catch(err) {
+  } catch (err) {
     showToast('❌ Failed to approve: ' + err.message, 'error');
   }
 };
 
-window.rejectContent = async function(id) {
+window.rejectContent = async function (id) {
   if (!confirm('Reject this content? The institute can still see it was rejected.')) return;
   try {
     await db.collection('pending_content').doc(id).update({ status: 'rejected' });
     showToast('✅ Content rejected');
     loadApprovals();
-  } catch(err) {
+  } catch (err) {
     showToast('❌ Failed to reject: ' + err.message, 'error');
   }
 };
 
-window.previewApproval = async function(id) {
+window.previewApproval = async function (id) {
   try {
     const docRef = db.collection('pending_content').doc(id);
     const snap = await docRef.get();
     if (!snap.exists) return alert('Document not found');
     const docData = snap.data();
-    
+
     const body = document.getElementById('edit-modal-body');
     document.querySelector('.modal-title').innerHTML = `🔍 Preview: ${docData.title || 'Untitled'}`;
-    
+
     let contentHtml = '';
-    
+
     // Check if it's a library resource (PDF, Cheatsheet, etc) by checking if data.data exists
     if (docData.target_collection && docData.data) {
       const data = docData.data;
@@ -701,21 +701,21 @@ window.previewApproval = async function(id) {
         </div>
       `;
     }
-    
+
     contentHtml += `
       <div style="margin-top:24px;display:flex;gap:12px;justify-content:flex-end;">
         <button class="opp-btn opp-btn-secondary" onclick="closeEditModal()">Close Preview</button>
         <button class="opp-btn opp-btn-primary" style="background:#0d9488;border-color:#0d9488;" onclick="closeEditModal(); approveContent('${id}')">✅ Approve Now</button>
       </div>
     `;
-    
+
     body.innerHTML = contentHtml;
-    
+
     const modal = document.getElementById('edit-modal');
     modal.classList.add('visible');
-    modal.classList.add('active'); 
-    
-  } catch(e) {
+    modal.classList.add('active');
+
+  } catch (e) {
     showToast('Error loading preview: ' + e.message, 'error');
   }
 };
@@ -726,7 +726,7 @@ window.previewApproval = async function(id) {
    ══════════════════════════════════════════════ */
 let rmStepCounter = 0;
 
-window.addRoadmapStep = function() {
+window.addRoadmapStep = function () {
   rmStepCounter++;
   const idx = rmStepCounter;
   const container = document.getElementById('rm-steps-container');
@@ -764,12 +764,12 @@ window.addRoadmapStep = function() {
   renumberSteps();
 };
 
-window.removeRoadmapStep = function(idx) {
+window.removeRoadmapStep = function (idx) {
   document.getElementById(`rm-step-${idx}`)?.remove();
   renumberSteps();
 };
 
-window.moveRoadmapStep = function(idx, dir) {
+window.moveRoadmapStep = function (idx, dir) {
   const el = document.getElementById(`rm-step-${idx}`);
   if (!el) return;
   const container = el.parentElement;
@@ -785,7 +785,7 @@ function renumberSteps() {
   });
 }
 
-window.addVideoInput = function(stepIdx) {
+window.addVideoInput = function (stepIdx) {
   const list = document.getElementById(`rm-videos-${stepIdx}`);
   if (!list) return;
   const row = document.createElement('div');
@@ -794,7 +794,7 @@ window.addVideoInput = function(stepIdx) {
   list.appendChild(row);
 };
 
-window.addResourceInput = function(stepIdx) {
+window.addResourceInput = function (stepIdx) {
   const list = document.getElementById(`rm-resources-${stepIdx}`);
   if (!list) return;
   const row = document.createElement('div');
@@ -813,7 +813,7 @@ function collectRoadmapData() {
 
   const steps = [];
   document.querySelectorAll('#rm-steps-container > div').forEach((stepEl, i) => {
-    const sTitle = stepEl.querySelector('.rm-step-title')?.value?.trim() || `Step ${i+1}`;
+    const sTitle = stepEl.querySelector('.rm-step-title')?.value?.trim() || `Step ${i + 1}`;
     const sDesc = stepEl.querySelector('.rm-step-desc')?.value?.trim() || '';
     const sTips = stepEl.querySelector('.rm-step-tips')?.value?.trim() || '';
     const sHours = parseInt(stepEl.querySelector('.rm-step-hours')?.value) || 0;
@@ -863,7 +863,7 @@ function collectRoadmapData() {
 
 let editingRoadmapId = null;
 
-window.publishRoadmap = async function() {
+window.publishRoadmap = async function () {
   const data = collectRoadmapData();
   if (!data) return;
 
@@ -872,16 +872,16 @@ window.publishRoadmap = async function() {
     showToast(editingRoadmapId ? '✅ Roadmap updated successfully!' : '✅ Roadmap published successfully!');
     clearRoadmapForm();
     // if editing, switch back to manage 
-    if(editingRoadmapId) {
+    if (editingRoadmapId) {
       document.querySelector('[data-section="manage-roadmaps"]').click();
     }
-  } catch(err) {
+  } catch (err) {
     showToast('❌ Failed to publish: ' + err.message, 'error');
   }
 };
 
-window.clearRoadmapForm = function() {
-  ['rm-title','rm-domain','rm-role','rm-desc','rm-time','rm-tags'].forEach(id => {
+window.clearRoadmapForm = function () {
+  ['rm-title', 'rm-domain', 'rm-role', 'rm-desc', 'rm-time', 'rm-tags'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -895,22 +895,22 @@ window.clearRoadmapForm = function() {
   rmStepCounter = 0;
   editingRoadmapId = null;
   const btn = document.querySelector('button[onclick="publishRoadmap()"]');
-  if(btn) btn.innerHTML = '✅ Publish Roadmap';
+  if (btn) btn.innerHTML = '✅ Publish Roadmap';
   document.querySelector('#section-add-roadmap h1').textContent = 'Add Roadmap 🗺️';
 };
 
-window.editRoadmapAdmin = async function(id) {
+window.editRoadmapAdmin = async function (id) {
   try {
     const rm = await DB.fetchRoadmap(id);
     if (!rm) return showToast('Roadmap not found', 'error');
-    
+
     editingRoadmapId = id;
-    
+
     // Switch to add-roadmap section
     document.querySelector('[data-section="add-roadmap"]').click();
     document.querySelector('#section-add-roadmap h1').textContent = 'Edit Roadmap ✏️';
     document.querySelector('button[onclick="publishRoadmap()"]').innerHTML = '💾 Save Changes';
-    
+
     // Populate simple fields
     document.getElementById('rm-title').value = rm.title || '';
     document.getElementById('rm-domain').value = rm.domain || '';
@@ -921,11 +921,11 @@ window.editRoadmapAdmin = async function(id) {
     document.getElementById('rm-icon').value = rm.icon || rm.cover_emoji || 'bi-map';
     document.getElementById('rm-tags').value = (rm.tags || []).join(', ');
     document.getElementById('rm-featured').checked = !!rm.is_featured;
-    
+
     // Clear existing steps
     document.getElementById('rm-steps-container').innerHTML = '';
     rmStepCounter = 0;
-    
+
     // Populate steps
     const steps = rm.steps || [];
     steps.forEach(step => {
@@ -935,14 +935,14 @@ window.editRoadmapAdmin = async function(id) {
       stepEl.querySelector('.rm-step-hours').value = step.estimated_hours || '';
       stepEl.querySelector('.rm-step-desc').value = step.description || '';
       stepEl.querySelector('.rm-step-tips').value = step.tips || '';
-      
+
       const vUrls = step.video_urls || [];
       vUrls.filter(Boolean).forEach(v => {
         window.addVideoInput(rmStepCounter);
         const urlInputs = stepEl.querySelectorAll('.rm-video-url');
         urlInputs[urlInputs.length - 1].value = v;
       });
-      
+
       const rLinks = step.resource_links || [];
       rLinks.forEach(rl => {
         window.addResourceInput(rmStepCounter);
@@ -953,8 +953,8 @@ window.editRoadmapAdmin = async function(id) {
         lastRow.querySelector('.rm-res-type').value = rl.type || 'article';
       });
     });
-    
-  } catch(e) {
+
+  } catch (e) {
     showToast('Failed to load roadmap: ' + e.message, 'error');
   }
 };
@@ -965,7 +965,7 @@ window.editRoadmapAdmin = async function(id) {
    ══════════════════════════════════════════════ */
 let csSecCounter = 0;
 
-window.addCheatsheetSection = function() {
+window.addCheatsheetSection = function () {
   csSecCounter++;
   const idx = csSecCounter;
   const container = document.getElementById('cs-sections-container');
@@ -997,12 +997,12 @@ window.addCheatsheetSection = function() {
   renumberCSSections();
 };
 
-window.removeCSSection = function(idx) {
+window.removeCSSection = function (idx) {
   document.getElementById(`cs-sec-${idx}`)?.remove();
   renumberCSSections();
 };
 
-window.moveCSSection = function(idx, dir) {
+window.moveCSSection = function (idx, dir) {
   const el = document.getElementById(`cs-sec-${idx}`);
   if (!el) return;
   const container = el.parentElement;
@@ -1018,7 +1018,7 @@ function renumberCSSections() {
   });
 }
 
-window.addSnippetInput = function(secIdx) {
+window.addSnippetInput = function (secIdx) {
   const list = document.getElementById(`cs-snippets-${secIdx}`);
   if (!list) return;
   const row = document.createElement('div');
@@ -1039,7 +1039,7 @@ function collectCheatsheetData() {
 
   const sections = [];
   document.querySelectorAll('#cs-sections-container > div').forEach((secEl, i) => {
-    const heading = secEl.querySelector('.cs-sec-heading')?.value?.trim() || `Section ${i+1}`;
+    const heading = secEl.querySelector('.cs-sec-heading')?.value?.trim() || `Section ${i + 1}`;
     const content = secEl.querySelector('.cs-sec-content')?.value?.trim() || '';
     const tips = secEl.querySelector('.cs-sec-tips')?.value?.trim() || '';
 
@@ -1072,7 +1072,7 @@ function collectCheatsheetData() {
 
 let editingCheatsheetId = null;
 
-window.publishCheatsheet = async function() {
+window.publishCheatsheet = async function () {
   const data = collectCheatsheetData();
   if (!data) return;
 
@@ -1080,16 +1080,16 @@ window.publishCheatsheet = async function() {
     await DB.saveCheatsheet(data, editingCheatsheetId);
     showToast(editingCheatsheetId ? '✅ Cheatsheet updated successfully!' : '✅ Cheatsheet published successfully!');
     clearCheatsheetForm();
-    if(editingCheatsheetId) {
+    if (editingCheatsheetId) {
       document.querySelector('[data-section="manage-cheatsheets"]').click();
     }
-  } catch(err) {
+  } catch (err) {
     showToast('❌ Failed to publish: ' + err.message, 'error');
   }
 };
 
-window.clearCheatsheetForm = function() {
-  ['cs-title','cs-domain','cs-desc','cs-download','cs-tags'].forEach(id => {
+window.clearCheatsheetForm = function () {
+  ['cs-title', 'cs-domain', 'cs-desc', 'cs-download', 'cs-tags'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -1101,22 +1101,22 @@ window.clearCheatsheetForm = function() {
   csSecCounter = 0;
   editingCheatsheetId = null;
   const btn = document.querySelector('button[onclick="publishCheatsheet()"]');
-  if(btn) btn.innerHTML = '✅ Publish Cheatsheet';
+  if (btn) btn.innerHTML = '✅ Publish Cheatsheet';
   document.querySelector('#section-add-cheatsheet h1').textContent = 'Add Cheatsheet 📋';
 };
 
-window.editCheatsheetAdmin = async function(id) {
+window.editCheatsheetAdmin = async function (id) {
   try {
     const cs = await DB.fetchCheatsheet(id);
     if (!cs) return showToast('Cheatsheet not found', 'error');
-    
+
     editingCheatsheetId = id;
-    
+
     // Switch to add-cheatsheet section
     document.querySelector('[data-section="add-cheatsheet"]').click();
     document.querySelector('#section-add-cheatsheet h1').textContent = 'Edit Cheatsheet ✏️';
     document.querySelector('button[onclick="publishCheatsheet()"]').innerHTML = '💾 Save Changes';
-    
+
     // Populate simple fields
     document.getElementById('cs-title').value = cs.title || '';
     document.getElementById('cs-domain').value = cs.domain || '';
@@ -1125,11 +1125,11 @@ window.editCheatsheetAdmin = async function(id) {
     document.getElementById('cs-download').value = cs.download_url || '';
     document.getElementById('cs-tags').value = (cs.tags || []).join(', ');
     document.getElementById('cs-featured').checked = !!cs.is_featured;
-    
+
     // Clear existing sections
     document.getElementById('cs-sections-container').innerHTML = '';
     csSecCounter = 0;
-    
+
     // Populate sections
     const sections = cs.sections || [];
     sections.forEach(sec => {
@@ -1138,7 +1138,7 @@ window.editCheatsheetAdmin = async function(id) {
       secEl.querySelector('.cs-sec-heading').value = sec.heading || '';
       secEl.querySelector('.cs-sec-content').value = sec.content || '';
       secEl.querySelector('.cs-sec-tips').value = sec.tips || '';
-      
+
       const snippets = sec.code_snippets || [];
       snippets.forEach(sn => {
         window.addSnippetInput(csSecCounter);
@@ -1149,8 +1149,8 @@ window.editCheatsheetAdmin = async function(id) {
         lastRow.querySelector('.cs-snip-code').value = sn.code || '';
       });
     });
-    
-  } catch(e) {
+
+  } catch (e) {
     showToast('Failed to load cheatsheet: ' + e.message, 'error');
   }
 };
@@ -1161,9 +1161,9 @@ window.editCheatsheetAdmin = async function(id) {
    ══════════════════════════════════════════════ */
 let editingPdfId = null;
 
-window.togglePdfAccessField = function() {
+window.togglePdfAccessField = function () {
   const access = document.getElementById('pdf-access').value;
-  if(access === 'free') {
+  if (access === 'free') {
     document.getElementById('pdf-url-container').style.display = 'block';
     document.getElementById('pdf-url').required = true;
     document.getElementById('pdf-path-container').style.display = 'none';
@@ -1176,23 +1176,23 @@ window.togglePdfAccessField = function() {
   }
 };
 
-window.clearPdfForm = function() {
+window.clearPdfForm = function () {
   editingPdfId = null;
   const form = document.getElementById('form-pdf-info');
-  if(form) form.reset();
+  if (form) form.reset();
   togglePdfAccessField();
   document.querySelector('#section-add-pdf .admin-header h1').innerHTML = 'Add PDF / Resource 📄';
   document.querySelector('#section-add-pdf button.opp-btn-primary').innerHTML = '✅ Publish Resource';
 };
 
-window.publishPdf = async function() {
+window.publishPdf = async function () {
   const title = document.getElementById('pdf-title').value.trim();
-  if(!title) return alert('Title is required');
-  
+  if (!title) return alert('Title is required');
+
   const access = document.getElementById('pdf-access').value;
   const url = document.getElementById('pdf-url').value.trim();
   const path = document.getElementById('pdf-path').value.trim();
-  
+
   if (access === 'free' && !url) return alert('Google Drive URL is required for Free access.');
   if (access === 'premium' && !path) return alert('Backend file path is required for Premium access.');
 
@@ -1207,19 +1207,21 @@ window.publishPdf = async function() {
       domain: document.getElementById('pdf-domain').value.trim(),
       access: access,
       description: document.getElementById('pdf-desc').value.trim(),
-      tags: document.getElementById('pdf-tags').value.split(',').map(s=>s.trim()).filter(Boolean),
+      tags: document.getElementById('pdf-tags').value.split(',').map(s => s.trim()).filter(Boolean),
       created_at: firebase.firestore.FieldValue.serverTimestamp(),
       updated_at: firebase.firestore.FieldValue.serverTimestamp(),
       poster_type: 'admin',
-      posted_by: firebase.auth().currentUser.uid
+      posted_by: firebase.auth().currentUser.uid,
+      poster_name: (Auth.getProfile() || {}).name || 'Syntax Syndicate Admin',
+      poster_avatar_url: (Auth.getProfile() || {}).avatar_url || '../img/default-avatar.png'
     };
-    
-    if(access === 'free') data.url = url;
+
+    if (access === 'free') data.url = url;
     else data.file_path = path;
 
     await DB.savePdf(data, editingPdfId);
     showToast(`Resource ${editingPdfId ? 'updated' : 'published'} successfully!`);
-    
+
     // Auto-notify users about new resource (only on new publish, not edit)
     if (!editingPdfId && access === 'free') {
       try {
@@ -1229,20 +1231,20 @@ window.publishPdf = async function() {
           link: 'archives/free-library.html',
           sent_by: firebase.auth().currentUser.uid
         });
-      } catch(ne) { console.warn('Auto-notification failed:', ne); }
+      } catch (ne) { console.warn('Auto-notification failed:', ne); }
     }
 
     // Auto switch to Manage PDFs
     document.querySelector('.sidebar-link[data-section="manage-pdfs"]').click();
     clearPdfForm();
-  } catch(e) {
+  } catch (e) {
     showToast('Error: ' + e.message, 'error');
   } finally {
     btn.disabled = false;
   }
 };
 
-window.loadManagePdfs = async function() {
+window.loadManagePdfs = async function () {
   const tbody = document.getElementById('pdfs-tbody');
   if (!tbody) return;
   tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--opp-text3)">Loading…</td></tr>';
@@ -1253,13 +1255,13 @@ window.loadManagePdfs = async function() {
       tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--opp-text3)">No resources found</td></tr>';
       return;
     }
-    
+
     tbody.innerHTML = snap.docs.map(doc => {
       const r = doc.data();
       return `<tr>
         <td style="font-weight:600">${r.title || 'Untitled'}</td>
         <td><span class="badge" style="background:var(--tint);color:var(--text)">${r.type || 'N/A'}</span></td>
-        <td><span class="badge" style="background:${r.access==='premium'?'#fef08a':'#bbf7d0'};color:${r.access==='premium'?'#b45309':'#166534'}">${r.access || 'free'}</span></td>
+        <td><span class="badge" style="background:${r.access === 'premium' ? '#fef08a' : '#bbf7d0'};color:${r.access === 'premium' ? '#b45309' : '#166534'}">${r.access || 'free'}</span></td>
         <td>${r.poster_type || 'admin'}</td>
         <td><div class="table-actions">
           <button class="opp-btn opp-btn-sm" style="background:#fef3c7;border-color:#f59e0b;color:#b45309" onclick="editPdfAdmin('${doc.id}')">✏️ Edit</button>
@@ -1268,16 +1270,16 @@ window.loadManagePdfs = async function() {
         </div></td>
       </tr>`;
     }).join('');
-  } catch(err) {
+  } catch (err) {
     tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--opp-danger)">Error: ${err.message}</td></tr>`;
   }
 };
 
-window.editPdfAdmin = async function(id) {
+window.editPdfAdmin = async function (id) {
   try {
     const r = await DB.fetchPdf(id);
     if (!r) throw new Error("Not found");
-    
+
     document.querySelector('.sidebar-link[data-section="add-pdf"]').click();
     editingPdfId = id;
     document.querySelector('#section-add-pdf .admin-header h1').innerHTML = 'Edit PDF / Resource ✏️';
@@ -1288,28 +1290,28 @@ window.editPdfAdmin = async function(id) {
     document.getElementById('pdf-domain').value = r.domain || '';
     document.getElementById('pdf-access').value = r.access || 'free';
     togglePdfAccessField();
-    
-    if(r.access === 'free') document.getElementById('pdf-url').value = r.url || '';
+
+    if (r.access === 'free') document.getElementById('pdf-url').value = r.url || '';
     else document.getElementById('pdf-path').value = r.file_path || '';
-    
+
     document.getElementById('pdf-desc').value = r.description || '';
     document.getElementById('pdf-tags').value = (r.tags || []).join(', ');
-  } catch(e) {
+  } catch (e) {
     showToast('Failed to load PDF: ' + e.message, 'error');
   }
 };
 
-window.deletePdfAdmin = async function(id) {
+window.deletePdfAdmin = async function (id) {
   if (!confirm('Delete this resource?')) return;
   try { await DB.deletePdf(id); showToast('Resource deleted'); loadManagePdfs(); }
-  catch(e) { showToast('Error: ' + e.message, 'error'); }
+  catch (e) { showToast('Error: ' + e.message, 'error'); }
 };
 
 
 /* ══════════════════════════════════════════════
    MANAGE ROADMAPS & CHEATSHEETS
    ══════════════════════════════════════════════ */
-window.loadManageRoadmaps = async function() {
+window.loadManageRoadmaps = async function () {
   const tbody = document.getElementById('roadmaps-tbody');
   if (!tbody) return;
   tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--opp-text3)">Loading…</td></tr>';
@@ -1332,18 +1334,18 @@ window.loadManageRoadmaps = async function() {
         <button class="opp-btn opp-btn-danger opp-btn-sm" onclick="deleteRoadmapAdmin('${r.id}')">🗑</button>
       </div></td>
     </tr>`).join('');
-  } catch(err) {
+  } catch (err) {
     tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--opp-danger)">Error: ${err.message}</td></tr>`;
   }
 };
 
-window.deleteRoadmapAdmin = async function(id) {
+window.deleteRoadmapAdmin = async function (id) {
   if (!confirm('Delete this roadmap?')) return;
   try { await DB.deleteRoadmap(id); showToast('Roadmap deleted'); loadManageRoadmaps(); }
-  catch(e) { showToast('Error: ' + e.message, 'error'); }
+  catch (e) { showToast('Error: ' + e.message, 'error'); }
 };
 
-window.loadManageCheatsheets = async function() {
+window.loadManageCheatsheets = async function () {
   const tbody = document.getElementById('cheatsheets-tbody');
   if (!tbody) return;
   tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--opp-text3)">Loading…</td></tr>';
@@ -1365,22 +1367,22 @@ window.loadManageCheatsheets = async function() {
         <button class="opp-btn opp-btn-danger opp-btn-sm" onclick="deleteCheatsheetAdmin('${c.id}')">🗑</button>
       </div></td>
     </tr>`).join('');
-  } catch(err) {
+  } catch (err) {
     tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--opp-danger)">Error: ${err.message}</td></tr>`;
   }
 };
 
-window.deleteCheatsheetAdmin = async function(id) {
+window.deleteCheatsheetAdmin = async function (id) {
   if (!confirm('Delete this cheatsheet?')) return;
   try { await DB.deleteCheatsheet(id); showToast('Cheatsheet deleted'); loadManageCheatsheets(); }
-  catch(e) { showToast('Error: ' + e.message, 'error'); }
+  catch (e) { showToast('Error: ' + e.message, 'error'); }
 };
 
 
 /* ══════════════════════════════════════════════
    CONTACT MESSAGES
    ══════════════════════════════════════════════ */
-window.loadMessages = async function() {
+window.loadMessages = async function () {
   const tbody = document.getElementById('messages-tbody');
   if (!tbody) return;
   tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--opp-text3)">Loading…</td></tr>';
@@ -1405,12 +1407,12 @@ window.loadMessages = async function() {
         </div></td>
       </tr>`;
     }).join('');
-  } catch(err) {
+  } catch (err) {
     tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--opp-danger)">Error: ${err.message}</td></tr>`;
   }
 };
 
-window.viewMessage = async function(id) {
+window.viewMessage = async function (id) {
   try {
     const msg = await DB.getDoc(`contact_messages/${id}`);
     if (!msg) return showToast('Message not found', 'error');
@@ -1436,28 +1438,28 @@ window.viewMessage = async function(id) {
     `;
     modal.classList.add('active');
     loadMessages(); // Refresh list
-  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+  } catch (e) { showToast('Error: ' + e.message, 'error'); }
 };
 
-window.markMsgRead = async function(id) {
+window.markMsgRead = async function (id) {
   try { await DB.markMessageRead(id); showToast('Marked as read'); loadMessages(); }
-  catch(e) { showToast('Error: ' + e.message, 'error'); }
+  catch (e) { showToast('Error: ' + e.message, 'error'); }
 };
 
-window.deleteMsg = async function(id) {
+window.deleteMsg = async function (id) {
   if (!confirm('Delete this message?')) return;
   try { await DB.deleteMessage(id); showToast('Message deleted'); loadMessages(); }
-  catch(e) { showToast('Error: ' + e.message, 'error'); }
+  catch (e) { showToast('Error: ' + e.message, 'error'); }
 };
 
 
 /* ══════════════════════════════════════════════
    PDF ANALYTICS
    ══════════════════════════════════════════════ */
-window.loadPdfAnalytics = async function() {
+window.loadPdfAnalytics = async function () {
   try {
     const pdfs = await DB.fetchAllPdfs(200);
-    
+
     // Stats
     const total = pdfs.length;
     const rated = pdfs.filter(p => p.avg_rating);
@@ -1492,7 +1494,7 @@ window.loadPdfAnalytics = async function() {
 
     renderRow(topRated, 'pa-top-tbody');
     renderRow(bottomRated, 'pa-bottom-tbody');
-  } catch(e) {
+  } catch (e) {
     console.error('Analytics error:', e);
   }
 };
@@ -1501,19 +1503,19 @@ window.loadPdfAnalytics = async function() {
 /* ══════════════════════════════════════════════
    NOTIFICATIONS MANAGEMENT
    ══════════════════════════════════════════════ */
-window.toggleNotifUserSelect = function() {
+window.toggleNotifUserSelect = function () {
   const target = document.getElementById('notif-target').value;
   document.getElementById('notif-user-wrap').style.display = target === 'user' ? 'block' : 'none';
 };
 
-window.loadNotificationsPanel = async function() {
+window.loadNotificationsPanel = async function () {
   // Populate user dropdown
   try {
     if (!allUsers.length) await loadUsers();
     const sel = document.getElementById('notif-user-select');
     sel.innerHTML = '<option value="">-- Select User --</option>' +
       allUsers.map(u => `<option value="${u.id}">${u.name || u.email} (${u.role || 'user'})</option>`).join('');
-  } catch(e) {}
+  } catch (e) { }
 
   // Load recent notifications
   try {
@@ -1527,8 +1529,8 @@ window.loadNotificationsPanel = async function() {
       const n = doc.data();
       let targetLabel = '📢 All Users';
       if (n.target !== 'all') {
-         const foundUser = allUsers.find(u => u.id === n.target_user);
-         targetLabel = '👤 ' + (foundUser ? (foundUser.name || foundUser.email) : 'User: ' + (n.target_user || 'Unknown'));
+        const foundUser = allUsers.find(u => u.id === n.target_user);
+        targetLabel = '👤 ' + (foundUser ? (foundUser.name || foundUser.email) : 'User: ' + (n.target_user || 'Unknown'));
       }
       return `<tr>
         <td style="font-weight:600">${n.title || 'Untitled'}</td>
@@ -1536,12 +1538,12 @@ window.loadNotificationsPanel = async function() {
         <td>${n.created_at ? timeAgo(n.created_at) : '—'}</td>
       </tr>`;
     }).join('');
-  } catch(e) {
+  } catch (e) {
     document.getElementById('notif-log-tbody').innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--opp-danger)">Error loading logs</td></tr>';
   }
 };
 
-window.sendAdminNotification = async function() {
+window.sendAdminNotification = async function () {
   const title = document.getElementById('notif-title').value.trim();
   const message = document.getElementById('notif-message').value.trim();
   const link = document.getElementById('notif-link').value.trim();
@@ -1566,7 +1568,7 @@ window.sendAdminNotification = async function() {
     document.getElementById('notif-message').value = '';
     document.getElementById('notif-link').value = '';
     loadNotificationsPanel();
-  } catch(e) {
+  } catch (e) {
     showToast('Error: ' + e.message, 'error');
   }
 };

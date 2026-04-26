@@ -168,7 +168,7 @@
       <a href="${root}login.html" class="nav-cta">Get Started</a>
     </div>
 
-    <div id="navUser" style="display:none; align-items: center; gap: 6px;">
+    <div id="navUser" class="nav-user-container" style="display:none;">
       <div class="nav-item">
         <button class="nav-item-btn" id="navUserName">My Account</button>
         <div class="nav-dropdown" style="right:0;left:auto;">

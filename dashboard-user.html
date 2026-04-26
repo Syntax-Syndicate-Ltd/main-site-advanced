@@ -108,7 +108,12 @@ body { font-family:var(--font); background:var(--tint); color:var(--text); line-
           <label class="form-label">Mobile</label>
           <input type="text" class="form-input" id="editMobile" />
         </div>
+        <div class="form-group" style="grid-column: span 2;">
+          <label class="form-label">Profile Picture URL</label>
+          <input type="url" class="form-input" id="editAvatar" placeholder="https://..." />
+        </div>
       </div>
+      <button class="btn-save" onclick="saveProfile()">Save Changes</button>
     </div>
     
   <!-- SHARE TAB -->
@@ -184,6 +189,7 @@ body { font-family:var(--font); background:var(--tint); color:var(--text); line-
       document.getElementById('editCollege').value = currentUser.college || '';
       document.getElementById('editBranch').value = currentUser.branch || '';
       document.getElementById('editMobile').value = currentUser.mobile || '';
+      document.getElementById('editAvatar').value = currentUser.avatar_url || '';
     } catch(e) {
       console.error(e);
     }
@@ -198,7 +204,8 @@ body { font-family:var(--font); background:var(--tint); color:var(--text); line-
         name: document.getElementById('editName').value,
         college: document.getElementById('editCollege').value,
         branch: document.getElementById('editBranch').value,
-        mobile: document.getElementById('editMobile').value
+        mobile: document.getElementById('editMobile').value,
+        avatar_url: document.getElementById('editAvatar').value.trim()
       });
       alert('Profile updated successfully!');
       window.location.reload();

@@ -148,6 +148,7 @@ nav#navbar {
 .nav-link-plain:hover { color: var(--carbon-black); background: var(--platinum); }
 .nav-cta { font-size: .8rem; font-weight: 600; padding: 7px 16px; border-radius: 7px; background: var(--carbon-black); color: #fff; text-decoration: none; display: inline-block; }
 .nav-cta:hover { background: var(--gunmetal); }
+.nav-user-container { display: flex; align-items: center; gap: 6px; }
 
 /* ── NOTIFICATION BELL (always visible) ── */
 .nav-notif-bell { display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -390,7 +391,8 @@ footer { background: var(--carbon-black); padding: 60px var(--pad) 0; color: rgb
   .nav-item-btn { width: 100%; justify-content: space-between; padding: 16px 8px; font-size: 1rem; font-weight: 600; color: var(--carbon-black); }
   .nav-item.open .nav-item-btn { background: var(--accent-bg); color: var(--accent); }
   
-  .nav-right { width: 100%; display: flex; flex-direction: column; gap: 12px; margin-top: 12px; padding-bottom: 24px; order: 3; }
+  .nav-right { width: 100%; display: flex; flex-direction: column; gap: 8px; margin-top: 12px; padding-bottom: 24px; order: 3; }
+  .nav-user-container { flex-direction: column; width: 100%; gap: 0; }
   
   .nav-dropdown, .dropdown-mega { 
     position: static !important; width: 100% !important; max-width: 100% !important;

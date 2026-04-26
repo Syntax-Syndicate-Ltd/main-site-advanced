@@ -349,7 +349,8 @@ function startProfile() {
 async function fetchData() {
   const load = async (col, target, renderer, msg, filterField = 'author_uid') => {
     try {
-      const docs = await DB.queryDocs(col, [[filterField,'==',uid]], null, null, 50);
+      let docs = await DB.queryDocs(col, [[filterField,'==',uid]], null, null, 50);
+      docs = docs.filter(d => d.is_hidden !== true);
       const div = document.getElementById(target);
       if (!div) return;
       if (docs.length) {
