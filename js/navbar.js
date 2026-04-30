@@ -270,7 +270,9 @@
         if (nameEl) {
           const initials = SS.renderAvatar(profile, 'sm circle');
           const firstName = (profile.name || user.displayName || 'Account').split(' ')[0];
-          nameEl.innerHTML = `<div class="nav-avatar-wrap">${initials}</div> ${firstName}`;
+          const badge = SS.getRoleBadge(profile.role);
+          const tick = profile.is_verified ? '<span class="verified-tick" style="width:12px; height:12px; font-size:8px; margin-left:4px;">✓</span>' : '';
+          nameEl.innerHTML = `<div class="nav-avatar-wrap">${initials}</div> <span class="nav-name-text">${firstName}${badge}${tick}</span>`;
         }
         
         // Set public profile link

@@ -79,6 +79,40 @@ body{font-family:var(--font);background:var(--white);color:var(--text);overflow-
 
 @media(max-width:860px){.pdf-grid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:600px){.pdf-grid{grid-template-columns:1fr;}.filter-bar{flex-direction:column;}.search-box{min-width:unset;width:100%;}nav{width:calc(100% - 24px);padding:0 12px;}}
+
+/* ── AD BANNER ── */
+.ad-banner {
+  background: linear-gradient(90deg, #eef3ff 0%, #f4f0ff 100%);
+  border: 1.5px solid #c9d9f8; border-radius: 16px;
+  padding: 14px 18px; display: flex; align-items: center; gap: 14px;
+  margin-bottom: 24px; position: relative; transition: border-color 0.2s ease;
+  font-family: var(--font);
+  max-width: var(--max);
+  margin-left: auto; margin-right: auto;
+}
+.ad-banner:hover { border-color: var(--accent); }
+.ad-banner.hidden { display: none; }
+.ad-banner-label {
+  position: absolute; top: 8px; right: 12px; font-size: 9px; font-weight: 700;
+  letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-3);
+  background: var(--white); border: 1px solid rgba(0,0,0,0.06); padding: 1px 6px; border-radius: 3px;
+  pointer-events: none;
+}
+.ad-banner-img-wrap {
+  width: 48px; height: 48px; border-radius: 8px; overflow: hidden; flex-shrink: 0;
+  background: var(--white); display: flex; align-items: center; justify-content: center;
+  position: relative; border: 1px solid rgba(0,0,0,0.06);
+}
+.ad-banner-img-wrap img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; padding: 3px; }
+.ad-banner-img-wrap i { font-size: 18px; color: var(--accent); }
+.ad-banner-info { flex: 1; min-width: 0; padding-right: 56px; }
+.ad-banner-title { font-weight: 700; color: var(--text); font-size: 14px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ad-banner-sub { font-size: 12px; color: var(--text-3); }
+.ad-banner-btn {
+  flex-shrink: 0; margin-left: auto;
+  background: var(--accent); color: white; padding: 6px 14px; border-radius: 6px;
+  font-size: 12px; font-weight: 600; text-decoration: none; border: none; cursor: pointer;
+}
 </style>
 </head>
 <body>
@@ -117,6 +151,7 @@ body{font-family:var(--font);background:var(--white);color:var(--text);overflow-
     <div class="filter-tag" onclick="setFilter('course')">Courses</div>
   </div>
   <div class="lib-content">
+    <div id="ad-banner" class="ad-banner hidden"></div>
     <div class="pdf-grid" id="pdfGrid"><div class="empty-state"><h3>Loading...</h3></div></div>
   </div>
 </div>
@@ -134,6 +169,7 @@ body{font-family:var(--font);background:var(--white);color:var(--text);overflow-
 <script>
 let allPDFs = [];
 let currentFilter = 'all';
+let ads = [];
 
 Auth.onAuthChange(async (user, profile) => {
   const isPremium = profile && ['premium','team','superadmin'].includes(profile.role);
@@ -142,6 +178,12 @@ Auth.onAuthChange(async (user, profile) => {
   if (isPremium) {
     allPDFs = await DB.queryDocs('pdfs', [['access', '==', 'premium']], 'created_at', 'desc', 100);
     renderPDFs();
+    
+    try {
+      const snap = await db.collection('ad_campaigns').where('status','==','active').get();
+      ads = snap.docs.map(d => ({id:d.id, ...d.data()}));
+      renderAds();
+    } catch (e) { console.error('Ads fetch error:', e); }
   }
 });
 
@@ -161,6 +203,24 @@ function renderPDFs() {
 
 function setFilter(f) { currentFilter = f; document.querySelectorAll('.filter-tag').forEach(t=>t.classList.remove('active')); event.target.classList.add('active'); renderPDFs(); }
 function filterPDFs() { renderPDFs(); }
+
+function renderAds() {
+  if (!ads.length) return;
+  const ad = ads[Math.floor(Math.random() * ads.length)];
+  const html = `
+    <div class="ad-banner-img-wrap">
+      ${ad.image_url ? `<img src="${ad.image_url}" alt="${ad.title}">` : '<i class="bi bi-megaphone-fill"></i>'}
+    </div>
+    <div class="ad-banner-info">
+      <div class="ad-banner-title">${ad.title}</div>
+      <div class="ad-banner-sub">Sponsored • ${ad.company_name || 'Partner'}</div>
+    </div>
+    <div class="ad-banner-label">SPONSORED</div>
+    <button class="ad-banner-btn" onclick="window.open('${(ad.target_url||'#').replace(/'/g,"\\'")}','_blank')">Learn More</button>
+  `;
+  const ab = document.getElementById('ad-banner');
+  if (ab) { ab.innerHTML = html; ab.classList.remove('hidden'); }
+}
 </script>
 </body>
 </html>

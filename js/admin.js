@@ -84,6 +84,8 @@ function initAdmin() {
       if (section === 'pdf-analytics') loadPdfAnalytics();
       if (section === 'notifications') loadNotificationsPanel();
       if (section === 'messages') loadMessages();
+      if (section === 'institutes') loadInstitutes();
+      if (section === 'verification-requests') loadVerificationRequests();
 
       // Close mobile sidebar
       document.getElementById('admin-sidebar')?.classList.remove('open');
@@ -137,6 +139,9 @@ function initAdmin() {
   // Users refresh
   document.getElementById('refresh-users-btn')?.addEventListener('click', loadUsers);
   document.getElementById('users-search')?.addEventListener('input', filterUsersTable);
+
+  // Institutes refresh
+  document.getElementById('refresh-institutes-btn')?.addEventListener('click', loadInstitutes);
 
   // Load dashboard on init
   loadDashboard();
@@ -461,7 +466,7 @@ function renderUsersTable(users) {
     }
 
     return `<tr>
-      <td style="font-weight:600;color:var(--opp-text)">${u.name || '—'}</td>
+      <td style="font-weight:600;color:var(--opp-text)">${u.name || '—'}${SS.getRoleBadge(u.role)}</td>
       <td>${u.email || '—'}</td>
       <td>${roleSelect}</td>
       <td>${u.apply_clicks || 0}</td>
@@ -518,6 +523,200 @@ function filterUsersTable() {
   );
   renderUsersTable(filtered);
 }
+
+/* ══════════════════════════════════════════════
+   INSTITUTES (Partners)
+   ══════════════════════════════════════════════ */
+let allInstitutes = [];
+
+async function loadInstitutes() {
+  const tbody = document.getElementById('institutes-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--opp-text3)">Loading partners…</td></tr>';
+
+  try {
+    const snap = await db.collection('users').where('role', '==', 'institute_admin').get();
+    allInstitutes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderInstitutesTable(allInstitutes);
+  } catch (err) {
+    console.error('Institutes load error:', err);
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--opp-text3)">Failed to load partners</td></tr>';
+  }
+}
+
+function renderInstitutesTable(items) {
+  const tbody = document.getElementById('institutes-tbody');
+  if (!tbody) return;
+  if (!items.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--opp-text3)">No partner institutes found</td></tr>';
+    return;
+  }
+  tbody.innerHTML = items.map(u => {
+    const joined = u.created_at ? timeAgo(u.created_at) : '—';
+    const isVerified = u.is_verified === true;
+    return `<tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:32px;height:32px;border-radius:6px;background:var(--opp-bg);display:flex;align-items:center;justify-content:center;overflow:hidden">
+            ${u.avatar_url ? `<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover">` : SS.getInitials(u.name)}
+          </div>
+          <div style="font-weight:600;color:var(--opp-text)">${u.name || '—'}${SS.getRoleBadge(u.role)}${isVerified ? ' <span class="verified-tick" title="Verified">✓</span>' : ''}</div>
+        </div>
+      </td>
+      <td>${u.email || '—'}</td>
+      <td>
+        <span class="status-tag ${isVerified ? 'st-approved' : 'st-pending'}">
+          ${isVerified ? 'Verified Partner' : 'Not Verified'}
+        </span>
+      </td>
+      <td>${joined}</td>
+      <td>
+        <div class="table-actions">
+          <button class="opp-btn opp-btn-sm ${isVerified ? 'opp-btn-secondary' : 'opp-btn-primary'}" onclick="verifyInstitute('${u.id}', ${!isVerified})">
+            ${isVerified ? 'Remove Verification' : '✅ Verify Institute'}
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+window.verifyInstitute = async function(uid, status) {
+  if (!confirm(`Are you sure you want to ${status ? 'verify' : 'unverify'} this institute?`)) return;
+  try {
+    const updates = { is_verified: status };
+    if (!status) updates.verification_status = null; // Reset status so banner shows again
+
+    await db.collection('users').doc(uid).update(updates);
+    showToast(`Institute ${status ? 'verified' : 'unverified'} successfully!`);
+    loadInstitutes();
+  } catch (e) {
+    showToast('Error updating status: ' + e.message, 'error');
+  }
+};
+
+/* ══════════════════════════════════════════════
+   VERIFICATION REQUESTS
+   ══════════════════════════════════════════════ */
+let allVerifRequests = [];
+
+async function loadVerificationRequests() {
+  const tbody = document.getElementById('verification-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--opp-text3)">Loading requests…</td></tr>';
+
+  try {
+    const snap = await db.collection('verification_requests').orderBy('submitted_at', 'desc').get();
+    allVerifRequests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderVerificationTable(allVerifRequests);
+  } catch (err) {
+    console.error('Verification load error:', err);
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--opp-text3)">Failed to load requests</td></tr>';
+  }
+}
+
+function renderVerificationTable(items) {
+  const tbody = document.getElementById('verification-tbody');
+  if (!tbody) return;
+  if (!items.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--opp-text3)">No pending requests</td></tr>';
+    return;
+  }
+  tbody.innerHTML = items.map(r => {
+    const statusClass = r.status === 'verified' ? 'st-approved' : r.status === 'rejected' ? 'st-rejected' : 'st-pending';
+    return `<tr>
+      <td style="font-weight:600;color:var(--opp-text)">${r.company_name || '—'}</td>
+      <td>${r.email || '—'}</td>
+      <td><span class="status-tag ${statusClass}">${r.status || 'pending'}</span></td>
+      <td>${timeAgo(r.submitted_at)}</td>
+      <td>
+        <div class="table-actions">
+          <button class="opp-btn opp-btn-secondary opp-btn-sm" onclick="viewVerificationDetail('${r.id}')">👁️ Details</button>
+          ${r.status === 'pending' ? `
+            <button class="opp-btn opp-btn-primary opp-btn-sm" style="background:#0d9488;border-color:#0d9488;" onclick="approveVerification('${r.uid}')">✅ Verify</button>
+            <button class="opp-btn opp-btn-danger opp-btn-sm" onclick="rejectVerification('${r.uid}')">❌ Reject</button>
+          ` : ''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+window.viewVerificationDetail = function(id) {
+  const r = allVerifRequests.find(req => req.id === id);
+  if (!r) return;
+  const body = document.getElementById('verify-detail-body');
+  body.innerHTML = `
+    <div style="font-size:0.95rem; line-height:1.6; color:var(--opp-text2)">
+      <p><strong>Institute Name:</strong> ${r.company_name}</p>
+      <p><strong>Official Email:</strong> ${r.email}</p>
+      <p><strong>Website:</strong> <a href="${r.website}" target="_blank" style="color:var(--opp-primary)">${r.website} ↗</a></p>
+      <hr style="border:0;border-top:1px solid var(--opp-border);margin:16px 0">
+      <div style="margin-bottom:16px">
+        <strong style="color:var(--opp-text)">Institute Description:</strong><br/>
+        <div style="margin-top:4px;white-space:pre-wrap;">${r.description || 'N/A'}</div>
+      </div>
+      <div style="margin-bottom:16px">
+        <strong style="color:var(--opp-text)">Purpose of Partnering:</strong><br/>
+        <div style="margin-top:4px;white-space:pre-wrap;">${r.purpose || 'N/A'}</div>
+      </div>
+      <hr style="border:0;border-top:1px solid var(--opp-border);margin:16px 0">
+      <p style="font-size:0.8rem;color:var(--opp-text3)">Submitted on: ${new Date(r.submitted_at?.toDate?.() || Date.now()).toLocaleString()}</p>
+    </div>
+  `;
+  document.getElementById('verify-detail-modal').classList.add('active');
+};
+
+window.approveVerification = async function(uid) {
+  if (!confirm('Approve this institute and grant verified status?')) return;
+  try {
+    const r = allVerifRequests.find(req => req.uid === uid);
+    
+    // 1. Update user profile
+    await db.collection('users').doc(uid).update({
+      is_verified: true,
+      verification_status: 'verified',
+      // Update company info with verified details
+      name: r.company_name,
+      description: r.description,
+      domain: r.website
+    });
+
+    // 2. Update request status
+    await db.collection('verification_requests').doc(uid).update({
+      status: 'verified'
+    });
+
+    // 3. Notify user
+    await DB.sendNotificationToUser(uid, {
+      title: '✅ Institute Verified!',
+      message: 'Congratulations! Your institute has been verified by Syntax Syndicate. The verified tick is now visible on your profile.',
+      link: 'dashboard-company.html',
+      sent_by: firebase.auth().currentUser.uid
+    });
+
+    showToast('Institute verified and profile updated!');
+    loadVerificationRequests();
+  } catch (err) {
+    showToast('Approval error: ' + err.message, 'error');
+  }
+};
+
+window.rejectVerification = async function(uid) {
+  if (!confirm('Reject this verification application?')) return;
+  try {
+    await db.collection('users').doc(uid).update({
+      verification_status: 'rejected'
+    });
+    await db.collection('verification_requests').doc(uid).update({
+      status: 'rejected'
+    });
+    showToast('Verification rejected');
+    loadVerificationRequests();
+  } catch (err) {
+    showToast('Error: ' + err.message, 'error');
+  }
+};
 
 /* ══════════════════════════════════════════════
    APPROVAL QUEUE

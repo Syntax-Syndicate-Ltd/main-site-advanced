@@ -262,6 +262,7 @@
 
 <script>
 let uid = null, data = null, isFollowing = false;
+const loadedTabs = new Set();
 
 document.addEventListener('DOMContentLoaded', async () => {
   uid = SS.getQueryParam('uid');
@@ -273,7 +274,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     document.title = `${data.name || 'Developer'} — Syntax Syndicate`;
     startProfile();
-    fetchData();
+    
+    // Initial data load (default tab + stats)
+    loadTabContent('posts');
+    loadStats();
     
     Auth.onAuthChange(async (user) => {
       if (user && user.uid !== uid) {
@@ -282,7 +286,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateFollowUI();
       }
     });
-  } catch(e) { document.getElementById('loader').innerHTML = 'Load Error'; }
+  } catch(e) { 
+    console.error(e);
+    document.getElementById('loader').innerHTML = 'Load Error'; 
+  }
 });
 
 function startProfile() {
@@ -295,18 +302,21 @@ function startProfile() {
   let nameHTML = SS.sanitizeHTML(name);
   const role = data.role || 'user';
   if (role !== 'user') {
-    const labels = { superadmin: 'Admin', team: 'Team', premium: 'Pro' };
-    nameHTML += ` <span class="badge badge-accent" style="margin-left:8px;">${labels[role] || role}</span>`;
+    nameHTML += SS.getRoleBadge(role);
   }
+  if (data.is_verified) {
+    nameHTML += '<span class="verified-tick">✓</span>';
+  }
+  
   document.getElementById('userName').innerHTML = nameHTML;
   document.getElementById('userHeadline').textContent = data.headline || '';
   
-  if (data.location) document.getElementById('userLocation').innerHTML = `<i data-lucide="map-pin" style="width:14px;"></i> ${SS.sanitizeHTML(data.location)}`;
+  if (data.location) document.getElementById('userLocation').innerHTML = `<i class="bi bi-geo-alt" style="font-size:12px;"></i> ${SS.sanitizeHTML(data.location)}`;
 
   // Socials
   let sHTML = '';
-  if (data.github) sHTML += `<a href="${data.github}" target="_blank" class="p-social-btn"><i data-lucide="github"></i></a>`;
-  if (data.linkedin) sHTML += `<a href="${data.linkedin}" target="_blank" class="p-social-btn"><i data-lucide="linkedin"></i></a>`;
+  if (data.github) sHTML += `<a href="${data.github}" target="_blank" class="foot-social" style="width:36px; height:36px;"><i class="bi bi-github"></i></a>`;
+  if (data.linkedin) sHTML += `<a href="${data.linkedin}" target="_blank" class="foot-social" style="width:36px; height:36px;"><i class="bi bi-linkedin"></i></a>`;
   document.getElementById('userSocials').innerHTML = sHTML;
 
   if (data.portfolio_link) {
@@ -322,104 +332,52 @@ function startProfile() {
   if (data.skills) {
     document.getElementById('skillsArea').style.display = 'block';
     document.getElementById('skillsContent').innerHTML = data.skills.split(',').map(s => 
-      `<span style="background:#edf2ff; color:#4169e1; padding:6px 14px; border-radius:10px; font-size:12px; font-weight:700;">${s.trim()}</span>`
+      `<span style="background:var(--accent-bg); color:var(--accent); padding:6px 14px; border-radius:10px; font-size:12px; font-weight:700; border:1px solid var(--accent-bg2);">${SS.sanitizeHTML(s.trim())}</span>`
     ).join('');
   }
 
   // Info Grid
   const info = [];
-  if (data.privacy_email) info.push({ l: 'Email', v: data.email, i: 'mail' });
-  if (data.privacy_mobile) info.push({ l: 'Mobile', v: data.mobile, i: 'phone' });
+  if (data.privacy_email) info.push({ l: 'Email', v: data.email, i: 'envelope' });
+  if (data.privacy_mobile) info.push({ l: 'Mobile', v: data.mobile, i: 'telephone' });
   if (data.privacy_education !== false) {
-    info.push({ l: 'College', v: data.college, i: 'graduation-cap' });
-    info.push({ l: 'Course', v: data.branch, i: 'book' });
+    if (data.college) info.push({ l: 'College', v: data.college, i: 'mortarboard' });
+    if (data.branch) info.push({ l: 'Course', v: data.branch, i: 'journal-text' });
   }
-  info.push({ l: 'Member Since', v: data.created_at ? SS.formatDate(data.created_at) : '—', i: 'calendar' });
+  info.push({ l: 'Member Since', v: data.created_at ? SS.formatDate(data.created_at) : '—', i: 'calendar3' });
 
   document.getElementById('infoGrid').innerHTML = info.map(x => `
     <div>
-      <div style="font-size:0.65rem; color:#94a3b8; font-weight:800; text-transform:uppercase; display:flex; align-items:center; gap:6px; margin-bottom:4px;">
-        <i class="bi bi-${x.i === 'mail' ? 'envelope' : (x.i === 'phone' ? 'telephone' : (x.i === 'graduation-cap' ? 'mortarboard' : (x.i === 'book' ? 'journal-text' : (x.i === 'calendar' ? 'calendar3' : x.i))))}"></i> ${x.l}
+      <div style="font-size:0.65rem; color:var(--text-3); font-weight:800; text-transform:uppercase; display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+        <i class="bi bi-${x.i}"></i> ${x.l}
       </div>
-      <div style="font-size:0.95rem; font-weight:600; color:#1e293b;">${x.v || '—'}</div>
+      <div style="font-size:0.95rem; font-weight:600; color:var(--text);">${SS.sanitizeHTML(x.v || '—')}</div>
     </div>
   `).join('');
+
+  // Institute Specific Info
+  if (data.role === 'institute_admin' && data.is_verified) {
+    const instArea = document.createElement('div');
+    instArea.id = 'instituteArea';
+    instArea.style.marginTop = '32px';
+    instArea.innerHTML = `
+      <h3 style="font-size:1.1rem; font-weight:800; margin-bottom:16px; display:flex; align-items:center; gap:8px;">
+        <i class="bi bi-patch-check-fill" style="color:#4169e1;"></i> Verified Institute Details
+      </h3>
+      <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:20px; padding:24px; color:#0369a1;">
+        <p style="font-size:0.9rem; line-height:1.6; margin:0;">
+          This profile belongs to a <strong>Verified Partner</strong> of Syntax Syndicate. 
+          All shared content and opportunities are officially vetted.
+        </p>
+      </div>
+    `;
+    document.getElementById('sec-about').querySelector('.premium-item-card').prepend(instArea);
+  }
 }
 
-async function fetchData() {
-  const load = async (col, target, renderer, msg, filterField = 'author_uid') => {
-    try {
-      let docs = await DB.queryDocs(col, [[filterField,'==',uid]], null, null, 50);
-      docs = docs.filter(d => d.is_hidden !== true);
-      const div = document.getElementById(target);
-      if (!div) return;
-      if (docs.length) {
-        div.innerHTML = docs.map(d => {
-          try { return renderer(d); } catch(err) { console.error(`Render error in ${col}:`, err); return ''; }
-        }).join('');
-      } else {
-        div.innerHTML = `<div style="padding:40px; text-align:center; color:#94a3b8;">${msg}</div>`;
-      }
-    } catch(e) { console.error(`Load error for ${col}:`, e); }
-  };
-
-  load('devhub_posts', 'postsList', p => DevHub.renderPostCard(p), 'No posts published');
-  load('projects', 'projectsGrid', p => DevHub.renderProjectCard(p), 'No projects shared');
-  load('snippets', 'snippetsList', p => DevHub.renderSnippetBlock(p), 'No snippets saved');
-  load('pdfs', 'pdfsGrid', d => `
-    <a class="premium-item-card" href="../archives/viewer.html?id=${d.id}" target="_blank">
-      <div style="font-weight:800; font-size:1.1rem; display:flex; align-items:center; gap:10px;">
-        <i class="bi bi-file-earmark-pdf" style="color:#ef4444;"></i> ${SS.sanitizeHTML(d.title || 'Untitled')}
-      </div>
-      <div style="font-size:0.9rem; color:#64748b;">${SS.sanitizeHTML(d.description || '')}</div>
-      <div style="margin-top:auto; display:flex; gap:8px;">
-        <span class="badge badge-accent">${d.type || 'PDF'}</span>
-        <span style="font-size:0.75rem; color:#94a3b8; align-self:center;">${SS.formatDateRelative(d.created_at)}</span>
-      </div>
-    </a>
-  `, 'No PDFs shared', 'posted_by');
-
-  // Repos
-  if (data.github) {
-    try {
-      const user = data.github.split('/').filter(Boolean).pop();
-      if (!user) throw new Error("Invalid GitHub profile");
-      
-      const res = await fetch(`https://api.github.com/users/${user}/repos?sort=updated&per_page=12`);
-      if (!res.ok) throw new Error("API Limit or User not found");
-      
-      const repos = await res.json();
-      if (!Array.isArray(repos)) throw new Error("Invalid response");
-
-      const filtered = repos.filter(r => !r.fork);
-      if (filtered.length === 0) {
-        document.getElementById('reposGrid').innerHTML = '<div style="padding:40px; text-align:center; color:#94a3b8;">No public repositories found.</div>';
-      } else {
-        document.getElementById('reposGrid').innerHTML = filtered.map(r => `
-          <a href="${r.html_url}" target="_blank" class="premium-item-card">
-            <div style="display:flex; justify-content:space-between;">
-              <div style="font-weight:800; font-size:1.1rem;">${SS.sanitizeHTML(r.name)}</div>
-              <i class="bi bi-github" style="color:#94a3b8;"></i>
-            </div>
-            <div style="font-size:0.9rem; color:#64748b; line-height:1.5;">${SS.sanitizeHTML(r.description || 'No description provided')}</div>
-            <div style="margin-top:auto; display:flex; gap:16px; font-size:0.8rem; font-weight:700; color:#94a3b8;">
-              <span><i class="bi bi-star" style="margin-right:4px;"></i>${r.stargazers_count}</span>
-              <span><i class="bi bi-code-slash" style="margin-right:4px;"></i>${r.language || 'Git'}</span>
-            </div>
-          </a>
-        `).join('');
-      }
-    } catch(e) { 
-      console.error('GitHub Sync Error:', e);
-      document.getElementById('reposGrid').innerHTML = `<div style="padding:40px; text-align:center; color:#94a3b8;">Sync Error: ${e.message}</div>`; 
-    }
-  } else {
-    document.getElementById('reposGrid').innerHTML = '<div style="padding:40px; text-align:center; color:#94a3b8;">GitHub profile not linked.</div>';
-  }
-
-  // Stats
+async function loadStats() {
   try {
-    const [p, s, fl, fg, contribs] = await Promise.all([
+    const [p, s, fl, fg, pdfs] = await Promise.all([
       DB.queryDocs('projects', [['author_uid','==',uid]]),
       DB.queryDocs('snippets', [['author_uid','==',uid]]),
       DevHub.getFollowerCount(uid),
@@ -429,11 +387,88 @@ async function fetchData() {
     document.getElementById('statsContainer').innerHTML = `
       <div class="stat-card-item" onclick="changeTab('projects', document.querySelectorAll('.profile-tab-btn')[1])" style="cursor:pointer;"><strong>${p.length}</strong><span>Projects</span></div>
       <div class="stat-card-item" onclick="changeTab('snippets', document.querySelectorAll('.profile-tab-btn')[3])" style="cursor:pointer;"><strong>${s.length}</strong><span>Snippets</span></div>
-      <div class="stat-card-item" onclick="changeTab('contributions', document.querySelectorAll('.profile-tab-btn')[4])" style="cursor:pointer;"><strong>${contribs.length}</strong><span>PDFs</span></div>
-      <div class="stat-card-item" onclick="showFollowersModal()" style="cursor:pointer; background:#fff !important; border:1px solid #e2e8f0 !important;"><strong>${fl}</strong><span>Followers</span></div>
-      <div class="stat-card-item" onclick="showFollowingModal()" style="cursor:pointer; background:#fff !important; border:1px solid #e2e8f0 !important;"><strong>${fg}</strong><span>Following</span></div>
+      <div class="stat-card-item" onclick="changeTab('contributions', document.querySelectorAll('.profile-tab-btn')[4])" style="cursor:pointer;"><strong>${pdfs.length}</strong><span>PDFs</span></div>
+      <div class="stat-card-item" onclick="showFollowersModal()" style="cursor:pointer; background:var(--white) !important; border:1px solid var(--border) !important;"><strong>${fl}</strong><span>Followers</span></div>
+      <div class="stat-card-item" onclick="showFollowingModal()" style="cursor:pointer; background:var(--white) !important; border:1px solid var(--border) !important;"><strong>${fg}</strong><span>Following</span></div>
     `;
-  } catch(e) { console.error('Stats load error:', e); }
+  } catch(e) { console.error('Stats error:', e); }
+}
+
+async function loadTabContent(tab) {
+  if (loadedTabs.has(tab)) return;
+  loadedTabs.add(tab);
+  
+  const loader = `<div style="padding:100px 0; text-align:center;"><div class="loader-spinner"></div><p style="margin-top:16px; color:var(--text-3); font-size:0.9rem;">Fetching ${tab}...</p></div>`;
+  
+  if (tab === 'posts') {
+    const div = document.getElementById('postsList');
+    div.innerHTML = loader;
+    let docs = await DB.queryDocs('devhub_posts', [['author_uid','==',uid]], null, null, 50);
+    docs = docs.filter(d => !d.is_hidden);
+    div.innerHTML = docs.length ? docs.map(p => DevHub.renderPostCard(p)).join('') : `<div style="padding:80px; text-align:center; color:var(--text-3);">No posts published yet.</div>`;
+  } 
+  else if (tab === 'projects') {
+    const div = document.getElementById('projectsGrid');
+    div.innerHTML = loader;
+    let docs = await DB.queryDocs('projects', [['author_uid','==',uid]], null, null, 50);
+    div.innerHTML = docs.length ? docs.map(p => DevHub.renderProjectCard(p)).join('') : `<div style="padding:80px; text-align:center; color:var(--text-3); grid-column: 1/-1;">No projects shared yet.</div>`;
+  }
+  else if (tab === 'snippets') {
+    const div = document.getElementById('snippetsList');
+    div.innerHTML = loader;
+    let docs = await DB.queryDocs('snippets', [['author_uid','==',uid]], null, null, 50);
+    div.innerHTML = docs.length ? docs.map(s => DevHub.renderSnippetBlock(s)).join('') : `<div style="padding:80px; text-align:center; color:var(--text-3);">No code snippets saved yet.</div>`;
+  }
+  else if (tab === 'contributions') {
+    const div = document.getElementById('pdfsGrid');
+    div.innerHTML = loader;
+    let docs = await DB.queryDocs('pdfs', [['posted_by','==',uid]], null, null, 50);
+    div.innerHTML = docs.length ? docs.map(d => `
+      <a class="premium-item-card" href="../archives/viewer.html?id=${d.id}" target="_blank">
+        <div style="font-weight:800; font-size:1.1rem; display:flex; align-items:center; gap:10px;">
+          <i class="bi bi-file-earmark-pdf" style="color:#ef4444;"></i> ${SS.sanitizeHTML(d.title || 'Untitled')}
+        </div>
+        <div style="font-size:0.9rem; color:var(--text-2);">${SS.sanitizeHTML(d.description || '')}</div>
+        <div style="margin-top:auto; display:flex; gap:8px;">
+          <span class="badge badge-accent" style="background:var(--accent-bg); color:var(--accent); font-size:10px;">${d.type || 'PDF'}</span>
+          <span style="font-size:0.75rem; color:var(--text-3); align-self:center;">${SS.formatDateRelative(d.created_at)}</span>
+        </div>
+      </a>
+    `).join('') : `<div style="padding:80px; text-align:center; color:var(--text-3); grid-column: 1/-1;">No PDF contributions found.</div>`;
+  }
+  else if (tab === 'repositories') {
+    const div = document.getElementById('reposGrid');
+    if (!data.github) { div.innerHTML = '<div style="padding:80px; text-align:center; color:var(--text-3); grid-column:1/-1;">GitHub profile not linked.</div>'; return; }
+    div.innerHTML = loader;
+    try {
+      const user = data.github.split('/').filter(Boolean).pop();
+      const res = await fetch(`https://api.github.com/users/${user}/repos?sort=updated&per_page=12`);
+      if (!res.ok) throw new Error("GitHub API error");
+      const repos = await res.json();
+      const filtered = repos.filter(r => !r.fork);
+      div.innerHTML = filtered.length ? filtered.map(r => `
+        <a href="${r.html_url}" target="_blank" class="premium-item-card">
+          <div style="display:flex; justify-content:space-between;">
+            <div style="font-weight:800; font-size:1.1rem;">${SS.sanitizeHTML(r.name)}</div>
+            <i class="bi bi-github" style="color:var(--text-3);"></i>
+          </div>
+          <div style="font-size:0.9rem; color:var(--text-2); line-height:1.5;">${SS.sanitizeHTML(r.description || 'No description provided')}</div>
+          <div style="margin-top:auto; display:flex; gap:16px; font-size:0.8rem; font-weight:700; color:var(--text-3);">
+            <span><i class="bi bi-star" style="margin-right:4px;"></i>${r.stargazers_count}</span>
+            <span><i class="bi bi-code-slash" style="margin-right:4px;"></i>${r.language || 'Git'}</span>
+          </div>
+        </a>
+      `).join('') : `<div style="padding:80px; text-align:center; color:var(--text-3); grid-column:1/-1;">No public repositories found.</div>`;
+    } catch(e) { div.innerHTML = `<div style="padding:80px; text-align:center; color:var(--text-3); grid-column:1/-1;">Could not sync GitHub repos.</div>`; }
+  }
+}
+
+function changeTab(name, btn) {
+  document.querySelectorAll('.profile-tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+  document.getElementById(`sec-${name}`).classList.add('active');
+  loadTabContent(name);
 }
 
 async function showFollowersModal() {
@@ -446,9 +481,9 @@ async function showFollowersModal() {
     }
     const profiles = await Promise.all(followers.map(f => DB.getUserProfile(f.follower_uid || f.uid).catch(() => null)));
     const html = profiles.filter(Boolean).map(p => `
-      <a href="profile.html?uid=${p.uid||p.id}" onclick="SS.closeModal()" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f1f5f9;text-decoration:none;color:inherit;">
+      <a href="profile.html?uid=${p.uid||p.id}" onclick="SS.closeModal()" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);text-decoration:none;color:inherit;">
         <div style="width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;">${SS.renderAvatar(p, 'sm circle')}</div>
-        <div><div style="font-weight:700;font-size:0.88rem;">${SS.sanitizeHTML(p.name||'User')}</div><div style="font-size:0.72rem;color:#64748b;">${p.headline||''}</div></div>
+        <div><div style="font-weight:700;font-size:0.88rem;">${SS.sanitizeHTML(p.name||'User')}</div><div style="font-size:0.72rem;color:var(--text-3);">${SS.sanitizeHTML(p.headline||'')}</div></div>
       </a>
     `).join('');
     document.querySelector('.modal-body').innerHTML = '<div style="max-height:400px;overflow-y:auto;">' + html + '</div>';
@@ -465,20 +500,13 @@ async function showFollowingModal() {
     }
     const profiles = await Promise.all(following.map(f => DB.getUserProfile(f.following_uid || f.uid).catch(() => null)));
     const html = profiles.filter(Boolean).map(p => `
-      <a href="profile.html?uid=${p.uid||p.id}" onclick="SS.closeModal()" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f1f5f9;text-decoration:none;color:inherit;">
+      <a href="profile.html?uid=${p.uid||p.id}" onclick="SS.closeModal()" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);text-decoration:none;color:inherit;">
         <div style="width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;">${SS.renderAvatar(p, 'sm circle')}</div>
-        <div><div style="font-weight:700;font-size:0.88rem;">${SS.sanitizeHTML(p.name||'User')}</div><div style="font-size:0.72rem;color:#64748b;">${p.headline||''}</div></div>
+        <div><div style="font-weight:700;font-size:0.88rem;">${SS.sanitizeHTML(p.name||'User')}</div><div style="font-size:0.72rem;color:var(--text-3);">${SS.sanitizeHTML(p.headline||'')}</div></div>
       </a>
     `).join('');
     document.querySelector('.modal-body').innerHTML = '<div style="max-height:400px;overflow-y:auto;">' + html + '</div>';
   } catch(e) { document.querySelector('.modal-body').innerHTML = '<div style="padding:20px;text-align:center;">Error</div>'; }
-}
-
-function changeTab(name, btn) {
-  document.querySelectorAll('.profile-tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-  document.getElementById(`sec-${name}`).classList.add('active');
 }
 
 async function handleFollow() {

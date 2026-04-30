@@ -168,6 +168,8 @@
   <a class="sidebar-link" data-section="messages" href="#">📩 Messages</a>
   <a class="sidebar-link" data-section="notifications" href="#">🔔 Notifications</a>
   <a class="sidebar-link" data-section="users" href="#">👥 Users</a>
+  <a class="sidebar-link" data-section="institutes" href="#">🏢 Manage Institutes</a>
+  <a class="sidebar-link" data-section="verification-requests" href="#">✅ Verif Requests</a>
 
   <div class="sidebar-bottom">
     <div style="padding:0 16px 12px;font-size:12px;color:var(--opp-text3)" id="admin-email">Loading...</div>
@@ -660,6 +662,42 @@
     </div>
   </div>
 
+  <!-- INSTITUTES (Manage Partners) -->
+  <div class="admin-section" id="section-institutes">
+    <div class="admin-header"><h1>Partner Institutes 🏢</h1><p>Manage and verify registered company accounts</p></div>
+    <div class="posts-table-wrap">
+      <div class="posts-filter-bar">
+        <button class="opp-btn opp-btn-secondary opp-btn-sm" id="refresh-institutes-btn">🔄 Refresh List</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="posts-table">
+          <thead><tr><th>Company</th><th>Email</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+          <tbody id="institutes-tbody">
+            <tr><td colspan="5" style="text-align:center;padding:40px;color:var(--opp-text3)">Loading partners…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- VERIFICATION REQUESTS -->
+  <div class="admin-section" id="section-verification-requests">
+    <div class="admin-header"><h1>Verification Requests ✅</h1><p>Review and verify partner institutes</p></div>
+    <div class="posts-table-wrap">
+      <div class="posts-filter-bar">
+        <button class="opp-btn opp-btn-secondary opp-btn-sm" onclick="loadVerificationRequests()">🔄 Refresh Requests</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="posts-table">
+          <thead><tr><th>Institute</th><th>Email</th><th>Status</th><th>Submitted</th><th>Actions</th></tr></thead>
+          <tbody id="verification-tbody">
+            <tr><td colspan="5" style="text-align:center;padding:40px;color:var(--opp-text3)">Loading requests...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <!-- PDF ANALYTICS -->
   <div class="admin-section" id="section-pdf-analytics">
     <div class="admin-header"><h1>PDF Analytics 📊</h1><p>See which resources perform best based on ratings and reads</p></div>
@@ -733,6 +771,19 @@
     </div>
     <div id="edit-modal-body">
       <!-- Form populated by admin.js -->
+    </div>
+  </div>
+</div>
+
+<!-- VERIFICATION VIEW MODAL -->
+<div class="modal-overlay" id="verify-detail-modal">
+  <div class="modal-content" style="max-width:600px;">
+    <div class="modal-header">
+      <h2 class="modal-title">🏢 Verification Application</h2>
+      <button class="modal-close" onclick="document.getElementById('verify-detail-modal').classList.remove('active')">✕</button>
+    </div>
+    <div id="verify-detail-body">
+      <!-- Content populated by admin.js -->
     </div>
   </div>
 </div>

@@ -444,7 +444,7 @@ async function init() {
 
     // Sidebar
     const name = profile.name || user.displayName || 'No Name';
-    document.getElementById('nameEl').innerText = name;
+    document.getElementById('nameEl').innerHTML = name + SS.getRoleBadge(profile.role);
     document.getElementById('welcomeName').innerText = name.split(' ')[0];
     document.getElementById('emailEl').innerText = user.email;
     document.getElementById('collegeEl').innerText = [profile.college, profile.branch, profile.level].filter(Boolean).join(' · ') || 'No details set';
@@ -454,13 +454,12 @@ async function init() {
     document.getElementById('githubLinkBtn').innerText = profile.github ? 'Update Link' : 'Link GitHub';
 
     // Role badge
-    const badge = document.getElementById('roleBadge');
-    if (['superadmin', 'team'].includes(profile.role)) {
-      badge.className = 'role-badge role-admin'; badge.innerText = profile.role === 'superadmin' ? 'Superadmin' : 'Team';
-    } else if (profile.role === 'premium') {
-      badge.className = 'role-badge role-premium'; badge.innerText = 'Premium';
-    } else {
-      badge.className = 'role-badge role-user'; badge.innerText = 'Free Member';
+    const badgeEl = document.getElementById('roleBadge');
+    if (badgeEl) {
+      badgeEl.style.display = 'none'; // Hide legacy badge
+      // Alternatively, update it:
+      // badgeEl.innerHTML = SS.getRoleBadge(profile.role);
+      // badgeEl.className = 'role-badge-container';
     }
 
     // Stats

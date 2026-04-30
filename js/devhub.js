@@ -16,6 +16,8 @@ const DevHub = {
       author_uid: user.uid,
       author_name: profile.name || user.displayName || 'Anonymous',
       author_avatar_url: profile.avatar_url || '',
+      author_role: profile.role || 'user',
+      author_is_verified: profile.is_verified || false,
       content: content.trim(),
       image_url: (imageUrl || '').trim(),
       link_url: (linkUrl || '').trim(),
@@ -67,6 +69,8 @@ const DevHub = {
       author_uid: user.uid,
       author_name: profile.name || 'Anonymous',
       author_avatar_url: profile.avatar_url || '',
+      author_role: profile.role || 'user',
+      author_is_verified: profile.is_verified || false,
       title: data.title.trim(),
       description: (data.description || '').trim(),
       thumbnail_url: (data.thumbnail_url || '').trim(),
@@ -104,6 +108,8 @@ const DevHub = {
       author_uid: user.uid,
       author_name: profile.name || 'Anonymous',
       author_avatar_url: profile.avatar_url || '',
+      author_role: profile.role || 'user',
+      author_is_verified: profile.is_verified || false,
       title: data.title.trim(),
       description: (data.description || '').trim(),
       language: data.language || 'other',
@@ -143,6 +149,8 @@ const DevHub = {
       author_uid: user.uid,
       author_name: profile.name || 'Anonymous',
       author_avatar_url: profile.avatar_url || '',
+      author_role: profile.role || 'user',
+      author_is_verified: profile.is_verified || false,
       title: data.title.trim(),
       description: (data.description || '').trim(),
       category: data.category || 'other',
@@ -251,6 +259,8 @@ const DevHub = {
       author_uid: user.uid,
       author_name: profile.name || 'Anonymous',
       author_avatar_url: profile.avatar_url || '',
+      author_role: profile.role || 'user',
+      author_is_verified: profile.is_verified || false,
       text: text.trim(),
       created_at: firebase.firestore.FieldValue.serverTimestamp()
     };
@@ -284,6 +294,21 @@ const DevHub = {
     SS.showToast('Comment deleted', 'info');
   },
 
+  async updateComment(commentId, text) {
+    const user = Auth.getUser();
+    if (!user) return;
+    const c = await DB.getDoc(`devhub_comments/${commentId}`);
+    if (!c) return;
+    if (c.author_uid !== user.uid && !Auth.isAdmin()) {
+      SS.showToast('Not authorized', 'error'); return;
+    }
+    await DB.updateDoc(`devhub_comments/${commentId}`, {
+      text: text.trim(),
+      updated_at: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    SS.showToast('Comment updated', 'success');
+  },
+
   /* ═══════════════════════════════════
      RENDERING HELPERS
      ═══════════════════════════════════ */
@@ -292,7 +317,9 @@ const DevHub = {
     const uid = Auth.getUser()?.uid;
     const liked = (post.likes || []).includes(uid);
     const likeCount = (post.likes || []).length;
-    const avatar = SS.renderAvatar({ name: post.author_name, avatar_url: post.author_avatar_url }, 'sm circle');
+    const avatar = SS.renderAvatar({ name: post.author_name, avatar_url: post.author_avatar_url, role: post.author_role }, 'sm circle');
+    const badge = SS.getRoleBadge(post.author_role || 'user');
+    const tick = post.author_is_verified ? '<span class="verified-tick">✓</span>' : '';
     const time = SS.formatDateRelative(post.created_at);
     const isOwner = uid === post.author_uid || Auth.isAdmin();
 
@@ -330,7 +357,7 @@ const DevHub = {
       <div class="dh-post-header">
         <a href="profile.html?uid=${post.author_uid}" class="avatar">${avatar}</a>
         <div class="dh-post-meta">
-          <a href="profile.html?uid=${post.author_uid}" class="dh-post-author">${SS.sanitizeHTML(post.author_name)}</a>
+          <a href="profile.html?uid=${post.author_uid}" class="dh-post-author">${SS.sanitizeHTML(post.author_name)}${badge}${tick}</a>
           <div class="dh-post-time">${time}</div>
         </div>
         ${isOwner ? `<button class="dh-post-menu" onclick="DevHub._confirmDelete('post','${post.id}')" title="Delete post">
@@ -392,7 +419,7 @@ const DevHub = {
         <div class="dh-project-footer">
           <a href="profile.html?uid=${project.author_uid}" class="dh-project-author">
             <span class="avatar">${avatar}</span>
-            ${SS.sanitizeHTML(project.author_name)}
+            ${SS.sanitizeHTML(project.author_name)}${SS.getRoleBadge(project.author_role || 'user')}${project.author_is_verified ? '<span class="verified-tick">✓</span>' : ''}
           </a>
           <div style="display:flex;align-items:center;gap:8px;">
             <button class="dh-action-btn ${liked ? 'liked' : ''}" onclick="DevHub._handleLike('projects','${project.id}', this)" style="padding:4px 8px;">
@@ -433,7 +460,7 @@ const DevHub = {
       <div class="dh-snippet-footer">
         <a href="profile.html?uid=${snippet.author_uid}" class="dh-snippet-author">
           <span class="avatar">${avatar}</span>
-          ${SS.sanitizeHTML(snippet.author_name)} · ${time}
+          ${SS.sanitizeHTML(snippet.author_name)}${SS.getRoleBadge(snippet.author_role || 'user')}${snippet.author_is_verified ? '<span class="verified-tick">✓</span>' : ''} · ${time}
         </a>
         <button class="dh-action-btn ${liked ? 'liked' : ''}" onclick="DevHub._handleLike('snippets','${snippet.id}', this)" style="padding:4px 10px;">
           <i class="bi ${liked ? 'bi-heart-fill' : 'bi-heart'}" style="font-size:0.85rem;"></i>
@@ -471,8 +498,8 @@ const DevHub = {
         <div class="dh-idea-desc">${SS.sanitizeHTML(idea.description)}</div>
         <div class="dh-idea-meta">
           <a href="profile.html?uid=${idea.author_uid}" class="dh-idea-author">
-            ${SS.renderAvatar({ name: idea.author_name, avatar_url: idea.author_avatar_url }, 'xs circle')}
-            ${SS.sanitizeHTML(idea.author_name)}
+            ${SS.renderAvatar({ name: idea.author_name, avatar_url: idea.author_avatar_url, role: idea.author_role }, 'xs circle')}
+            ${SS.sanitizeHTML(idea.author_name)}${SS.getRoleBadge(idea.author_role || 'user')}${idea.author_is_verified ? '<span class="verified-tick">✓</span>' : ''}
           </a>
           <span style="color:var(--pale-slate-2);">·</span>
           <span style="font-size:.7rem;color:var(--text-3);font-family:var(--mono);">${time}</span>
@@ -525,20 +552,33 @@ const DevHub = {
     const listEl = document.getElementById(`comments-list-${postId}`);
     if (!listEl) return;
     listEl.innerHTML = '<div style="text-align:center;padding:12px;color:var(--text-3);font-size:.8rem;">Loading...</div>';
-    const comments = await DevHub.getComments('post', postId);
+    const uid = Auth.getUser()?.uid;
+    const isAdmin = Auth.isAdmin();
+
     if (comments.length === 0) {
       listEl.innerHTML = '<div style="text-align:center;padding:12px;color:var(--text-3);font-size:.8rem;">No comments yet — be the first!</div>';
     } else {
-      listEl.innerHTML = comments.map(c => `
-        <div class="dh-comment">
-          <span class="avatar">${SS.renderAvatar({ name: c.author_name, avatar_url: c.author_avatar_url }, 'sm circle')}</span>
-          <div class="dh-comment-body">
-            <div class="dh-comment-author">${SS.sanitizeHTML(c.author_name)}</div>
-            <div class="dh-comment-text">${SS.sanitizeHTML(c.text)}</div>
-            <div class="dh-comment-time">${SS.formatDateRelative(c.created_at)}</div>
+      listEl.innerHTML = comments.map(c => {
+        const isOwner = uid === c.author_uid || isAdmin;
+        return `
+          <div class="dh-comment" id="comment-${c.id}">
+            <span class="avatar">${SS.renderAvatar({ name: c.author_name, avatar_url: c.author_avatar_url, role: c.author_role }, 'sm circle')}</span>
+            <div class="dh-comment-body">
+              <div class="dh-comment-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+                <div class="dh-comment-author">${SS.sanitizeHTML(c.author_name)}${SS.getRoleBadge(c.author_role || 'user')}${c.author_is_verified ? '<span class="verified-tick">✓</span>' : ''}</div>
+                ${isOwner ? `
+                  <div class="dh-comment-actions" style="display:flex;gap:8px;">
+                    <button onclick="DevHub._showEditCommentModal('${c.id}', '${SS.sanitizeHTML(c.text.replace(/'/g, "\\'")).replace(/"/g, '&quot;')}', '${postId}')" title="Edit" style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:0.75rem;padding:0;"><i class="bi bi-pencil"></i></button>
+                    <button onclick="DevHub._confirmDeleteComment('${c.id}', 'post', '${postId}')" title="Delete" style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:0.75rem;padding:0;"><i class="bi bi-trash"></i></button>
+                  </div>
+                ` : ''}
+              </div>
+              <div class="dh-comment-text">${SS.sanitizeHTML(c.text)}</div>
+              <div class="dh-comment-time">${SS.formatDateRelative(c.created_at)}</div>
+            </div>
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
   },
 
@@ -589,6 +629,57 @@ const DevHub = {
     // Remove from DOM
     const el = document.querySelector(`[data-id="${id}"]`);
     if (el) { el.style.transition = 'opacity .3s'; el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }
+  },
+
+  _showEditCommentModal(commentId, currentText, postId) {
+    SS.showModal(`
+      <form id="editCommentForm" style="display:flex;flex-direction:column;gap:14px;">
+        <div class="form-group">
+          <label class="form-label">Edit Comment</label>
+          <textarea name="text" class="form-textarea" rows="4" required style="width:100%;">${currentText}</textarea>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <button type="button" class="btn" onclick="SS.closeModal()">Cancel</button>
+          <button type="submit" class="form-submit">Save Changes</button>
+        </div>
+      </form>
+    `, { title: 'Edit Comment' });
+
+    document.getElementById('editCommentForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = e.target.text.value.trim();
+      if (!text) return;
+      const btn = e.target.querySelector('button[type=submit]');
+      btn.disabled = true; btn.textContent = 'Saving...';
+      await DevHub.updateComment(commentId, text);
+      SS.closeModal();
+      await DevHub._loadCommentsList(postId);
+    });
+  },
+
+  _confirmDeleteComment(commentId, targetType, targetId) {
+    SS.showModal(`
+      <p style="font-size:.9rem;color:var(--text-2);margin-bottom:20px;">Are you sure you want to delete this comment?</p>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button class="btn" onclick="SS.closeModal()">Cancel</button>
+        <button class="btn btn-primary" style="background:#d32f2f;border-color:#d32f2f;" onclick="DevHub._executeDeleteComment('${commentId}','${targetType}','${targetId}')">Delete</button>
+      </div>
+    `, { title: 'Delete Comment?', closeable: true });
+  },
+
+  async _executeDeleteComment(commentId, targetType, targetId) {
+    SS.closeModal();
+    await DevHub.deleteComment(commentId, targetType, targetId);
+    await DevHub._loadCommentsList(targetId);
+    // Update comment count in UI
+    const postEl = document.getElementById(`post-${targetId}`);
+    if (postEl) {
+      const btns = postEl.querySelectorAll('.dh-action-btn');
+      if (btns[1]) {
+        const s = btns[1].querySelector('span');
+        if (s) s.textContent = Math.max(0, parseInt(s.textContent || 0) - 1);
+      }
+    }
   },
 
   /* ═══════════════════════════════════

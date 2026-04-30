@@ -123,22 +123,46 @@ SS.formatDateRelative = function (ts) {
 };
 SS.truncateText = (s, max = 120) => (!s || s.length <= max) ? (s || '') : s.substring(0, max).trim() + '…';
 SS.getInitials = (name) => name ? name.split(' ').map(w => w[0]).join('').toUpperCase().substring(0, 2) : '?';
+SS.getRoleBadge = function(role) {
+  if (!role) return '';
+  let label = '', cssClass = '';
+  if (role === 'superadmin') { label = 'Admin'; cssClass = 'badge-super'; }
+  else if (role === 'institute_admin') { label = 'Partner'; cssClass = 'badge-partner'; }
+  else if (role === 'team') { label = 'Team'; cssClass = 'badge-team'; }
+  else return '';
+  return `<span class="premium-badge ${cssClass}">${label}</span>`;
+};
+
+SS.sanitizeHTML = function(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+};
+
+SS.copyToClipboard = function(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    SS.showToast('Copied to clipboard!', 'success');
+  }).catch(() => {
+    SS.showToast('Failed to copy', 'error');
+  });
+};
+
 SS.renderAvatar = (p, sizeClass = '') => {
+  if (!p) return `<div class="avatar-fallback ${sizeClass}">?</div>`;
   const name = p.name || 'User';
   const url = p.avatar_url || p.author_avatar_url || '';
+  const badge = SS.getRoleBadge(p.role);
+  let avatarHtml = '';
   if (url && typeof url === 'string' && url.trim()) {
     const sanitizedUrl = SS.sanitizeHTML(url.trim());
-    return `<img src="${sanitizedUrl}" alt="${SS.sanitizeHTML(name)}" class="avatar-img ${sizeClass}" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\\'avatar-fallback ${sizeClass}\\\'>${SS.getInitials(name)}</div>';">`;
+    avatarHtml = `<img src="${sanitizedUrl}" alt="${SS.sanitizeHTML(name)}" class="avatar-img ${sizeClass}" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\\'avatar-fallback ${sizeClass}\\\'>${SS.getInitials(name)}</div>';">`;
+  } else {
+    avatarHtml = `<div class="avatar-fallback ${sizeClass}">${SS.getInitials(name)}</div>`;
   }
-  return `<div class="avatar-fallback ${sizeClass}">${SS.getInitials(name)}</div>`;
+  return `<div class="avatar-wrapper ${sizeClass}">${avatarHtml}</div>`;
 };
-SS.sanitizeHTML = (s) => { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
-SS.slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-SS.getQueryParam = (name) => new URLSearchParams(window.location.search).get(name);
-SS.generateShareLink = (path) => window.location.origin + '/' + path;
-SS.debounce = (fn, delay = 300) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), delay); }; };
-SS.throttle = (fn, limit = 200) => { let f; return (...a) => { if (!f) { fn(...a); f = true; setTimeout(() => f = false, limit); } }; };
-SS.copyToClipboard = async (text) => { try { await navigator.clipboard.writeText(text); SS.showToast('Copied!', 'success'); } catch { SS.showToast('Failed to copy', 'error'); } };
+
 SS.scrollTo = (sel) => { const el = document.querySelector(sel); if (el) el.scrollIntoView({ behavior: 'smooth' }); };
 
 window.SS = SS;

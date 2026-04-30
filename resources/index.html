@@ -375,6 +375,38 @@
         padding: 100px var(--pad) 48px;
       }
     }
+
+    /* ── AD BANNER ── */
+    .ad-banner {
+      background: linear-gradient(90deg, #eef3ff 0%, #f4f0ff 100%);
+      border: 1.5px solid #c9d9f8; border-radius: 16px;
+      padding: 14px 18px; display: flex; align-items: center; gap: 14px;
+      margin-bottom: 20px; position: relative; transition: border-color 0.2s ease;
+      font-family: var(--font);
+    }
+    .ad-banner:hover { border-color: var(--accent); }
+    .ad-banner.hidden { display: none; }
+    .ad-banner-label {
+      position: absolute; top: 8px; right: 12px; font-size: 9px; font-weight: 700;
+      letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-3);
+      background: var(--white); border: 1px solid rgba(0,0,0,0.06); padding: 1px 6px; border-radius: 3px;
+      pointer-events: none;
+    }
+    .ad-banner-img-wrap {
+      width: 48px; height: 48px; border-radius: 8px; overflow: hidden; flex-shrink: 0;
+      background: var(--white); display: flex; align-items: center; justify-content: center;
+      position: relative; border: 1px solid rgba(0,0,0,0.06);
+    }
+    .ad-banner-img-wrap img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; padding: 3px; }
+    .ad-banner-img-wrap i { font-size: 18px; color: var(--accent); }
+    .ad-banner-info { flex: 1; min-width: 0; padding-right: 56px; }
+    .ad-banner-title { font-weight: 700; color: var(--text); font-size: 14px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ad-banner-sub { font-size: 12px; color: var(--text-3); }
+    .ad-banner-btn {
+      flex-shrink: 0; margin-left: auto;
+      background: var(--accent); color: white; padding: 6px 14px; border-radius: 6px;
+      font-size: 12px; font-weight: 600; text-decoration: none; border: none; cursor: pointer;
+    }
   </style>
 </head>
 
@@ -406,6 +438,7 @@
       </select>
     </div>
     <div class="content">
+      <div id="ad-banner-roadmaps" class="ad-banner hidden"></div>
       <div class="cards-grid" id="roadmapGrid">
         <div class="empty-state">
           <h3>Loading roadmaps...</h3>
@@ -426,6 +459,7 @@
       </select>
     </div>
     <div class="content">
+      <div id="ad-banner-cheatsheets" class="ad-banner hidden"></div>
       <div class="cards-grid" id="cheatsheetGrid">
         <div class="empty-state">
           <h3>Loading cheatsheets...</h3>
@@ -446,12 +480,18 @@
   <script src="../js/navbar.js"></script>
   <script src="../js/footer.js"></script>
   <script>
-    let roadmaps = [], cheatsheets = [];
+    let roadmaps = [], cheatsheets = [], ads = [];
 
     async function init() {
       try { roadmaps = await DB.fetchLatestRoadmaps(100); } catch (e) { console.error('Roadmaps fetch error:', e); }
       try { cheatsheets = await DB.fetchLatestCheatsheets(100); } catch (e) { console.error('Cheatsheets fetch error:', e); }
+      try {
+        const snap = await db.collection('ad_campaigns').where('status','==','active').get();
+        ads = snap.docs.map(d => ({id:d.id, ...d.data()}));
+      } catch (e) { console.error('Ads fetch error:', e); }
+
       renderRoadmaps(); renderCheatsheets();
+      renderAds();
 
       const params = new URLSearchParams(window.location.search);
       const tab = params.get('tab');
@@ -534,6 +574,26 @@
     function showTab(tab) {
       ['roadmaps', 'cheatsheets'].forEach(s => document.getElementById('sec-' + s).classList.toggle('active', s === tab));
       document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === (tab === 'roadmaps' ? 0 : 1)));
+      renderAds();
+    }
+    function renderAds() {
+      if (!ads.length) return;
+      const ad = ads[Math.floor(Math.random() * ads.length)];
+      const html = `
+        <div class="ad-banner-img-wrap">
+          ${ad.image_url ? `<img src="${ad.image_url}" alt="${ad.title}">` : '<i class="bi bi-megaphone-fill"></i>'}
+        </div>
+        <div class="ad-banner-info">
+          <div class="ad-banner-title">${ad.title}</div>
+          <div class="ad-banner-sub">Sponsored • ${ad.company_name || 'Partner'}</div>
+        </div>
+        <div class="ad-banner-label">SPONSORED</div>
+        <button class="ad-banner-btn" onclick="window.open('${(ad.target_url||'#').replace(/'/g,"\\'")}','_blank')">Learn More</button>
+      `;
+      const rb = document.getElementById('ad-banner-roadmaps');
+      const cb = document.getElementById('ad-banner-cheatsheets');
+      if (rb) { rb.innerHTML = html; rb.classList.remove('hidden'); }
+      if (cb) { cb.innerHTML = html; cb.classList.remove('hidden'); }
     }
     init();
   </script>

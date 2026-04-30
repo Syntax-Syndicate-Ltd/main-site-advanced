@@ -3,246 +3,415 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Company Dashboard - Syntax Syndicate</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<title>Partner Dashboard — Syntax Syndicate</title>
+<meta name="description" content="Manage your company content, opportunities, and ad campaigns on Syntax Syndicate."/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="css/global.css"/>
-
-<style>
-:root {
-  --white:#ffffff;--tint:#f0f4ff;--border:#d0d7e8;--text:#0a0e1a;--text-2:#3d4a66;--text-3:#7985a0;
-  --accent:#4169e1;--accent-hi:#2a52cc;--accent-bg:rgba(65,105,225,0.08);
-  --carbon-black:#0a0e1a;--font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
-  --green:#28c840;--red:#e63946;--yellow:#f0c040;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:var(--font);background:var(--tint);color:var(--text);line-height:1.6;}
-
-/* ── NAV ── */
-
-/* ── LAYOUT ── */
-.container{max-width:1200px;margin:28px auto;padding:0 20px;display:grid;grid-template-columns:260px 1fr;gap:28px;}
-
-/* ── SIDEBAR ── */
-.sidebar{display:flex;flex-direction:column;gap:16px;}
-.company-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:24px;text-align:center;}
-.company-avatar{width:72px;height:72px;border-radius:16px;background:linear-gradient(135deg,#141e30,#243b55);display:flex;align-items:center;justify-content:center;color:white;font-size:1.6rem;font-weight:700;margin:0 auto 14px;}
-.company-name{font-size:1.1rem;font-weight:700;margin-bottom:2px;}
-.company-email{font-size:.8rem;color:var(--text-3);font-family:var(--mono);margin-bottom:8px;}
-.verified-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:100px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
-.vb-verified{background:#e8f5e9;color:#2e7d32;}
-.vb-pending{background:#fff3cd;color:#856404;}
-
-.side-menu{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
-.side-item{display:flex;align-items:center;gap:10px;padding:13px 20px;color:var(--text-2);text-decoration:none;font-size:.88rem;font-weight:500;border-bottom:1px solid var(--border);transition:all .15s;cursor:pointer;}
-.side-item:last-child{border-bottom:none;}
-.side-item:hover,.side-item.active{background:var(--accent-bg);color:var(--accent);}
-
-/* ── MAIN ── */
-.main{display:flex;flex-direction:column;gap:24px;}
-.card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:28px;}
-.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px;}
-.card-title{font-size:1.05rem;font-weight:700;}
-
-/* Stats */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
-.stat-box{background:var(--tint);padding:18px 16px;border-radius:12px;border:1px solid var(--border);text-align:center;}
-.stat-val{font-size:1.6rem;font-weight:700;color:var(--carbon-black);line-height:1;}
-.stat-label{font-size:.68rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-top:5px;}
-
-/* Form */
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.form-group{margin-bottom:0;}
-.form-label{display:block;font-size:.78rem;font-weight:600;margin-bottom:5px;color:var(--text-2);}
-.form-input,.form-select,.form-textarea{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:10px;font-family:var(--font);font-size:.88rem;outline:none;transition:border-color .2s;}
-.form-textarea{resize:vertical;min-height:90px;}
-.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent);}
-.form-full{grid-column:1/-1;}
-
-/* Table */
-table{width:100%;border-collapse:collapse;min-width:500px;}
-th{text-align:left;font-family:var(--mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);padding:10px 12px;border-bottom:2px solid var(--border);}
-td{padding:12px;border-bottom:1px solid var(--border);font-size:.88rem;}
-tr:last-child td{border-bottom:none;}
-.status-tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:.68rem;font-weight:700;font-family:var(--mono);text-transform:uppercase;}
-.st-approved{background:#e8f5e9;color:#2e7d32;}
-.st-pending{background:#fff3cd;color:#856404;}
-.st-rejected{background:rgba(230,57,70,0.08);color:var(--red);}
-
-/* Section visibility */
-.section{display:none;}
-.section.active{display:block;}
-
-/* ── MODAL ── */
-.modal-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,14,26,0.5);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
-.modal-bg.open{display:flex;}
-.modal-box{background:var(--white);border-radius:16px;padding:32px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;}
-.modal-box h3{font-size:1.05rem;font-weight:700;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border);}
-
-.dynamic-fields {display: none;}
-.dynamic-fields.active {display: grid;}
-
-@media(max-width:860px){.container{grid-template-columns:1fr;}.stats-row{grid-template-columns:repeat(2,1fr);}.form-grid{grid-template-columns:1fr;}}
-</style>
+<link rel="stylesheet" href="css/dashboard-company.css"/>
 </head>
-<body>
+<body class="dash-body">
 
 <div id="navbar-placeholder" data-type="dashboard"></div>
 
-<div class="container" id="app" style="display:none;">
+<div class="dash-container" id="app" style="display:none;">
 
-  <div class="sidebar">
-    <div class="company-card">
-      <div class="company-avatar" id="avatarEl">C</div>
-      <div class="company-name" id="nameEl">...</div>
-      <div class="company-email" id="emailEl">...</div>
-      <div class="verified-badge vb-pending" id="verifyBadge">⏳ Pending Verification</div>
+  <!-- ═══ SIDEBAR ═══ -->
+  <div class="dash-sidebar">
+    <div class="dash-company-card">
+      <div class="dash-avatar" id="dAvatarInit">C</div>
+      <div class="dash-company-name" id="dCompanyName">...</div>
+      <div class="dash-company-email" id="dCompanyEmail">...</div>
+      <div class="dash-verified is-pending" id="dVerifyBadge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Pending Verification
+      </div>
     </div>
-    <div class="side-menu">
-      <a class="side-item active" onclick="showSection('overview')">Dashboard</a>
-      <a class="side-item" onclick="showSection('resources')">My Content</a>
-      <a class="side-item" onclick="showSection('opportunities')">My Opportunities</a>
-      <a class="side-item" onclick="showSection('profile')">Edit Profile</a>
-    </div>
+
+    <nav class="dash-nav">
+      <button class="dash-nav-item active" onclick="showSection('overview')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </button>
+      <button class="dash-nav-item" onclick="showSection('add-roadmap')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Add Roadmap
+      </button>
+      <button class="dash-nav-item" onclick="showSection('add-cheatsheet')">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Add Cheatsheet
+      </button>
+      <button class="dash-nav-item" onclick="showSection('add-opportunity')">
+        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        Post Opportunity
+      </button>
+      <button class="dash-nav-item" onclick="showSection('content')">
+        <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        My Submissions
+      </button>
+      <button class="dash-nav-item" onclick="showSection('ads')">
+        <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Ad Campaigns
+        <span class="nav-badge">NEW</span>
+      </button>
+      <button class="dash-nav-item" onclick="showSection('profile')">
+        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit Profile
+      </button>
+    </nav>
+
+    <!-- Public Profile Link -->
+    <a href="#" id="publicProfileLink" class="dash-btn dash-btn-outline" style="justify-content:center;border-radius:16px;padding:14px;">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      View Public Profile
+    </a>
   </div>
 
-  <div class="main">
-    <!-- OVERVIEW -->
-    <div class="section active" id="sec-overview">
-      <div class="stats-row">
-        <div class="stat-box"><div class="stat-val" id="statRes">0</div><div class="stat-label">Resources</div></div>
-        <div class="stat-box"><div class="stat-val" id="statOpp">0</div><div class="stat-label">Opportunities</div></div>
-        <div class="stat-box"><div class="stat-val" id="statApproved">0</div><div class="stat-label">Approved</div></div>
-        <div class="stat-box"><div class="stat-val" id="statPending">0</div><div class="stat-label">Pending Review</div></div>
-      </div>
-      <div class="card" style="margin-top:24px;">
-        <div class="card-header"><div class="card-title">Quick Actions</div></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-          <button class="btn btn-accent" style="padding:18px;justify-content:center;" onclick="openModal('resource')">📄 Add Resource (Roadmap/PDF)</button>
-          <button class="btn btn-accent" style="padding:18px;justify-content:center;" onclick="openModal('opportunity')">💼 Post Opportunity</button>
+  <!-- ═══ MAIN CONTENT ═══ -->
+  <div class="dash-main">
+    <!-- Verification Banner -->
+    <div class="verify-banner" id="verifyBanner" style="display:none;">
+      <div class="verify-banner-content">
+        <div class="verify-banner-icon"><i class="bi bi-shield-check"></i></div>
+        <div class="verify-banner-text">
+          <h3>Get Verified Profile</h3>
+          <p>Submit your company details to get the blue tick and unlock premium features.</p>
         </div>
+        <button class="dash-btn dash-btn-accent" onclick="openVerificationForm()">Start Verification</button>
       </div>
     </div>
 
-    <!-- RESOURCES -->
-    <div class="section" id="sec-resources">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">My Content Submissions</div>
-          <button class="btn btn-accent" onclick="openModal('resource')">+ Upload Resource</button>
+    <div class="dash-welcome">
+      <h1>Welcome, <span id="dWelcomeName">Partner</span></h1>
+      <p>Manage your content, opportunities, and ad campaigns from here.</p>
+    </div>
+
+    <!-- ══ OVERVIEW ══ -->
+    <div class="dash-section active" id="sec-overview">
+      <div class="dash-stats">
+        <div class="dash-stat stat-blue">
+          <div class="dash-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div class="dash-stat-val" id="statRes">0</div>
+          <div class="dash-stat-label">Resources</div>
         </div>
-        <div style="overflow-x:auto;">
-          <table>
+        <div class="dash-stat stat-purple">
+          <div class="dash-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+          <div class="dash-stat-val" id="statOpp">0</div>
+          <div class="dash-stat-label">Opportunities</div>
+        </div>
+        <div class="dash-stat stat-green">
+          <div class="dash-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="dash-stat-val" id="statApproved">0</div>
+          <div class="dash-stat-label">Approved</div>
+        </div>
+        <div class="dash-stat stat-yellow">
+          <div class="dash-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div class="dash-stat-val" id="statPending">0</div>
+          <div class="dash-stat-label">Pending</div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="dash-card">
+        <div class="dash-card-header"><div class="dash-card-title">Quick Actions</div></div>
+        <div class="dash-actions">
+          <button class="dash-action-btn" onclick="showSection('add-roadmap')">
+            <div class="dash-action-icon" style="background:var(--accent-bg);color:var(--accent);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg></div>
+            <div class="dash-action-label">Create Roadmap</div>
+            <div class="dash-action-sub">Build step-by-step guides</div>
+          </button>
+          <button class="dash-action-btn" onclick="showSection('add-opportunity')">
+            <div class="dash-action-icon" style="background:var(--purple-bg);color:var(--purple);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+            <div class="dash-action-label">Post Opportunity</div>
+            <div class="dash-action-sub">Jobs, Internships, Events</div>
+          </button>
+          <button class="dash-action-btn" onclick="showSection('ads')">
+            <div class="dash-action-icon" style="background:var(--green-bg);color:var(--green);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+            <div class="dash-action-label">Run Ad Campaign</div>
+            <div class="dash-action-sub">Reach 10k+ developers</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="dash-card">
+        <div class="dash-card-header"><div class="dash-card-title">Recent Activity</div></div>
+        <div id="activityFeed"><p style="color:var(--text-3);font-size:.88rem;">Loading...</p></div>
+      </div>
+    </div>
+
+    <!-- ══ MY SUBMISSIONS (Unified) ══ -->
+    <div class="dash-section" id="sec-content">
+      <div class="dash-card">
+        <div class="dash-card-header">
+          <div class="dash-card-title">My Content & Opportunities</div>
+        </div>
+        <div class="dash-table-wrap">
+          <table class="dash-table">
             <thead><tr><th>Title</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="resourcesBody"></tbody>
+            <tbody id="submissionsBody"></tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <!-- OPPORTUNITIES -->
-    <div class="section" id="sec-opportunities">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">My Opportunities</div>
-          <button class="btn btn-accent" onclick="openModal('opportunity')">+ Post Opportunity</button>
-        </div>
-        <div style="overflow-x:auto;">
-          <table>
-            <thead><tr><th>Title</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="oppsBody"></tbody>
-          </table>
-        </div>
+    <!-- ══ ADD ROADMAP ══ -->
+    <div class="dash-section" id="sec-add-roadmap">
+      <div class="dash-card">
+        <div class="dash-card-header"><div class="dash-card-title">Add New Roadmap</div></div>
+        <form id="form-roadmap" class="dash-form-grid">
+          <div class="dash-form-group"><label class="dash-form-label">Title *</label><input type="text" id="rm-title" class="dash-form-input" required placeholder="e.g. Frontend Developer Roadmap"/></div>
+          <div class="dash-form-group"><label class="dash-form-label">Domain</label><input type="text" id="rm-domain" class="dash-form-input" placeholder="e.g. Web Development"/></div>
+          <div class="dash-form-group"><label class="dash-form-label">Role</label><input type="text" id="rm-role" class="dash-form-input" placeholder="e.g. Frontend Developer"/></div>
+          <div class="dash-form-group"><label class="dash-form-label">Level</label>
+            <select id="rm-level" class="dash-form-select"><option value="beginner">Beginner</option><option value="intermediate">Intermediate</option><option value="advanced">Advanced</option></select>
+          </div>
+          <div class="dash-form-group"><label class="dash-form-label">Estimated Time</label><input type="text" id="rm-time" class="dash-form-input" placeholder="e.g. 3-6 months"/></div>
+          <div class="dash-form-group"><label class="dash-form-label">Icon (Bootstrap Icon Class)</label><input type="text" id="rm-icon" class="dash-form-input" placeholder="bi-map"/></div>
+          <div class="dash-form-group dash-form-full"><label class="dash-form-label">Description</label><textarea id="rm-desc" class="dash-form-textarea" placeholder="Short summary..."></textarea></div>
+          <div class="dash-form-group dash-form-full"><label class="dash-form-label">Tags (comma-separated)</label><input type="text" id="rm-tags" class="dash-form-input" placeholder="html, css, javascript"/></div>
+          
+          <div class="dash-form-full" style="margin-top:20px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <h3 style="font-size:1.1rem;font-weight:700;">Roadmap Steps</h3>
+              <button type="button" class="dash-btn dash-btn-outline dash-btn-sm" onclick="addRoadmapStep()">+ Add Step</button>
+            </div>
+            <div id="rm-steps-container" style="display:flex;flex-direction:column;gap:16px;"></div>
+          </div>
+
+          <div class="dash-form-full" style="margin-top:24px;display:flex;gap:12px;">
+            <button type="submit" class="dash-btn dash-btn-accent">Submit Roadmap for Review</button>
+            <button type="button" class="dash-btn dash-btn-outline" onclick="clearRoadmapForm()">Clear</button>
+          </div>
+        </form>
       </div>
     </div>
 
-    <!-- PROFILE -->
-    <div class="section" id="sec-profile">
-      <div class="card">
-        <div class="card-header"><div class="card-title">Company Profile</div></div>
-        <form id="profileForm" class="form-grid">
-          <div class="form-group"><label class="form-label">Company Name</label><input type="text" id="editName" class="form-input"/></div>
-          <div class="form-group"><label class="form-label">Domain</label><input type="url" id="editDomain" class="form-input"/></div>
-          <div class="form-full"><button type="submit" class="btn btn-primary" id="btnSaveProfile">Save</button></div>
+    <!-- ══ ADD CHEATSHEET ══ -->
+    <div class="dash-section" id="sec-add-cheatsheet">
+      <div class="dash-card">
+        <div class="dash-card-header"><div class="dash-card-title">Add New Cheatsheet</div></div>
+        <form id="form-cheatsheet" class="dash-form-grid">
+          <div class="dash-form-group"><label class="dash-form-label">Title *</label><input type="text" id="cs-title" class="dash-form-input" required placeholder="e.g. Python Cheatsheet"/></div>
+          <div class="dash-form-group"><label class="dash-form-label">Domain</label><input type="text" id="cs-domain" class="dash-form-input" placeholder="e.g. Python"/></div>
+          <div class="dash-form-group"><label class="dash-form-label">Icon Class</label><input type="text" id="cs-icon" class="dash-form-input" placeholder="bi-file-code"/></div>
+          <div class="dash-form-group"><label class="dash-form-label">PDF Download URL</label><input type="url" id="cs-download" class="dash-form-input" placeholder="https://..."/></div>
+          <div class="dash-form-group dash-form-full"><label class="dash-form-label">Description</label><textarea id="cs-desc" class="dash-form-textarea" placeholder="What this covers..."></textarea></div>
+          <div class="dash-form-group dash-form-full"><label class="dash-form-label">Tags (comma-separated)</label><input type="text" id="cs-tags" class="dash-form-input" placeholder="python, variables, loops"/></div>
+
+          <div class="dash-form-full" style="margin-top:20px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <h3 style="font-size:1.1rem;font-weight:700;">Cheatsheet Sections</h3>
+              <button type="button" class="dash-btn dash-btn-outline dash-btn-sm" onclick="addCheatsheetSection()">+ Add Section</button>
+            </div>
+            <div id="cs-sections-container" style="display:flex;flex-direction:column;gap:16px;"></div>
+          </div>
+
+          <div class="dash-form-full" style="margin-top:24px;display:flex;gap:12px;">
+            <button type="submit" class="dash-btn dash-btn-accent">Submit Cheatsheet for Review</button>
+            <button type="button" class="dash-btn dash-btn-outline" onclick="clearCheatsheetForm()">Clear</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ══ ADD OPPORTUNITY ══ -->
+    <div class="dash-section" id="sec-add-opportunity">
+      <div class="dash-card">
+        <div class="dash-card-header"><div class="dash-card-title">Post New Opportunity</div></div>
+        <form id="form-opportunity" class="dash-form-grid">
+          <div class="dash-form-group dash-form-full"><label class="dash-form-label">Title *</label><input type="text" id="opp-title" class="dash-form-input" required placeholder="e.g. Senior Software Engineer"/></div>
+          <div class="dash-form-group">
+            <label class="dash-form-label">Type</label>
+            <select id="opp-type" class="dash-form-select" onchange="toggleOppFields()">
+              <option value="job">Job</option>
+              <option value="internship">Internship</option>
+              <option value="hackathon">Hackathon</option>
+              <option value="techEvent">Tech Event</option>
+              <option value="seminar">Seminar</option>
+              <option value="course">Course</option>
+            </select>
+          </div>
+          <div class="dash-form-group"><label class="dash-form-label">Location</label><input type="text" id="opp-location" class="dash-form-input" placeholder="Remote / City"/></div>
+          
+          <div class="dash-form-group dash-form-full">
+            <label class="dash-form-label">Banner Image URL (Defaults to Company Logo)</label>
+            <div style="display:flex;gap:10px;">
+              <input type="url" id="opp-img" class="dash-form-input" placeholder="https://..." style="flex:1"/>
+              <button type="button" class="dash-btn dash-btn-outline dash-btn-sm" onclick="resetOppBanner()">Reset to Logo</button>
+            </div>
+            <div id="opp-banner-preview" style="margin-top:10px;height:120px;border-radius:12px;background:var(--tint);background-size:cover;background-position:center;border:1px solid var(--border);"></div>
+          </div>
+
+          <div class="dash-form-group"><label class="dash-form-label">Apply Link *</label><input type="url" id="opp-link" class="dash-form-input" required/></div>
+          <div class="dash-form-group"><label class="dash-form-label">Deadline</label><input type="date" id="opp-deadline" class="dash-form-input"/></div>
+
+          <div class="dash-form-group dash-form-full">
+            <label class="dash-form-label" id="opp-desc-label">Description & Details</label>
+            <textarea id="opp-desc" class="dash-form-textarea" placeholder="Include responsibilities, salary/stipend, etc."></textarea>
+          </div>
+
+          <div class="dash-form-full" style="display:flex;gap:12px;margin-top:8px;">
+            <button type="submit" class="dash-btn dash-btn-accent">Submit Opportunity</button>
+            <button type="button" class="dash-btn dash-btn-outline" onclick="clearOppForm()">Clear</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ══ AD CAMPAIGNS ══ -->
+    <div class="dash-section" id="sec-ads">
+      <!-- Hero Banner -->
+      <div class="dash-card" style="background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;border:none;box-shadow:0 12px 40px rgba(15,23,42,0.3);position:relative;overflow:hidden;">
+        <div style="position:absolute;top:-40%;right:-10%;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,0.2),transparent 70%);"></div>
+        <div style="position:relative;z-index:1;">
+          <h2 style="font-size:1.6rem;font-weight:900;margin-bottom:8px;letter-spacing:-0.03em;">Advertise on Syntax Syndicate</h2>
+          <p style="font-size:.95rem;opacity:.8;max-width:500px;margin-bottom:24px;">Get your brand in front of 10,000+ active developers and students. Banner ads, featured listings, and sponsored content.</p>
+          <button class="dash-btn" style="background:#fff;color:#0f172a;font-weight:800;" onclick="openModal('modalAd')">
+            <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Launch Campaign
+          </button>
+        </div>
+      </div>
+
+      <!-- Ad Plans -->
+      <div class="ad-plans">
+        <div class="ad-plan" data-plan="starter" onclick="selectAdPlan('starter')">
+          <input type="radio" name="adPlan" value="starter" style="display:none"/>
+          <div class="ad-plan-icon" style="background:var(--accent-bg);color:var(--accent);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <div class="ad-plan-name">Starter</div>
+          <div class="ad-plan-price">₹2,999 <span>/ month</span></div>
+          <div class="ad-plan-duration">Perfect for small teams</div>
+          <ul class="ad-plan-features">
+            <li>Banner ad on homepage</li>
+            <li>Up to 5,000 impressions</li>
+            <li>Basic analytics dashboard</li>
+            <li>Email support</li>
+          </ul>
+          <button type="button" class="ad-plan-btn btn-outline">Select Plan</button>
+        </div>
+        <div class="ad-plan popular" data-plan="growth" onclick="selectAdPlan('growth')">
+          <input type="radio" name="adPlan" value="growth" style="display:none"/>
+          <div class="ad-plan-icon" style="background:var(--purple-bg);color:var(--purple);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          </div>
+          <div class="ad-plan-name">Growth</div>
+          <div class="ad-plan-price">₹7,999 <span>/ month</span></div>
+          <div class="ad-plan-duration">Best for growing brands</div>
+          <ul class="ad-plan-features">
+            <li>Featured listing + banner</li>
+            <li>Up to 25,000 impressions</li>
+            <li>Opportunities page placement</li>
+            <li>Advanced analytics</li>
+            <li>Priority support</li>
+          </ul>
+          <button type="button" class="ad-plan-btn btn-fill">Select Plan</button>
+        </div>
+        <div class="ad-plan" data-plan="enterprise" onclick="selectAdPlan('enterprise')">
+          <input type="radio" name="adPlan" value="enterprise" style="display:none"/>
+          <div class="ad-plan-icon" style="background:rgba(15,23,42,0.08);color:var(--carbon-black);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+          </div>
+          <div class="ad-plan-name">Enterprise</div>
+          <div class="ad-plan-price">₹19,999 <span>/ month</span></div>
+          <div class="ad-plan-duration">Maximum visibility</div>
+          <ul class="ad-plan-features">
+            <li>Homepage takeover banner</li>
+            <li>Unlimited impressions</li>
+            <li>Sponsored DevHub posts</li>
+            <li>Newsletter feature</li>
+            <li>Dedicated account manager</li>
+            <li>Custom branding options</li>
+          </ul>
+          <button type="button" class="ad-plan-btn btn-dark">Select Plan</button>
+        </div>
+      </div>
+
+      <!-- My Campaigns -->
+      <div class="dash-card">
+        <div class="dash-card-header"><div class="dash-card-title">My Campaigns</div></div>
+        <div id="campaignsList"><p style="color:var(--text-3);font-size:.88rem;">Loading...</p></div>
+      </div>
+    </div>
+
+    <!-- ══ PROFILE ══ -->
+    <div class="dash-section" id="sec-profile">
+      <div class="dash-card">
+        <div class="dash-card-header"><div class="dash-card-title">Company Profile</div></div>
+        <form id="profileForm" class="dash-form-grid">
+          <div class="dash-form-group"><label class="dash-form-label">Company Name</label><input type="text" id="editName" class="dash-form-input"/></div>
+          <div class="dash-form-group"><label class="dash-form-label">Website / Domain</label><input type="url" id="editDomain" class="dash-form-input" placeholder="https://"/></div>
+          <div class="dash-form-group dash-form-full"><label class="dash-form-label">Company Logo URL</label><input type="url" id="editAvatar" class="dash-form-input" placeholder="https://example.com/logo.png"/></div>
+          <div class="dash-form-group dash-form-full"><label class="dash-form-label">Description</label><textarea id="editDesc" class="dash-form-textarea" placeholder="Tell developers about your company..."></textarea></div>
+          <div class="dash-form-full"><button type="submit" class="dash-btn dash-btn-primary" style="padding:14px 32px;">Save Changes</button></div>
         </form>
       </div>
     </div>
   </div>
 </div>
 
-<!-- MODAL: UPLOAD RESOURCE -->
-<div class="modal-bg" id="modalResource">
-  <div class="modal-box">
-    <h3>📄 Submit Content for Review</h3>
-    <form id="resourceForm" class="form-grid">
-      <div class="form-group form-full">
-        <label class="form-label">Content Type</label>
-        <select id="res-type" class="form-select" onchange="toggleResourceFields()">
-          <option value="pdf">PDF Library Document</option>
-          <option value="roadmap">Roadmap</option>
-          <option value="cheatsheet">Cheatsheet</option>
-        </select>
-      </div>
 
-      <div class="form-group form-full"><label class="form-label">Title *</label><input type="text" id="res-title" class="form-input" required/></div>
-      <div class="form-group form-full"><label class="form-label">Domain / Category</label><input type="text" id="res-domain" class="form-input" placeholder="e.g. Web Dev"/></div>
-      <div class="form-group form-full"><label class="form-label">Description</label><textarea id="res-desc" class="form-textarea"></textarea></div>
-      
-      <!-- PDF SPECIFIC -->
-      <div class="form-group form-full dynamic-fields active" id="fields-pdf">
-        <label class="form-label">Google Drive Link *</label>
-        <input type="url" id="pdf-url" class="form-input" placeholder="https://drive.google.com/..."/>
-        <small style="color:var(--text-3);font-size:.7rem;margin-top:4px;">Resources are submitted to the free library for review.</small>
-      </div>
-
-      <!-- ROADMAP SPECIFIC -->
-      <div class="form-group form-full dynamic-fields" id="fields-roadmap" style="display:none;grid-template-columns:1fr;gap:14px;">
-        <div><label class="form-label">Level</label><select id="rm-level" class="form-select"><option value="beginner">Beginner</option><option value="intermediate">Intermediate</option><option value="advanced">Advanced</option></select></div>
-        <div><label class="form-label">Number of Steps</label><input type="number" id="rm-steps" class="form-input" placeholder="e.g. 10"/></div>
-      </div>
-
-      <!-- CHEATSHEET SPECIFIC -->
-      <div class="form-group form-full dynamic-fields" id="fields-cheatsheet" style="display:none;grid-template-columns:1fr;gap:14px;">
-        <div><label class="form-label">Pages Count</label><input type="number" id="cs-pages" class="form-input" placeholder="e.g. 2"/></div>
-        <div><label class="form-label">Direct Link (Optional)</label><input type="url" id="cs-url" class="form-input" placeholder="https://..."/></div>
-      </div>
-
-      <div class="form-full" style="display:flex;gap:10px;margin-top:8px;">
-        <button type="submit" class="btn btn-accent">Submit for Review</button>
-        <button type="button" class="btn" onclick="closeModal('resource')">Cancel</button>
-      </div>
-    </form>
+<!-- ═══ MODAL: VERIFICATION ═══ -->
+<div class="dash-modal-bg" id="modalVerify">
+  <div class="dash-modal" style="max-width:600px;">
+    <div class="dash-modal-header"><h3>Institute Verification</h3><button class="dash-modal-close" onclick="closeModal('modalVerify')">✕</button></div>
+    <div class="dash-modal-body">
+      <form id="verifyForm" class="dash-form-grid">
+        <div class="dash-form-group dash-form-full"><label class="dash-form-label">Legal Company/Institute Name *</label><input type="text" id="vCompName" class="dash-form-input" required /></div>
+        <div class="dash-form-group dash-form-full"><label class="dash-form-label">Company Bio / Official Details *</label><textarea id="vCompBio" class="dash-form-textarea" required placeholder="Describe your institute..."></textarea></div>
+        <div class="dash-form-group dash-form-full"><label class="dash-form-label">Official Website URL *</label><input type="url" id="vCompWeb" class="dash-form-input" required /></div>
+        <div class="dash-form-group dash-form-full"><label class="dash-form-label">Purpose of Partnering *</label><textarea id="vPurpose" class="dash-form-textarea" required placeholder="Why do you want to partner with Syntax Syndicate?"></textarea></div>
+        <div class="dash-form-group dash-form-full">
+          <label class="dash-form-checkbox" style="display:flex; gap:10px; align-items:flex-start; font-size:0.85rem; color:var(--text-2);">
+            <input type="checkbox" required style="margin-top:4px;"/>
+            <span>I agree to the <a href="company/terms.html" target="_blank" style="color:var(--accent); text-decoration:underline;">Terms of Service</a> and confirm that all details provided are authentic.</span>
+          </label>
+        </div>
+        <div class="dash-form-full" style="display:flex; gap:12px; margin-top:10px;">
+          <button type="submit" class="dash-btn dash-btn-accent">Submit Application</button>
+          <button type="button" class="dash-btn dash-btn-outline" onclick="closeModal('modalVerify')">Cancel</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 
-<!-- MODAL: POST OPPORTUNITY -->
-<div class="modal-bg" id="modalOpportunity">
-  <div class="modal-box">
-    <h3>💼 Post Opportunity</h3>
-    <form id="oppForm" class="form-grid">
-      <div class="form-group form-full"><label class="form-label">Opportunity Title *</label><input type="text" id="opp-title" class="form-input" required/></div>
-      <div class="form-group"><label class="form-label">Type</label>
-        <select id="opp-type" class="form-select" onchange="toggleOppFields()">
-          <option value="job">Job</option>
-          <option value="internship">Internship</option>
-          <option value="hackathon">Hackathon</option>
-        </select>
+<!-- ═══ MODAL: AD CAMPAIGN ═══ -->
+<div class="dash-modal-bg" id="modalAd">
+  <div class="dash-modal">
+    <div class="dash-modal-header"><h3>Launch Ad Campaign</h3><button class="dash-modal-close" onclick="closeModal('modalAd')">✕</button></div>
+    <div class="dash-modal-body">
+      <div style="background:var(--accent-bg);padding:14px 18px;border-radius:14px;margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--accent)" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span style="font-weight:700;color:var(--accent);" id="ad-plan-display">Select a plan above</span>
       </div>
-      <div class="form-group form-full"><label class="form-label">Company Logo / Image URL</label><input type="url" id="opp-img" class="form-input" placeholder="https://..."/></div>
-      <div class="form-group"><label class="form-label">Location</label><input type="text" id="opp-location" class="form-input" placeholder="Remote / City"/></div>
-      <div class="form-group"><label class="form-label">Deadline Date *</label><input type="date" id="opp-deadline" class="form-input" required/></div>
-      <div class="form-group form-full"><label class="form-label">Apply Link *</label><input type="url" id="opp-link" class="form-input" required/></div>
-      
-      <!-- Dynamic Description Section -->
-      <div class="form-group form-full">
-        <label class="form-label" id="opp-desc-label">Job Description & Details</label>
-        <textarea id="opp-desc" class="form-textarea" placeholder="Include responsibilities, salary/stipend, etc."></textarea>
-      </div>
+      <form id="adForm" class="dash-form-grid">
+        <div class="dash-form-group dash-form-full"><label class="dash-form-label">Campaign Title *</label><input type="text" id="ad-title" class="dash-form-input" required placeholder="e.g. Summer Internship Drive 2026"/></div>
+        <div class="dash-form-group dash-form-full"><label class="dash-form-label">Landing Page URL *</label><input type="url" id="ad-url" class="dash-form-input" required placeholder="https://yourcompany.com/careers"/></div>
+        <div class="dash-form-group dash-form-full"><label class="dash-form-label">Banner Image URL</label><input type="url" id="ad-image" class="dash-form-input" placeholder="https://... (1200x300 recommended)"/></div>
+        <div class="dash-form-group dash-form-full"><label class="dash-form-label">Campaign Description</label><textarea id="ad-desc" class="dash-form-textarea" placeholder="Describe what you want to promote..."></textarea></div>
+        <div class="dash-form-full" style="display:flex;gap:12px;">
+          <button type="submit" class="dash-btn dash-btn-accent">Submit Campaign</button>
+          <button type="button" class="dash-btn dash-btn-outline" onclick="closeModal('modalAd')">Cancel</button>
+        </div>
+      </form>
+      <p style="font-size:.75rem;color:var(--text-3);margin-top:16px;text-align:center;">Our team will review your campaign within 24 hours. Payment details will be shared via email.</p>
+    </div>
+  </div>
+</div>
 
-      <div class="form-full" style="display:flex;gap:10px;">
-        <button type="submit" class="btn btn-accent">Submit</button>
-        <button type="button" class="btn" onclick="closeModal('opportunity')">Cancel</button>
-      </div>
-    </form>
+
+<!-- ═══ MODAL: AD ANALYTICS ═══ -->
+<div class="dash-modal-bg" id="modalAnalytics">
+  <div class="dash-modal" style="max-width:680px;">
+    <div class="dash-modal-header">
+      <h3>Campaign Analytics</h3>
+      <button class="dash-modal-close" onclick="closeModal('modalAnalytics')">✕</button>
+    </div>
+    <div class="dash-modal-body" id="analyticsModalBody">
+      <p style="color:var(--text-3);">Loading analytics...</p>
+    </div>
   </div>
 </div>
 
@@ -254,123 +423,6 @@ tr:last-child td{border-bottom:none;}
 <script src="js/auth.js"></script>
 <script src="js/db.js"></script>
 <script src="js/navbar.js"></script>
-<script>
-let profile = null;
-let myItems = [];
-const BASE_PDF_URL = "https://syntaxsyndicate.co.in/assets/pdfs/";
-
-async function init() {
-  const user = await Auth.requireAuth();
-  profile = Auth.getProfile();
-  if (!profile || !['institute_admin','superadmin','team'].includes(profile.role)) {
-    window.location.href = 'profile.html'; return;
-  }
-  document.getElementById('app').style.display = 'grid';
-  document.getElementById('nameEl').innerText = profile.name || 'Member';
-  document.getElementById('emailEl').innerText = user.email;
-  if(profile.is_verified) document.getElementById('verifyBadge').innerHTML = '✓ Verified Partner';
-  
-  loadData();
-}
-
-function showSection(name) {
-  ['overview','resources','opportunities','profile'].forEach(s => document.getElementById('sec-' + s).classList.toggle('active', s === name));
-  document.querySelectorAll('.side-item').forEach((el, i) => el.classList.toggle('active', i === ['overview','resources','opportunities','profile'].indexOf(name)));
-}
-
-function openModal(type) { document.getElementById('modal'+(type==='resource'?'Resource':'Opportunity')).classList.add('open'); toggleResourceFields(); toggleOppFields(); }
-function closeModal(type) { document.getElementById('modal'+(type==='resource'?'Resource':'Opportunity')).classList.remove('open'); }
-
-function toggleResourceFields() {
-  const t = document.getElementById('res-type').value;
-  document.getElementById('fields-pdf').style.display = t === 'pdf' ? 'grid' : 'none';
-  document.getElementById('fields-roadmap').style.display = t === 'roadmap' ? 'grid' : 'none';
-  document.getElementById('fields-cheatsheet').style.display = t === 'cheatsheet' ? 'grid' : 'none';
-}
-
-function toggleOppFields() {
-  const t = document.getElementById('opp-type').value;
-  const label = document.getElementById('opp-desc-label');
-  const ta = document.getElementById('opp-desc');
-  if (t === 'job') { label.innerText = 'Job Description & Salary Details'; ta.placeholder = 'Include salary structure, responsibilities, requirements...'; }
-  else if (t === 'internship') { label.innerText = 'Internship Details & Stipend'; ta.placeholder = 'Include stipend amount, duration, conversion PPO chances...'; }
-  else if (t === 'hackathon') { label.innerText = 'Hackathon Guidelines & Prize Pool'; ta.placeholder = 'Include team size, prize pool, problem statements...'; }
-}
-
-async function loadData() {
-  const pending = await db.collection('pending_content').where('posted_by','==',profile.id).get();
-  myItems = pending.docs.map(d => ({id: d.id, ...d.data()}));
-  
-  const res = myItems.filter(i => ['pdf','roadmap','cheatsheet'].includes(i.type));
-  const opps = myItems.filter(i => ['job','internship','hackathon'].includes(i.type));
-  
-  document.getElementById('statRes').innerText = res.length;
-  document.getElementById('statOpp').innerText = opps.length;
-  document.getElementById('statPending').innerText = myItems.filter(i => i.status === 'pending').length;
-  
-  document.getElementById('resourcesBody').innerHTML = res.map(r => `<tr><td>${r.title}</td><td>${r.type}</td><td><span class="status-tag st-pending">Pending</span></td><td><button class="btn btn-danger" onclick="delItem('${r.id}')">Delete</button></td></tr>`).join('');
-  document.getElementById('oppsBody').innerHTML = opps.map(o => `<tr><td>${o.title}</td><td><span class="status-tag st-pending">Pending</span></td><td><button class="btn btn-danger" onclick="delItem('${o.id}')">Delete</button></td></tr>`).join('');
-}
-
-async function delItem(id) {
-  await db.collection('pending_content').doc(id).delete();
-  loadData();
-}
-
-document.getElementById('resourceForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const type = document.getElementById('res-type').value;
-  let data = {
-    title: document.getElementById('res-title').value,
-    type: type,
-    domain: document.getElementById('res-domain').value,
-    description: document.getElementById('res-desc').value,
-    posted_by: profile.id,
-    company_name: profile.name,
-    status: 'pending',
-    created_at: firebase.firestore.FieldValue.serverTimestamp()
-  };
-  
-  if (type === 'pdf') {
-    const url = document.getElementById('pdf-url').value;
-    if(!url) { alert("Google Drive Link is required for PDFs!"); return; }
-    data.url = url;
-    data.access = 'free'; // Company submissions are free by default
-    data.target_collection = 'pdfs'; // Flag to the approval queue what collection it belongs to
-  } else if (type === 'roadmap') {
-    data.level = document.getElementById('rm-level').value;
-    data.steps = document.getElementById('rm-steps').value;
-    data.target_collection = 'roadmaps';
-  } else if (type === 'cheatsheet') {
-    data.pages = document.getElementById('cs-pages').value;
-    data.url = document.getElementById('cs-url').value;
-    data.target_collection = 'cheatsheets';
-  }
-  
-  await db.collection('pending_content').add(data);
-  SS.showToast('Submitted for review', 'success');
-  closeModal('resource'); e.target.reset(); loadData();
-});
-
-document.getElementById('oppForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  await db.collection('pending_content').add({
-    title: document.getElementById('opp-title').value,
-    type: document.getElementById('opp-type').value,
-    image_url: document.getElementById('opp-img').value,
-    location: document.getElementById('opp-location').value,
-    link: document.getElementById('opp-link').value,
-    description: document.getElementById('opp-desc').value,
-    deadline: document.getElementById('opp-deadline').value,
-    posted_by: profile.id,
-    company_name: profile.name,
-    status: 'pending',
-    created_at: firebase.firestore.FieldValue.serverTimestamp()
-  });
-  SS.showToast('Submitted for review', 'success');
-  closeModal('opportunity'); e.target.reset(); loadData();
-});
-init();
-</script>
+<script src="js/dashboard-company.js"></script>
 </body>
 </html>
