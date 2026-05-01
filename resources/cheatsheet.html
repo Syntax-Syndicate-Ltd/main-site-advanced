@@ -127,9 +127,14 @@ async function loadCheatsheet() {
   }
 
   try {
-    const cs = await DB.fetchCheatsheet(csId);
+    const col = params.get('col') || 'cheatsheets';
+    let cs = await (col === 'cheatsheets' ? DB.fetchCheatsheet(csId) : DB.getDoc(`${col}/${csId}`));
+
+    // If it's a preview from pending_content, handle nested data if present
+    if (cs && cs.data && col === 'pending_content') cs = { ...cs.data, ...cs };
+
     if (!cs) {
-      container.innerHTML = '<div class="cs-loading"><h2 style="color:var(--text);margin-bottom:8px">Cheatsheet not found</h2><p style="color:var(--text-3)">This cheatsheet may have been removed.</p><a href="index.html" class="cs-back" style="margin-top:16px">← Back to Resources</a></div>';
+      container.innerHTML = '<div class="cs-loading"><h2 style="color:var(--text);margin-bottom:8px">Cheatsheet not found</h2><p style="color:var(--text-3)">This cheatsheet may have been removed or is still pending review.</p><a href="index.html" class="cs-back" style="margin-top:16px">← Back to Resources</a></div>';
       return;
     }
 

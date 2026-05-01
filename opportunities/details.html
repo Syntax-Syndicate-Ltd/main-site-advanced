@@ -76,7 +76,7 @@
           <div class="detail-sidebar-info" id="detail-sidebar-info">
             <!-- Populated by JS -->
           </div>
-          <a href="#" id="apply-btn" target="_blank" class="btn-primary-adm" style="display:block; text-align:center; padding:12px; border-radius:10px; text-decoration:none;">
+          <a href="#" id="apply-btn" target="_blank" class="opp-btn opp-btn-primary opp-btn-lg" style="display:flex; width:100%; justify-content:center; text-decoration:none;">
             Apply Now <i class="bi bi-box-arrow-up-right"></i>
           </a>
           <div style="margin-top:12px; text-align:center; font-size:12px; color:var(--opp-text3)">
@@ -98,39 +98,69 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="../js/firebase-config.js"></script>
 <script src="../js/utils.js"></script>
+<script src="../js/db.js"></script>
+<script src="../js/auth.js"></script>
 <script src="../js/navbar.js"></script>
 <script src="../js/footer.js"></script>
 
-<script type="module">
-  import { DB } from '../js/db.js';
-  import { Auth } from '../js/auth.js';
+<script>
+  // DB and Auth are already global from script tags above.
+  // We use window.DB/window.Auth for clarity.
 
   async function init() {
+    console.log('🚀 Details init started');
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
     const col = params.get('col');
 
+    console.log('Params:', { id, col });
+
+    // Hide back button if previewing
+    if (col === 'pending_content') {
+      const backBtn = document.querySelector('.apply-back');
+      if (backBtn) backBtn.style.display = 'none';
+    }
+
     if (!id || !col) {
+      console.warn('Missing ID or Col');
       showError();
       return;
     }
 
     try {
-      const post = await DB.getDoc(`${col}/${id}`);
+      console.log('Fetching doc:', `${col}/${id}`);
+      let post = await window.DB.getDoc(`${col}/${id}`);
+      console.log('Doc fetched:', post);
+      
       if (!post) {
+        console.warn('Post not found');
         showError();
         return;
       }
+
+      // Handle nested data if present (common in community submissions)
+      if (post.data && col === 'pending_content') {
+        post = { id: post.id, ...post.data, ...post };
+      }
+
       render(post, col);
     } catch (err) {
-      console.error(err);
+      console.error('Init error:', err);
       showError();
     }
   }
 
   function render(post, col) {
+    console.log('Rendering post:', post);
     document.title = `${post.title} | Syntax Syndicate`;
-    const cfg = Auth.CATEGORY_CONFIG[col] || { label: 'Explore', badgeClass: 'badge-jobs', emoji: '⚡' };
+    
+    // For pending content, use the 'type' field to find the config
+    const typeToCol = { 
+      'job': 'ss_jobs', 'internship': 'ss_internships', 'hackathon': 'ss_hackathons',
+      'techEvent': 'ss_techEvents', 'seminar': 'ss_seminars', 'course': 'ss_courses'
+    };
+    const configKey = col === 'pending_content' ? typeToCol[post.type] : col;
+    const cfg = window.Auth.CATEGORY_CONFIG[configKey] || { label: 'Opportunity', badgeClass: 'badge-jobs', emoji: '⚡' };
     
     // UI Elements
     const heroWrap = document.getElementById('detail-hero');
@@ -149,8 +179,9 @@
     desc.textContent = post.description || 'No description available.';
 
     // Hero
-    if (post.imagePath) {
-      heroWrap.innerHTML = `<img src="${post.imagePath}" onerror="this.outerHTML='<span class=\'apply-emoji\'>${cfg.emoji || '⚡'}</span>'">`;
+    const img = post.imagePath || post.image_url || post.image || '';
+    if (img) {
+      heroWrap.innerHTML = `<img src="${img}" onerror="this.outerHTML='<span class=\'apply-emoji\'>${cfg.emoji || '⚡'}</span>'">`;
     } else {
       heroWrap.innerHTML = `<span class="apply-emoji">${cfg.emoji || '⚡'}</span>`;
     }
@@ -158,7 +189,7 @@
     // Meta Row Construction
     const metas = [];
     if (post.location || post.venue) metas.push({ icon: 'bi-geo-alt', label: post.location || post.venue });
-    if (post.experienceLevel) metas.push({ icon: 'bi-bar-chart', label: post.experienceLevel });
+    if (post.experienceLevel || post.level) metas.push({ icon: 'bi-bar-chart', label: post.experienceLevel || post.level });
     if (post.duration) metas.push({ icon: 'bi-clock', label: post.duration });
     if (post.mode) metas.push({ icon: 'bi-globe', label: post.mode });
     if (post.prizePool) metas.push({ icon: 'bi-trophy', label: post.prizePool });
@@ -170,19 +201,19 @@
       </div>
     `).join('');
 
-    // Sidebar Sidebar Construction
+    // Sidebar Construction
     const sidebarItems = [
       { lbl: 'Category', val: cfg.label },
-      { lbl: 'Last Modified', val: SS.formatDateRelative(post.postedAt || post.updated_at) }
+      { lbl: 'Last Modified', val: SS.formatDateRelative(post.postedAt || post.updated_at || post.created_at) }
     ];
     if (post.deadline) sidebarItems.push({ lbl: 'Deadline', val: post.deadline });
     if (post.stipend || post.salary) sidebarItems.push({ lbl: 'Compensation', val: post.stipend || post.salary });
     if (post.price) sidebarItems.push({ lbl: 'Fee', val: post.price });
 
     sidebarInfo.innerHTML = sidebarItems.map(si => `
-      <div class="ds-info-item">
-        <span class="ds-info-lbl">${si.lbl}</span>
-        <span class="ds-info-val">${si.val}</span>
+      <div class="sidebar-info-item">
+        <span>${si.lbl}</span>
+        <span>${si.val}</span>
       </div>
     `).join('');
 
@@ -197,15 +228,16 @@
     }
 
     // Action
-    if (post.applyLink) {
-      applyBtn.href = post.applyLink;
+    const link = post.applyLink || post.link || post.url || '';
+    if (link) {
+      applyBtn.href = link;
       applyBtn.addEventListener('click', async (e) => {
-        if (!Auth.isLoggedIn()) {
+        if (!window.Auth.isLoggedIn()) {
           e.preventDefault();
           SS.showToast('Please log in to apply', 'info');
           setTimeout(() => { window.location.href = '../login.html?redirect=' + encodeURIComponent(window.location.href); }, 1000);
         } else {
-           DB.incrementField(`users/${Auth.currentUser.uid}`, 'apply_clicks');
+           window.DB.incrementField(`users/${window.Auth.currentUser.uid}`, 'apply_clicks');
         }
       });
     } else {
@@ -222,7 +254,32 @@
     document.getElementById('error-state').style.display = 'block';
   }
 
-  init();
+  // Wait for scripts to load
+  function startInit() {
+    console.log('🔄 Checking for DB and Auth...');
+    if (window.DB && window.Auth) {
+      console.log('✅ DB and Auth found, initializing...');
+      init();
+    } else {
+      console.log('⏳ Still waiting for DB/Auth...');
+      setTimeout(startInit, 200);
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    console.log('📂 DOM loaded, starting safety timeout and initialization...');
+    
+    // Safety timeout: if still loading after 10s, show error
+    setTimeout(() => {
+      const loader = document.getElementById('loading-state');
+      if (loader && loader.style.display !== 'none') {
+        console.error('⌛ Loading timed out after 10 seconds');
+        showError();
+      }
+    }, 10000);
+
+    startInit();
+  });
 </script>
 
 </body>

@@ -164,5 +164,7 @@ SS.renderAvatar = (p, sizeClass = '') => {
 };
 
 SS.scrollTo = (sel) => { const el = document.querySelector(sel); if (el) el.scrollIntoView({ behavior: 'smooth' }); };
+SS.getQueryParam = (param) => new URLSearchParams(window.location.search).get(param);
+SS.parseURL = (url) => { try { return new URL(url); } catch(e) { return null; } };
 
 window.SS = SS;

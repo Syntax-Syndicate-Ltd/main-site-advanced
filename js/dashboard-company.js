@@ -7,6 +7,8 @@ let mySubmissions = [];
 let rmStepCounter = 0;
 let csSecCounter = 0;
 let editingDocId = null;
+let editingCollection = null;
+let editingOriginalId = null;
 
 const SECTIONS = ['overview', 'add-roadmap', 'add-cheatsheet', 'add-opportunity', 'content', 'ads', 'profile'];
 
@@ -20,23 +22,25 @@ async function init() {
 
   // Sidebar & Header
   const name = profile.name || 'Company';
-  const badge = SS.getRoleBadge(profile.role);
-  document.getElementById('dCompanyName').innerHTML = name + badge;
+  document.getElementById('dCompanyName').innerText = name;
   document.getElementById('dCompanyEmail').innerText = user.email;
   document.getElementById('dAvatarInit').innerText = SS.getInitials(name);
   document.getElementById('dWelcomeName').innerText = name.split(' ')[0];
 
   const vb = document.getElementById('dVerifyBadge');
   if (profile.is_verified) {
-    vb.className = 'dash-verified is-verified';
-    vb.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Verified Partner';
+    vb.className = 'dash-verified-badge';
+    vb.innerHTML = '<i class="bi bi-patch-check-fill"></i> VERIFIED PARTNER';
     document.getElementById('verifyBanner').style.display = 'none';
   } else if (profile.verification_status === 'pending') {
-    vb.className = 'dash-verified is-pending';
-    vb.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Pending Verification';
+    vb.className = 'dash-verified-badge pending';
+    vb.innerHTML = '<i class="bi bi-clock-history"></i> PENDING VERIFICATION';
+    vb.style.background = '#fffbeb';
+    vb.style.color = '#d97706';
     document.getElementById('verifyBanner').style.display = 'none';
   } else {
     document.getElementById('verifyBanner').style.display = 'block';
+    vb.style.display = 'none';
   }
 
   // Auto-show verification modal if not verified
@@ -60,46 +64,129 @@ async function init() {
   await loadData();
 }
 
-function showSection(name) {
+window.showSection = (name) => {
   SECTIONS.forEach(s => {
     const el = document.getElementById('sec-' + s);
     if (el) el.classList.toggle('active', s === name);
   });
+
+  // Update Desktop Nav Items
   document.querySelectorAll('.dash-nav-item').forEach(el => {
-    const onclick = el.getAttribute('onclick');
-    if (onclick && onclick.includes(`'${name}'`)) el.classList.add('active');
-    else el.classList.remove('active');
+    const sec = el.getAttribute('data-sec');
+    el.classList.toggle('active', sec === name);
   });
-}
+
+  // Update Mobile Bottom Nav Items
+  document.querySelectorAll('.mb-nav-item').forEach(btn => {
+    const onclick = btn.getAttribute('onclick') || '';
+    btn.classList.toggle('active', onclick.includes(`'${name}'`));
+  });
+
+  // Close Mobile Sidebar if open
+  if (window.innerWidth <= 960) {
+    toggleMobileSidebar(false);
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+/* ── MOBILE HELPERS ── */
+window.toggleMobileSidebar = (force) => {
+  const sidebar = document.getElementById('dashSidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (!sidebar) return;
+  
+  const isActive = typeof force === 'boolean' ? force : !sidebar.classList.contains('active');
+  
+  sidebar.classList.toggle('active', isActive);
+  if (overlay) overlay.classList.toggle('active', isActive);
+
+  // Prevent body scroll when sidebar is open
+  document.body.style.overflow = isActive ? 'hidden' : '';
+};
+window.showMobileActions = () => {
+  document.getElementById('mobileActionSheet').classList.add('active');
+};
+window.hideMobileActions = () => {
+  document.getElementById('mobileActionSheet').classList.remove('active');
+};
 
 /* ── DATA LOADING ── */
 async function loadData() {
   try {
-    const [pendingSnap, approvedSnap, adSnap] = await Promise.all([
-      db.collection('pending_content').where('posted_by', '==', profile.id).get(),
-      db.collection('opportunities').where('posted_by', '==', profile.id).get().catch(() => ({ docs: [] })),
-      db.collection('ad_campaigns').where('posted_by', '==', profile.id).get().catch(() => ({ docs: [] }))
+    const uid = profile.id;
+    
+    // Helper to fetch from both potential field names to handle legacy data
+    const fetchByOwner = async (colName) => {
+      try {
+        const [snap1, snap2] = await Promise.all([
+          db.collection(colName).where('posted_by', '==', uid).get(),
+          db.collection(colName).where('postedBy', '==', uid).get()
+        ]);
+        // Merge and deduplicate
+        const map = new Map();
+        [...snap1.docs, ...snap2.docs].forEach(d => map.set(d.id, d));
+        return Array.from(map.values());
+      } catch (e) { return []; }
+    };
+
+    const [pendingDocs, roadmapsDocs, cheatsheetsDocs, jobsDocs, internshipsDocs, hackathonsDocs, eventsDocs, seminarsDocs, coursesDocs, adSnap] = await Promise.all([
+      fetchByOwner('pending_content'),
+      fetchByOwner('roadmaps'),
+      fetchByOwner('cheatsheets'),
+      fetchByOwner('ss_jobs'),
+      fetchByOwner('ss_internships'),
+      fetchByOwner('ss_hackathons'),
+      fetchByOwner('ss_techEvents'),
+      fetchByOwner('ss_seminars'),
+      fetchByOwner('ss_courses'),
+      db.collection('ad_campaigns').where('posted_by', '==', uid).get().catch(() => ({ docs: [] }))
     ]);
 
-    const pending = pendingSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-    const approvedOpps = approvedSnap.docs.map(d => ({ id: d.id, ...d.data(), status: 'approved' }));
-    mySubmissions = [...pending, ...approvedOpps];
+    const pending = pendingDocs
+      .map(d => ({ id: d.id, ...d.data(), _collection: 'pending_content' }))
+      .filter(i => !i.status || ['pending', 'rejected'].includes(i.status));
 
+    const roadmaps = roadmapsDocs.map(d => ({ id: d.id, ...d.data(), type: 'roadmap', status: 'approved', _collection: 'roadmaps', original_id: d.id }));
+    const cheatsheets = cheatsheetsDocs.map(d => ({ id: d.id, ...d.data(), type: 'cheatsheet', status: 'approved', _collection: 'cheatsheets', original_id: d.id }));
+    
+    // Process opportunities with collection awareness
+    const opps = [
+      ...jobsDocs.map(d => ({ id: d.id, ...d.data(), type: 'job', _collection: 'ss_jobs' })),
+      ...internshipsDocs.map(d => ({ id: d.id, ...d.data(), type: 'internship', _collection: 'ss_internships' })),
+      ...hackathonsDocs.map(d => ({ id: d.id, ...d.data(), type: 'hackathon', _collection: 'ss_hackathons' })),
+      ...eventsDocs.map(d => ({ id: d.id, ...d.data(), type: 'techEvent', _collection: 'ss_techEvents' })),
+      ...seminarsDocs.map(d => ({ id: d.id, ...d.data(), type: 'seminar', _collection: 'ss_seminars' })),
+      ...coursesDocs.map(d => ({ id: d.id, ...d.data(), type: 'course', _collection: 'ss_courses' }))
+    ].map(i => ({ ...i, status: 'approved', original_id: i.id }));
+
+    mySubmissions = [...pending, ...roadmaps, ...cheatsheets, ...opps];
     const myCampaigns = adSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
     // Stats
-    const resources = mySubmissions.filter(i => ['roadmap', 'cheatsheet', 'pdf'].includes(i.type));
-    const opps = mySubmissions.filter(i => ['job', 'internship', 'hackathon', 'techEvent', 'seminar', 'course'].includes(i.type));
-    
-    document.getElementById('statRes').innerText = resources.length;
-    document.getElementById('statOpp').innerText = opps.length;
+    const resourcesCount = mySubmissions.filter(i => ['roadmap', 'cheatsheet', 'pdf'].includes(i.type)).length;
+    const oppsCount = mySubmissions.filter(i => ['job', 'internship', 'hackathon', 'techEvent', 'seminar', 'course'].includes(i.type)).length;
+
+    document.getElementById('statRes').innerText = resourcesCount;
+    document.getElementById('statOpp').innerText = oppsCount;
     document.getElementById('statApproved').innerText = mySubmissions.filter(i => i.status === 'approved').length;
     document.getElementById('statPending').innerText = mySubmissions.filter(i => i.status === 'pending').length;
 
     renderSubmissionsTable(mySubmissions);
     renderCampaigns(myCampaigns);
-    renderActivity([...mySubmissions].sort((a, b) => (b.created_at?.toMillis?.() || 0) - (a.created_at?.toMillis?.() || 0)).slice(0, 5));
-  } catch (e) { console.error('loadData error:', e); }
+    
+    // Activity sorting with safety
+    const sortedActivity = [...mySubmissions].sort((a, b) => {
+      const dateA = a.created_at?.toMillis?.() || a.postedAt?.toMillis?.() || 0;
+      const dateB = b.created_at?.toMillis?.() || b.postedAt?.toMillis?.() || 0;
+      return dateB - dateA;
+    });
+    renderActivity(sortedActivity.slice(0, 5));
+  } catch (e) { 
+    console.error('loadData error:', e);
+    const body = document.getElementById('submissionsBody');
+    if (body) body.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:red;">Error loading submissions. Check console.</td></tr>';
+  }
 }
 
 function renderSubmissionsTable(items) {
@@ -110,13 +197,18 @@ function renderSubmissionsTable(items) {
   }
   body.innerHTML = items.map(r => {
     const statusClass = r.status === 'approved' ? 'st-approved' : r.status === 'rejected' ? 'st-rejected' : 'st-pending';
+    const collection = r._collection || 'pending_content';
     return `<tr>
       <td class="item-title">${SS.sanitizeHTML(r.title || 'Untitled')}</td>
       <td><span class="status-tag st-active">${r.type || '-'}</span></td>
       <td><span class="status-tag ${statusClass}">${r.status || 'pending'}</span></td>
       <td style="display:flex;gap:8px;">
-        <button class="dash-btn dash-btn-outline dash-btn-sm" onclick="editItem('${r.status === 'approved' ? 'opportunities' : 'pending_content'}','${r.id}')"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit</button>
-        ${r.status !== 'approved' ? `<button class="dash-btn dash-btn-danger dash-btn-sm" onclick="delItem('${r.id}')">Delete</button>` : ''}
+        <button class="dash-btn dash-btn-outline dash-btn-sm" onclick="editItem('${r._collection}','${r.id}')">
+          <i class="bi bi-pencil-square"></i> Edit
+        </button>
+        <button class="dash-btn dash-btn-danger dash-btn-sm" onclick="delItem('${r._collection}','${r.id}')">
+          <i class="bi bi-trash3"></i> Delete
+        </button>
       </td>
     </tr>`;
   }).join('');
@@ -181,6 +273,7 @@ function renderActivity(items) {
 }
 
 /* ── ROADMAP BUILDER ── */
+/* ── ROADMAP BUILDER ── */
 window.addRoadmapStep = function () {
   rmStepCounter++;
   const idx = rmStepCounter;
@@ -188,7 +281,7 @@ window.addRoadmapStep = function () {
   const stepDiv = document.createElement('div');
   stepDiv.className = 'dash-card';
   stepDiv.id = `rm-step-${idx}`;
-  stepDiv.style.cssText = 'border:2px solid var(--accent-bg);background:rgba(255,255,255,0.5);padding:24px;border-radius:18px;';
+  stepDiv.style.cssText = 'border:2px solid var(--accent-bg);background:rgba(255,255,255,0.5);padding:24px;border-radius:18px;margin-bottom:20px;';
   stepDiv.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
       <h3 style="font-size:14px;font-weight:800;color:var(--accent)">Step ${container.children.length + 1}</h3>
@@ -204,9 +297,54 @@ window.addRoadmapStep = function () {
       <div class="dash-form-group dash-form-full"><label class="dash-form-label">Description</label><textarea class="dash-form-textarea rm-step-desc" rows="3" placeholder="What to learn..."></textarea></div>
       <div class="dash-form-group dash-form-full"><label class="dash-form-label">Pro Tips</label><textarea class="dash-form-textarea rm-step-tips" rows="2" placeholder="Helpful tips..."></textarea></div>
     </div>
+
+    <div style="margin-top:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <label class="dash-form-label" style="margin:0;">🎥 Video Resources</label>
+        <button type="button" class="dash-btn dash-btn-outline dash-btn-sm" onclick="addVideoInput(${idx})">+ Add Video</button>
+      </div>
+      <div id="rm-videos-${idx}" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+
+    <div style="margin-top:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <label class="dash-form-label" style="margin:0;">🔗 Related Links</label>
+        <button type="button" class="dash-btn dash-btn-outline dash-btn-sm" onclick="addResourceInput(${idx})">+ Add Resource</button>
+      </div>
+      <div id="rm-resources-${idx}" class="rm-resources-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
   `;
   container.appendChild(stepDiv);
   renumberSteps();
+};
+
+window.addVideoInput = function (stepIdx) {
+  const list = document.getElementById(`rm-videos-${stepIdx}`);
+  const div = document.createElement('div');
+  div.style.cssText = 'display:flex;gap:8px;align-items:center;';
+  div.innerHTML = `
+    <input type="url" class="dash-form-input rm-video-url" placeholder="https://youtube.com/..." style="flex:1;">
+    <button type="button" class="dash-btn dash-btn-danger dash-btn-sm" onclick="this.parentElement.remove()">✕</button>
+  `;
+  list.appendChild(div);
+};
+
+window.addResourceInput = function (stepIdx) {
+  const list = document.getElementById(`rm-resources-${stepIdx}`);
+  const div = document.createElement('div');
+  div.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--bg);padding:12px;border-radius:10px;';
+  div.innerHTML = `
+    <input type="text" class="dash-form-input rm-res-title" placeholder="Link Title" style="flex:2;min-width:140px;">
+    <input type="url" class="dash-form-input rm-res-url" placeholder="https://..." style="flex:3;min-width:180px;">
+    <select class="dash-form-select rm-res-type" style="flex:1;min-width:100px;">
+      <option value="article">Article</option>
+      <option value="course">Course</option>
+      <option value="docs">Docs</option>
+      <option value="tool">Tool</option>
+    </select>
+    <button type="button" class="dash-btn dash-btn-danger dash-btn-sm" onclick="this.parentElement.remove()">✕</button>
+  `;
+  list.appendChild(div);
 };
 
 window.removeRoadmapStep = function (idx) {
@@ -238,7 +376,7 @@ window.addCheatsheetSection = function () {
   const secDiv = document.createElement('div');
   secDiv.className = 'dash-card';
   secDiv.id = `cs-sec-${idx}`;
-  secDiv.style.cssText = 'border:2px solid var(--green-bg);background:rgba(255,255,255,0.5);padding:24px;border-radius:18px;';
+  secDiv.style.cssText = 'border:2px solid var(--green-bg);background:rgba(255,255,255,0.5);padding:24px;border-radius:18px;margin-bottom:20px;';
   secDiv.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
       <h3 style="font-size:14px;font-weight:800;color:var(--green)">Section ${container.children.length + 1}</h3>
@@ -251,10 +389,44 @@ window.addCheatsheetSection = function () {
     <div class="dash-form-grid">
       <div class="dash-form-group dash-form-full"><label class="dash-form-label">Heading *</label><input type="text" class="dash-form-input cs-sec-heading" required placeholder="e.g. Data Types"></div>
       <div class="dash-form-group dash-form-full"><label class="dash-form-label">Content</label><textarea class="dash-form-textarea cs-sec-content" rows="4" placeholder="Explanation..."></textarea></div>
+      <div class="dash-form-group dash-form-full"><label class="dash-form-label">Pro Tips</label><textarea class="dash-form-textarea cs-sec-tips" rows="2" placeholder="Helpful tips for this section..."></textarea></div>
+    </div>
+
+    <div style="margin-top:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <label class="dash-form-label" style="margin:0;">💻 Code Snippets</label>
+        <button type="button" class="dash-btn dash-btn-outline dash-btn-sm" onclick="addSnippetInput(${idx})">+ Add Snippet</button>
+      </div>
+      <div id="cs-snippets-${idx}" class="cs-snippets-list" style="display:flex;flex-direction:column;gap:12px;"></div>
     </div>
   `;
   container.appendChild(secDiv);
   renumberCSSections();
+};
+
+window.addSnippetInput = function (secIdx) {
+  const list = document.getElementById(`cs-snippets-${secIdx}`);
+  const div = document.createElement('div');
+  div.style.cssText = 'background:var(--bg);padding:16px;border-radius:12px;border:1px solid var(--border-solid);';
+  div.innerHTML = `
+    <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;">
+      <select class="dash-form-select cs-snip-lang" style="width:140px;">
+        <option value="javascript">JavaScript</option>
+        <option value="python">Python</option>
+        <option value="html">HTML</option>
+        <option value="css">CSS</option>
+        <option value="java">Java</option>
+        <option value="cpp">C++</option>
+        <option value="sql">SQL</option>
+        <option value="bash">Bash</option>
+        <option value="other">Other</option>
+      </select>
+      <input type="text" class="dash-form-input cs-snip-caption" placeholder="Caption (optional)" style="flex:1;">
+      <button type="button" class="dash-btn dash-btn-danger dash-btn-sm" onclick="this.parentElement.parentElement.remove()">✕</button>
+    </div>
+    <textarea class="dash-form-textarea cs-snip-code" rows="5" placeholder="Paste code snippet here..." style="font-family:monospace;font-size:13px;"></textarea>
+  `;
+  list.appendChild(div);
 };
 
 window.removeCSSection = function (idx) {
@@ -279,7 +451,7 @@ function renumberCSSections() {
 }
 
 /* ── OPPORTUNITY BANNER LOGIC ── */
-window.resetOppBanner = function() {
+window.resetOppBanner = function () {
   const url = profile?.avatar_url || 'https://via.placeholder.com/1200x600?text=Syntax+Syndicate+Opportunity';
   document.getElementById('opp-img').value = url;
   updateOppBannerPreview(url);
@@ -307,12 +479,25 @@ document.getElementById('form-roadmap')?.addEventListener('submit', async (e) =>
   e.preventDefault();
   const steps = [];
   document.querySelectorAll('#rm-steps-container > div').forEach((el, i) => {
+    const video_urls = [];
+    el.querySelectorAll('.rm-video-url').forEach(v => { if (v.value.trim()) video_urls.push(v.value.trim()); });
+
+    const resource_links = [];
+    el.querySelectorAll('.rm-resources-list > div').forEach(r => {
+      const title = r.querySelector('.rm-res-title').value.trim();
+      const url = r.querySelector('.rm-res-url').value.trim();
+      const type = r.querySelector('.rm-res-type').value;
+      if (url) resource_links.push({ title: title || url, url, type });
+    });
+
     steps.push({
       order: i + 1,
       title: el.querySelector('.rm-step-title').value,
       description: el.querySelector('.rm-step-desc').value,
       tips: el.querySelector('.rm-step-tips').value,
-      estimated_hours: parseInt(el.querySelector('.rm-step-hours').value) || 0
+      estimated_hours: parseInt(el.querySelector('.rm-step-hours').value) || 0,
+      video_urls,
+      resource_links
     });
   });
 
@@ -328,34 +513,48 @@ document.getElementById('form-roadmap')?.addEventListener('submit', async (e) =>
     tags: document.getElementById('rm-tags').value.split(',').map(t => t.trim()).filter(Boolean),
     steps,
     posted_by: profile.id,
-    company_name: profile.name,
-    target_collection: 'ss_roadmaps',
+    company_name: profile.name || 'Verified Partner',
+    target_collection: 'roadmaps',
+    source_collection: editingCollection || null,
+    original_id: editingOriginalId || null,
     status: 'pending',
     created_at: firebase.firestore.FieldValue.serverTimestamp()
   };
 
   try {
-    if (editingDocId) {
-      await db.collection('pending_content').doc(editingDocId).set(data);
-      SS.showToast('Submission updated and sent for review!', 'success');
+    const isPending = !editingCollection || editingCollection === 'pending_content';
+    if (editingDocId && isPending) {
+      await db.collection('pending_content').doc(editingDocId).set(data, { merge: true });
+      SS.showToast('Roadmap updated successfully!', 'success');
     } else {
       await db.collection('pending_content').add(data);
       SS.showToast('Roadmap submitted for review!', 'success');
     }
+    editingDocId = null; editingCollection = null; editingOriginalId = null;
     clearRoadmapForm();
     showSection('content');
     loadData();
-  } catch(err) { SS.showToast('Error: ' + err.message, 'error'); }
+  } catch (err) { SS.showToast('Error: ' + err.message, 'error'); }
 });
 
 document.getElementById('form-cheatsheet')?.addEventListener('submit', async (e) => {
   e.preventDefault();
   const sections = [];
   document.querySelectorAll('#cs-sections-container > div').forEach((el, i) => {
+    const code_snippets = [];
+    el.querySelectorAll('.cs-snippets-list > div').forEach(s => {
+      const language = s.querySelector('.cs-snip-lang').value;
+      const caption = s.querySelector('.cs-snip-caption').value.trim();
+      const code = s.querySelector('.cs-snip-code').value;
+      if (code.trim()) code_snippets.push({ language, caption, code });
+    });
+
     sections.push({
       order: i + 1,
       heading: el.querySelector('.cs-sec-heading').value,
-      content: el.querySelector('.cs-sec-content').value
+      content: el.querySelector('.cs-sec-content').value,
+      tips: el.querySelector('.cs-sec-tips').value,
+      code_snippets
     });
   });
 
@@ -370,23 +569,27 @@ document.getElementById('form-cheatsheet')?.addEventListener('submit', async (e)
     sections,
     posted_by: profile.id,
     company_name: profile.name,
-    target_collection: 'ss_cheatsheets',
+    target_collection: 'cheatsheets',
+    source_collection: editingCollection || null,
+    original_id: editingOriginalId || null,
     status: 'pending',
     created_at: firebase.firestore.FieldValue.serverTimestamp()
   };
 
   try {
-    if (editingDocId) {
-      await db.collection('pending_content').doc(editingDocId).set(data);
-      SS.showToast('Submission updated and sent for review!', 'success');
+    const isPending = !editingCollection || editingCollection === 'pending_content';
+    if (editingDocId && isPending) {
+      await db.collection('pending_content').doc(editingDocId).set(data, { merge: true });
+      SS.showToast('Cheatsheet updated successfully!', 'success');
     } else {
       await db.collection('pending_content').add(data);
       SS.showToast('Cheatsheet submitted for review!', 'success');
     }
+    editingDocId = null; editingCollection = null; editingOriginalId = null;
     clearCheatsheetForm();
     showSection('content');
     loadData();
-  } catch(err) { SS.showToast('Error: ' + err.message, 'error'); }
+  } catch (err) { SS.showToast('Error: ' + err.message, 'error'); }
 });
 
 document.getElementById('form-opportunity')?.addEventListener('submit', async (e) => {
@@ -394,36 +597,46 @@ document.getElementById('form-opportunity')?.addEventListener('submit', async (e
   const type = document.getElementById('opp-type').value;
   const colMap = {
     job: 'ss_jobs', internship: 'ss_internships', hackathon: 'ss_hackathons',
-    techEvent: 'ss_events', seminar: 'ss_seminars', course: 'ss_courses'
+    techEvent: 'ss_techEvents', seminar: 'ss_seminars', course: 'ss_courses'
   };
 
   const data = {
     title: document.getElementById('opp-title').value,
     type,
-    image_url: document.getElementById('opp-img').value,
+    imagePath: document.getElementById('opp-img').value,
     location: document.getElementById('opp-location').value,
-    link: document.getElementById('opp-link').value,
+    applyLink: document.getElementById('opp-link').value,
     description: document.getElementById('opp-desc').value,
     deadline: document.getElementById('opp-deadline').value,
     posted_by: profile.id,
-    company_name: profile.name,
+    company_name: profile.name || 'Verified Partner',
     target_collection: colMap[type] || 'opportunities',
+    source_collection: editingCollection || null,
+    original_id: editingOriginalId || null,
     status: 'pending',
+    postedAt: firebase.firestore.FieldValue.serverTimestamp(),
     created_at: firebase.firestore.FieldValue.serverTimestamp()
   };
 
   try {
-    if (editingDocId) {
-      await db.collection('pending_content').doc(editingDocId).set(data);
-      SS.showToast('Opportunity updated and sent for review!', 'success');
+    const isPending = !editingCollection || editingCollection === 'pending_content';
+    if (editingDocId && isPending) {
+      await db.collection('pending_content').doc(editingDocId).set(data, { merge: true });
+      SS.showToast('Opportunity updated successfully!', 'success');
     } else {
       await db.collection('pending_content').add(data);
-      SS.showToast('Opportunity submitted!', 'success');
+      SS.showToast('Opportunity submitted for review!', 'success');
     }
+    editingDocId = null; editingCollection = null; editingOriginalId = null;
     clearOppForm();
     showSection('content');
     loadData();
-  } catch(err) { SS.showToast('Error: ' + err.message, 'error'); }
+  } catch (err) { 
+    console.error(err);
+    SS.showToast('Error: ' + err.message, 'error'); 
+  } finally {
+    btn.disabled = false; btn.innerText = 'Submit Opportunity';
+  }
 });
 
 /* ── PROFILE FORM ── */
@@ -440,7 +653,7 @@ document.getElementById('profileForm')?.addEventListener('submit', async (e) => 
     });
     SS.showToast('Profile updated!', 'success');
     setTimeout(() => window.location.reload(), 800);
-  } catch(e) {
+  } catch (e) {
     SS.showToast('Error saving profile', 'error');
     btn.innerText = 'Save Changes'; btn.disabled = false;
   }
@@ -450,7 +663,7 @@ document.getElementById('profileForm')?.addEventListener('submit', async (e) => 
 window.showAutoVerificationModal = () => {
   const modal = document.getElementById('modalVerify');
   if (!modal) return;
-  
+
   const status = profile.verification_status;
   const form = document.getElementById('verifyForm');
   const header = modal.querySelector('.dash-modal-header h3');
@@ -532,7 +745,7 @@ document.getElementById('verifyForm')?.addEventListener('submit', async (e) => {
     SS.showToast('Verification request submitted!', 'success');
     closeModal('modalVerify');
     setTimeout(() => window.location.reload(), 1000);
-  } catch(err) {
+  } catch (err) {
     SS.showToast('Submission error: ' + err.message, 'error');
     btn.disabled = false; btn.innerText = 'Submit Application';
   }
@@ -556,7 +769,7 @@ document.getElementById('adForm')?.addEventListener('submit', async (e) => {
     await db.collection('ad_campaigns').add(data);
     SS.showToast('Campaign submitted! Our team will review it shortly.', 'success');
     closeModal('modalAd'); e.target.reset(); loadData();
-  } catch(err) {
+  } catch (err) {
     SS.showToast('Error submitting campaign', 'error');
   }
 });
@@ -597,19 +810,27 @@ window.clearOppForm = () => {
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-async function delItem(id) {
-  if (!confirm('Delete this submission?')) return;
-  await db.collection('pending_content').doc(id).delete();
-  SS.showToast('Deleted', 'success');
-  loadData();
+window.delItem = async function(collection, id) {
+  if (!confirm('Are you sure you want to permanently delete this submission? This action cannot be undone.')) return;
+  try {
+    const col = collection || 'pending_content';
+    await db.collection(col).doc(id).delete();
+    SS.showToast('Submission deleted successfully', 'success');
+    loadData();
+  } catch (err) {
+    SS.showToast('Delete error: ' + err.message, 'error');
+  }
 }
 
-async function editItem(collection, docId) {
+window.editItem = async function(collection, docId) {
   try {
-    const doc = await db.collection(collection).doc(docId).get();
-    if (!doc.exists) { SS.showToast('Item not found', 'error'); return; }
+    const col = collection || 'pending_content';
+    const doc = await db.collection(col).doc(docId).get();
+    if (!doc.exists) { SS.showToast('Item not found (' + col + ')', 'error'); return; }
     const data = doc.data();
     editingDocId = docId;
+    editingCollection = collection;
+    editingOriginalId = data.original_id || (collection !== 'pending_content' ? docId : null);
 
     if (data.type === 'roadmap') {
       showSection('add-roadmap');
@@ -622,18 +843,34 @@ async function editItem(collection, docId) {
       document.getElementById('rm-icon').value = data.icon || '';
       document.getElementById('rm-desc').value = data.description || '';
       document.getElementById('rm-tags').value = (data.tags || []).join(', ');
-      
+
       document.getElementById('rm-steps-container').innerHTML = '';
-      rmStepCounter = 0;
-      (data.steps || []).forEach(step => {
+      // Populate steps
+      const steps = data.steps || [];
+      steps.forEach(step => {
         window.addRoadmapStep();
         const stepEl = document.getElementById(`rm-step-${rmStepCounter}`);
         stepEl.querySelector('.rm-step-title').value = step.title || '';
         stepEl.querySelector('.rm-step-hours').value = step.estimated_hours || '';
         stepEl.querySelector('.rm-step-desc').value = step.description || '';
         stepEl.querySelector('.rm-step-tips').value = step.tips || '';
+
+        (step.video_urls || []).forEach(v => {
+          window.addVideoInput(rmStepCounter);
+          const inputs = stepEl.querySelectorAll('.rm-video-url');
+          inputs[inputs.length - 1].value = v;
+        });
+
+        (step.resource_links || []).forEach(rl => {
+          window.addResourceInput(rmStepCounter);
+          const rows = stepEl.querySelectorAll('.rm-resources-list > div');
+          const lastRow = rows[rows.length - 1];
+          lastRow.querySelector('.rm-res-title').value = rl.title || '';
+          lastRow.querySelector('.rm-res-url').value = rl.url || '';
+          lastRow.querySelector('.rm-res-type').value = rl.type || 'article';
+        });
       });
-    } 
+    }
     else if (data.type === 'cheatsheet') {
       showSection('add-cheatsheet');
       document.querySelector('#sec-add-cheatsheet .dash-card-title').innerText = 'Edit Cheatsheet';
@@ -645,12 +882,23 @@ async function editItem(collection, docId) {
       document.getElementById('cs-tags').value = (data.tags || []).join(', ');
 
       document.getElementById('cs-sections-container').innerHTML = '';
-      csSecCounter = 0;
-      (data.sections || []).forEach(sec => {
+      // Populate sections
+      const sections = data.sections || [];
+      sections.forEach(sec => {
         window.addCheatsheetSection();
         const secEl = document.getElementById(`cs-sec-${csSecCounter}`);
         secEl.querySelector('.cs-sec-heading').value = sec.heading || '';
         secEl.querySelector('.cs-sec-content').value = sec.content || '';
+        secEl.querySelector('.cs-sec-tips').value = sec.tips || '';
+
+        (sec.code_snippets || []).forEach(sn => {
+          window.addSnippetInput(csSecCounter);
+          const rows = secEl.querySelectorAll('.cs-snippets-list > div');
+          const lastRow = rows[rows.length - 1];
+          lastRow.querySelector('.cs-snip-lang').value = sn.language || 'javascript';
+          lastRow.querySelector('.cs-snip-caption').value = sn.caption || '';
+          lastRow.querySelector('.cs-snip-code').value = sn.code || '';
+        });
       });
     }
     else {
@@ -659,20 +907,23 @@ async function editItem(collection, docId) {
       document.getElementById('opp-title').value = data.title || '';
       document.getElementById('opp-type').value = data.type || 'job';
       document.getElementById('opp-location').value = data.location || '';
-      document.getElementById('opp-img').value = data.image_url || '';
-      updateOppBannerPreview(data.image_url);
-      document.getElementById('opp-link').value = data.link || '';
+      
+      const img = data.imagePath || data.image_url || data.image || '';
+      document.getElementById('opp-img').value = img;
+      updateOppBannerPreview(img);
+      
+      document.getElementById('opp-link').value = data.applyLink || data.link || '';
       document.getElementById('opp-deadline').value = data.deadline || '';
       document.getElementById('opp-desc').value = data.description || '';
     }
 
     SS.showToast('Edit mode active', 'info');
-  } catch(err) {
+  } catch (err) {
     SS.showToast('Error loading item: ' + err.message, 'error');
   }
 }
 
-async function viewAnalytics(campaignId) {
+window.viewAnalytics = async function(campaignId) {
   try {
     const doc = await db.collection('ad_campaigns').doc(campaignId).get();
     if (!doc.exists) { SS.showToast('Campaign not found', 'error'); return; }
@@ -697,7 +948,7 @@ async function viewAnalytics(campaignId) {
     `;
     document.getElementById('analyticsModalBody').innerHTML = html;
     openModal('modalAnalytics');
-  } catch(err) { SS.showToast('Error loading analytics', 'error'); }
+  } catch (err) { SS.showToast('Error loading analytics', 'error'); }
 }
 
 init();

@@ -744,7 +744,7 @@ async function loadApprovals() {
 
     tbody.innerHTML = docs.map(doc => {
       const data = doc.data();
-      const publisherName = (data.company_name && data.company_name !== 'Community User') ? data.company_name : (data.poster_name || 'Unknown User');
+      const publisherName = data.company_name || data.company || data.poster_name || 'Unknown User';
       return `<tr>
         <td style="font-weight:600;color:var(--opp-text)">${data.title || 'Untitled'}</td>
         <td><span class="badge badge-accent" style="background:#e8f0fe;color:#1a73e8;border:1px solid #c2d7fa;">${data.type || 'Unknown'}</span></td>
@@ -774,57 +774,96 @@ window.approveContent = async function (id) {
     if (!snap.exists) throw new Error("Document not found");
     const docData = snap.data();
 
-    // Check if it's a resource with a designated target_collection
-    if (docData.target_collection) {
-      const resourceData = Object.assign({}, docData.data);
-      resourceData.posted_by = docData.posted_by;
-      resourceData.poster_name = (docData.company_name && docData.company_name !== 'Community User') ? docData.company_name : docData.poster_name;
-      resourceData.poster_avatar_url = docData.poster_avatar_url || '';
-      resourceData.poster_type = docData.company_name !== 'Community User' ? 'company' : 'user';
+    // Check if it's a resource with a designated target_collection (Roadmaps, Cheatsheets, etc.)
+    if (docData.target_collection && ['roadmaps', 'cheatsheets', 'pdfs', 'premium_projects'].includes(docData.target_collection)) {
+      // If docData.data exists, use it; otherwise use the root fields (excluding metadata)
+      let resourceData = docData.data ? Object.assign({}, docData.data) : Object.assign({}, docData);
+      
+      // Clean up metadata before moving to production collection
+      delete resourceData.status;
+      delete resourceData.target_collection;
+      delete resourceData.source_collection;
+      delete resourceData._collection;
+      delete resourceData.original_id;
+      
+      resourceData.posted_by = docData.posted_by || '';
+      resourceData.poster_name = docData.company || docData.company_name || docData.poster_name || 'Verified Partner';
+      resourceData.poster_type = (docData.company || docData.company_name) ? 'company' : 'user';
       resourceData.created_at = firebase.firestore.FieldValue.serverTimestamp();
 
-      const newDocRef = await db.collection(docData.target_collection).add(resourceData);
+      const targetCol = docData.target_collection;
+      const originalId = docData.original_id;
+      let newId = null;
+
+      if (originalId) {
+        // Targeted update of existing live content
+        const sourceCol = docData.source_collection;
+        if (sourceCol && sourceCol !== targetCol) {
+          await db.collection(sourceCol).doc(originalId).delete().catch(e => console.warn('Old item delete fail', e));
+        }
+        await db.collection(targetCol).doc(originalId).set(resourceData, { merge: true });
+        newId = originalId;
+      } else {
+        // Create new live content
+        const newDocRef = await db.collection(targetCol).add(resourceData);
+        newId = newDocRef.id;
+      }
 
       // Send notification to the user
       if (docData.posted_by) {
         try {
+          const page = targetCol === 'roadmaps' ? 'archives/roadmap-viewer.html' : 'archives/cheatsheet-viewer.html';
           await DB.sendNotificationToUser(docData.posted_by, {
             title: '✅ Contribution Approved!',
-            message: `Thank you! Your resource "${resourceData.title || 'Untitled'}" is now live in the library.`,
-            link: `archives/viewer.html?id=${newDocRef.id}`,
+            message: `Thank you! Your resource "${resourceData.title || 'Untitled'}" has been updated and is live.`,
+            link: `${page}?id=${newId}`,
             sent_by: firebase.auth().currentUser.uid
           });
         } catch (ne) { console.warn('Failed to notify user', ne); }
       }
     } else {
-      // Opportunity Mapping fallback
+      // Opportunity Mapping (Jobs, Internships, Hackathons)
       const TYPE_TO_COL = {
         'job': COLLECTIONS.JOBS,
         'internship': COLLECTIONS.INTERNSHIPS,
-        'hackathon': COLLECTIONS.HACKATHONS
+        'hackathon': COLLECTIONS.HACKATHONS,
+        'techEvent': COLLECTIONS.TECH_EVENTS,
+        'seminar': COLLECTIONS.SEMINARS,
+        'course': COLLECTIONS.COURSES
       };
 
-      let targetCol = TYPE_TO_COL[docData.type];
+      const targetCol = docData.target_collection || TYPE_TO_COL[docData.type];
+      const originalId = docData.original_id;
 
       if (targetCol) {
         const oppData = {
-          title: docData.title,
-          company: docData.company_name,
-          location: docData.location || '',
+          title: docData.title || 'Untitled Opportunity',
+          company: docData.company || docData.company_name || 'Verified Partner',
+          location: docData.location || 'Remote / Hybrid',
           description: docData.description || '',
-          applyLink: docData.link || '',
-          imagePath: docData.image_url || '',
+          applyLink: docData.applyLink || docData.link || '',
+          imagePath: docData.imagePath || docData.image_url || docData.image || '',
           deadline: docData.deadline || '',
           postedAt: firebase.firestore.FieldValue.serverTimestamp(),
-          postedBy: docData.posted_by || 'institute'
+          posted_by: docData.posted_by || 'institute',
+          created_at: firebase.firestore.FieldValue.serverTimestamp()
         };
-        await db.collection(targetCol).add(oppData);
+
+        if (originalId) {
+          const sourceCol = docData.source_collection;
+          if (sourceCol && sourceCol !== targetCol) {
+            await db.collection(sourceCol).doc(originalId).delete().catch(e => console.warn('Old item delete fail', e));
+          }
+          await db.collection(targetCol).doc(originalId).set(oppData, { merge: true });
+        } else {
+          await db.collection(targetCol).add(oppData);
+        }
 
         if (docData.posted_by) {
           try {
             await DB.sendNotificationToUser(docData.posted_by, {
               title: '✅ Opportunity Approved!',
-              message: `Your opportunity "${oppData.title}" has been published.`,
+              message: `Your opportunity "${oppData.title}" has been updated.`,
               link: `opportunities/browse.html`,
               sent_by: firebase.auth().currentUser.uid
             });
@@ -833,8 +872,8 @@ window.approveContent = async function (id) {
       }
     }
 
-    // Mark as approved in queue
-    await docRef.update({ status: 'approved' });
+    // Delete from pending queue after successful move to production
+    await docRef.delete();
     showToast('✅ Content approved and published!');
     loadApprovals();
   } catch (err) {
@@ -860,12 +899,35 @@ window.previewApproval = async function (id) {
     if (!snap.exists) return alert('Document not found');
     const docData = snap.data();
 
+    console.log('🔍 Previewing:', { id, type: docData.type });
+
+    // For Roadmaps and Cheatsheets
+    if (docData.type && docData.type.toLowerCase() === 'roadmap') {
+      window.open(`resources/roadmap.html?id=${id}&col=pending_content`, '_blank');
+      return;
+    }
+    if (docData.type && docData.type.toLowerCase() === 'cheatsheet') {
+      window.open(`resources/cheatsheet.html?id=${id}&col=pending_content`, '_blank');
+      return;
+    }
+
+    // For Opportunities (Jobs, Internships, etc.)
+    const oppTypes = ['job', 'internship', 'hackathon', 'techevent', 'seminar', 'course'];
+    if (docData.type && oppTypes.includes(docData.type.toLowerCase())) {
+      const url = `opportunities/details.html?id=${id}&col=pending_content`;
+      console.log('Opening Preview:', url);
+      window.open(url, '_blank');
+      return;
+    }
+
+    console.warn('Unknown type for full-page preview, falling back to modal:', docData.type);
+
     const body = document.getElementById('edit-modal-body');
     document.querySelector('.modal-title').innerHTML = `🔍 Preview: ${docData.title || 'Untitled'}`;
 
     let contentHtml = '';
 
-    // Check if it's a library resource (PDF, Cheatsheet, etc) by checking if data.data exists
+    // Check if it's a library resource (PDF, etc)
     if (docData.target_collection && docData.data) {
       const data = docData.data;
       contentHtml = `
@@ -892,7 +954,7 @@ window.previewApproval = async function (id) {
           <p><strong>Posted By ID:</strong> ${docData.posted_by || 'Unknown'}</p>
           ${docData.location ? `<p><strong>Location:</strong> ${docData.location}</p>` : ''}
           ${docData.deadline ? `<p><strong>Deadline:</strong> ${docData.deadline}</p>` : ''}
-          ${docData.link ? `<p style="margin-top:8px;"><strong>Apply Link:</strong> <br/><a href="${docData.link}" target="_blank" style="color:var(--opp-primary);word-break:break-all;">${docData.link} ↗</a></p>` : ''}
+          ${docData.link || docData.applyLink ? `<p style="margin-top:8px;"><strong>Apply Link:</strong> <br/><a href="${docData.link || docData.applyLink}" target="_blank" style="color:var(--opp-primary);word-break:break-all;">${docData.link || docData.applyLink} ↗</a></p>` : ''}
           <div style="margin-top:16px;background:var(--tint);padding:14px;border-radius:8px;border:1px solid var(--border)">
             <strong style="color:var(--opp-text)">Description / Details:</strong><br/>
             <div style="margin-top:4px;white-space:pre-wrap;">${docData.description || 'No description provided.'}</div>

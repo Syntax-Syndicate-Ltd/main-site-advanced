@@ -252,9 +252,30 @@
 }
 .detail-back:hover { color: var(--opp-primary); border-color: var(--opp-primary); background: var(--opp-primary-light); }
 
-.detail-grid { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+.detail-grid { 
+  display: flex;
+  gap: 24px; 
+  align-items: flex-start; 
+  max-width: 1100px; 
+  margin: 0 auto; 
+  padding: 0 24px;
+  width: 100%;
+}
 
-.detail-main { background: var(--opp-white); border: 1.5px solid var(--opp-border); border-radius: var(--opp-r-2xl); overflow: hidden; box-shadow: var(--opp-shadow-sm); }
+.detail-main { 
+  background: var(--opp-white); 
+  border: 1.5px solid var(--opp-border); 
+  border-radius: var(--opp-r-2xl); 
+  overflow: hidden; 
+  box-shadow: var(--opp-shadow-sm);
+  flex: 1;
+  min-width: 0; /* Prevents flex-item from overflowing */
+}
+
+.detail-side-wrap {
+  width: 320px;
+  flex-shrink: 0;
+}
 .detail-hero { width: 100%; height: 220px; background: #f8f9fc; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; border-bottom: 1px solid var(--opp-border); }
 .detail-hero img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; object-position: center; padding: 16px; display: block; }
 .detail-hero .detail-emoji { font-size: 60px; position: relative; z-index: 1; }
@@ -304,12 +325,19 @@
 }
 
 @media (max-width: 900px) {
-  .detail-grid { grid-template-columns: 1fr; }
-  .detail-sidebar-card { position: static; }
+  .detail-grid { flex-direction: column; gap: 16px; padding: 0 16px; }
+  .detail-main { width: 100%; }
+  .detail-side-wrap { width: 100%; }
+  .detail-sidebar-card { position: static; margin-bottom: 24px; }
+  .detail-hero { height: 180px; }
 }
 @media (max-width: 600px) {
-  .detail-page { padding: 20px 0 50px; }
-  .detail-body { padding: 18px 18px; }
-  .detail-title { font-size: 21px; }
-  .detail-hero { height: 170px; }
+  .detail-page { padding: 16px 0 40px; }
+  .detail-body { padding: 20px 16px; }
+  .detail-title { font-size: 20px; line-height: 1.3; }
+  .detail-hero { height: 150px; }
+  .detail-main { border-radius: var(--opp-r-lg); }
+  .detail-sidebar-card { border-radius: var(--opp-r-lg); padding: 18px; }
+  .detail-meta-row { gap: 6px; }
+  .detail-meta-item { font-size: 11px; padding: 4px 8px; }
 }

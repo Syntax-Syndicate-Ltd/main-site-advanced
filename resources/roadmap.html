@@ -156,9 +156,14 @@ async function loadRoadmap() {
   }
 
   try {
-    const rm = await DB.fetchRoadmap(roadmapId);
+    const col = params.get('col') || 'roadmaps';
+    let rm = await (col === 'roadmaps' ? DB.fetchRoadmap(roadmapId) : DB.getDoc(`${col}/${roadmapId}`));
+    
+    // If it's a preview from pending_content, handle nested data if present
+    if (rm && rm.data && col === 'pending_content') rm = { ...rm.data, ...rm };
+
     if (!rm) {
-      container.innerHTML = '<div class="rm-loading"><h2 style="color:var(--text);margin-bottom:8px">Roadmap not found</h2><p style="color:var(--text-3)">This roadmap may have been removed.</p><a href="index.html" class="rm-back" style="margin-top:16px">← Back to Resources</a></div>';
+      container.innerHTML = '<div class="rm-loading"><h2 style="color:var(--text);margin-bottom:8px">Roadmap not found</h2><p style="color:var(--text-3)">This roadmap may have been removed or is still pending review.</p><a href="index.html" class="rm-back" style="margin-top:16px">← Back to Resources</a></div>';
       return;
     }
 
