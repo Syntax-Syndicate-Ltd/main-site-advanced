@@ -38,7 +38,7 @@
     <div class="nav-dropdown">
       <div class="nav-dd-label">Library</div>
       <a href="${root}archives/free-library.html" class="nav-dd-link"><div class="nav-dd-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>Free Library</a>
-      <a href="${root}archives/premium-library.html" class="nav-dd-link"><div class="nav-dd-icon"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>Premium Library</a>
+      <a href="${root}archives/premium-library.html" class="nav-dd-link"><div class="nav-dd-icon"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>Premium Library <span style="font-size:.5rem;background:linear-gradient(135deg,#f9d423,#ff4e50);color:#fff;padding:1px 6px;border-radius:100px;margin-left:4px;">PRO</span></a>
       <a href="${root}archives/premium-projects.html" class="nav-dd-link"><div class="nav-dd-icon"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>Premium Projects <span style="font-size:.5rem;background:linear-gradient(135deg,#f9d423,#ff4e50);color:#fff;padding:1px 6px;border-radius:100px;margin-left:4px;">PRO</span></a>
     </div>
   </div>
@@ -108,11 +108,11 @@
       <div class="dropdown-grid">
         <a class="dropdown-item" href="${root}about-resume.html">
           <div class="dropdown-icon-box" style="background:#f0f9ff; color:#0369a1"><i class="bi bi-file-earmark-person"></i></div>
-          <div class="dropdown-info"><strong>Resume Builder</strong><span>ATS-friendly templates</span></div>
+          <div class="dropdown-info"><strong>Resume Builder <span style="font-size:.5rem;background:linear-gradient(135deg,#f9d423,#ff4e50);color:#fff;padding:1px 6px;border-radius:100px;margin-left:4px;font-weight:800;vertical-align:middle;">PRO</span></strong><span>ATS-friendly templates</span></div>
         </a>
         <a class="dropdown-item" href="${root}about-portfolio.html">
           <div class="dropdown-icon-box" style="background:#fdf4ff; color:#a21caf"><i class="bi bi-globe2"></i></div>
-          <div class="dropdown-info"><strong>Portfolio Builder</strong><span>Host your projects</span></div>
+          <div class="dropdown-info"><strong>Portfolio Builder <span style="font-size:.5rem;background:linear-gradient(135deg,#f9d423,#ff4e50);color:#fff;padding:1px 6px;border-radius:100px;margin-left:4px;font-weight:800;vertical-align:middle;">PRO</span></strong><span>Host your projects</span></div>
         </a>
         <a class="dropdown-item" href="https://whatsapp.com/channel/0029Val68sC23n3Z7mJ3f33E" target="_blank">
           <div class="dropdown-icon-box" style="background:#ecfdf5; color:#059669"><i class="bi bi-whatsapp"></i></div>
@@ -134,7 +134,7 @@
 
   <!-- Notification Bell (Always accessible on mobile) -->
   <div class="nav-item nav-notif-bell" id="notifBellWrap" style="display:none;">
-    <button class="nav-notif-btn" aria-label="Notifications" onclick="toggleNotifs()">
+    <button class="nav-notif-btn" aria-label="Notifications" onclick="event.stopPropagation(); toggleNotifs()">
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
       <span id="notifBadge" class="nav-notif-badge" style="display:none;"></span>
     </button>
@@ -233,18 +233,26 @@
         Auth.onAuthChange(() => this.updateAuthState());
       }
 
-      // Add Mobile Click Handlers for Dropdowns
+      // Click-to-open Dropdowns (All devices)
       placeholder.querySelectorAll('.nav-item-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-          if (window.innerWidth <= 850) {
-            const item = btn.parentElement;
-            const isOpen = item.classList.contains('open');
-            // Close others
-            placeholder.querySelectorAll('.nav-item').forEach(i => i.classList.remove('open'));
-            // Toggle current
-            if (!isOpen) item.classList.add('open');
-          }
+          e.stopPropagation();
+          const item = btn.parentElement;
+          const isOpen = item.classList.contains('open');
+          
+          // Close others
+          document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('open'));
+          
+          // Toggle current
+          if (!isOpen) item.classList.add('open');
         });
+      });
+
+      // Close dropdowns on outside click
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.nav-item')) {
+          document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('open'));
+        }
       });
     },
 
@@ -361,6 +369,7 @@
   }
 
   window.toggleNotifs = function() {
+    const wrap = document.getElementById('notifBellWrap');
     if (window.innerWidth <= 850) {
       const popup = document.getElementById('notifMobilePopup');
       if (popup) {
@@ -372,6 +381,11 @@
           if (navbar) navbar.classList.remove('mobile-open');
         }
       }
+    } else if (wrap) {
+      const isOpen = wrap.classList.contains('open');
+      // Close other dropdowns
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('open'));
+      if (!isOpen) wrap.classList.add('open');
     }
   };
 

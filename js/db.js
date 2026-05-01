@@ -206,6 +206,18 @@ const DB = {
     }
   },
 
+  async fetchPremiumPdfs(limitCount = 100) {
+    try {
+      const snap = await db.collection('pdfs').orderBy('created_at', 'desc').limit(300).get();
+      const all = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      return all.filter(p => p.access === 'premium').slice(0, limitCount);
+    } catch(e) {
+      const snap = await db.collection('pdfs').get();
+      const all = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      return all.filter(p => p.access === 'premium').slice(0, limitCount);
+    }
+  },
+
   async fetchAllPdfs(limitCount = 200) {
     try {
       const snap = await db.collection('pdfs').orderBy('created_at', 'desc').limit(limitCount).get();
@@ -399,7 +411,7 @@ const DB = {
 
   /* ── PREMIUM PROJECTS ── */
   async fetchPremiumProjects(limit = 50) {
-    const snap = await db.collection('premium_projects').orderBy('created_at', 'desc').limit(limit).get();
+    const snap = await db.collection('ss_premium_projects').orderBy('postedAt', 'desc').limit(limit).get();
     return snap.docs.map(d => ({ id: d.id, ...d.data() }));
   },
 

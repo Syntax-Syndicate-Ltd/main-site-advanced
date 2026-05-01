@@ -14,7 +14,7 @@
   --white:#ffffff;--tint:#f0f4ff;--tint-2:#e4eaf8;--border:#d0d7e8;--border-2:#b8c2d8;
   --text:#0a0e1a;--text-2:#3d4a66;--text-3:#7985a0;
   --accent:#4169e1;--accent-hi:#2a52cc;--accent-bg:rgba(65,105,225,0.08);--accent-bg2:rgba(65,105,225,0.15);
-  --carbon-black:#0a0e1a;--gunmetal:#1a2035;--iron-grey:#3d4a66;
+  --carbon-black:#050811;--gunmetal:#1a2035;--iron-grey:#3d4a66;
   --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
   --max:1100px;--pad:max(40px,calc((100vw - 1100px)/2));
 }
@@ -24,33 +24,28 @@ body{font-family:var(--font);background:var(--white);color:var(--text);overflow-
 
 /* ── HERO ── */
 .pp-hero {
-  background: linear-gradient(135deg, #0a0e1a 0%, #1a2035 30%, #243b55 60%, #4169e1 100%);
-  padding: 72px var(--pad) 56px; text-align: center; position: relative; overflow: hidden;
+  background: linear-gradient(135deg, #050811 0%, #0a0e1a 100%);
+  padding: 100px var(--pad) 70px; text-align: center; position: relative; overflow: hidden;
 }
 .pp-hero::before {
   content:''; position:absolute; inset:0;
-  background: radial-gradient(ellipse at 30% 70%, rgba(99,102,241,.15) 0%, transparent 50%),
-              radial-gradient(ellipse at 70% 30%, rgba(245,158,11,.08) 0%, transparent 50%);
+  background: radial-gradient(circle at center, rgba(65,105,225,0.1) 0%, transparent 70%);
   pointer-events:none;
 }
-.pp-hero::after {
-  content:''; position:absolute; inset:0;
-  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='1.5'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  pointer-events:none;
-}
-.pp-hero-inner { position:relative; z-index:1; max-width:560px; margin:0 auto; }
+.pp-hero-inner { position:relative; z-index:1; max-width:700px; margin:0 auto; }
 .pp-hero-badge {
   display:inline-flex; align-items:center; gap:8px;
-  padding:6px 18px; border-radius:100px;
-  background:linear-gradient(135deg, rgba(245,158,11,.15), rgba(239,68,68,.15));
-  border:1px solid rgba(245,158,11,.3);
-  font-family:var(--mono); font-size:.62rem; font-weight:700;
-  letter-spacing:.12em; text-transform:uppercase;
-  color:#fbbf24; margin-bottom:18px;
+  padding:8px 16px; border-radius:100px;
+  background:rgba(251, 191, 36, 0.1);
+  border:1px solid rgba(251, 191, 36, 0.2);
+  font-family:var(--mono); font-size:.65rem; font-weight:800;
+  letter-spacing:.1em; text-transform:uppercase;
+  color:#fbbf24; margin-bottom:24px;
+  backdrop-filter: blur(8px);
 }
-.pp-hero h1 { font-size:clamp(1.6rem,3vw,2.3rem); font-weight:700; color:#fff; letter-spacing:-.03em; line-height:1.2; margin-bottom:12px; }
-.pp-hero h1 em { font-style:normal; background:linear-gradient(135deg,#f9d423,#ff4e50); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-.pp-hero p { font-size:.92rem; color:rgba(255,255,255,.6); line-height:1.6; max-width:440px; margin:0 auto; }
+.pp-hero h1 { font-size:clamp(2rem, 4vw, 3.2rem); font-weight:900; color:#fff; letter-spacing:-.05em; line-height:1.1; margin-bottom:16px; }
+.pp-hero h1 em { font-style:normal; background:linear-gradient(135deg,#fbbf24,#f43f5e); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.pp-hero p { font-size:1.05rem; color:rgba(255,255,255,.6); line-height:1.6; max-width:580px; margin:0 auto; }
 
 /* ── FILTERS ── */
 .pp-filters { max-width:var(--max); margin:0 auto; padding:28px var(--pad) 0; display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
@@ -102,7 +97,19 @@ body{font-family:var(--font);background:var(--white);color:var(--text);overflow-
 .pp-empty p { color:var(--text-2); font-size:.92rem; }
 
 /* ── RESPONSIVE ── */
-@media(max-width:600px) { .pp-grid{grid-template-columns:1fr;} .pp-filters{flex-direction:column;} .pp-search{min-width:unset;width:100%;} }
+@media(max-width:1024px) {
+  .pp-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr)); gap:24px;}
+}
+@media(max-width:768px) {
+  .pp-hero { padding: 80px var(--pad) 50px; }
+  .pp-filters { padding-top: 20px; gap: 8px; }
+  .pp-search { order: 1; min-width: 100%; }
+}
+@media(max-width:480px) {
+  .pp-grid{grid-template-columns:1fr;}
+  .pp-card-thumb { height: 160px; }
+  .pp-card-body { padding: 20px; }
+}
 </style>
 </head>
 <body>
@@ -151,15 +158,19 @@ let allProjects = [], techFilter = 'all';
 let isPremiumUser = false;
 
 async function init() {
-  // Check if user is premium
-  firebase.auth().onAuthStateChanged(async (user) => {
-    if (user && window.Auth) {
-      const profile = Auth.getProfile();
-      if (profile) {
-        isPremiumUser = ['premium','team','superadmin'].includes(profile.role);
-      }
+  Auth.onAuthChange(async (user, profile) => {
+    if (!user) {
+      window.location.href = 'premium-landing.html';
+      return;
     }
-    loadProjects();
+    if (profile) {
+      isPremiumUser = ['premium','team','superadmin'].includes(profile.role);
+      if (!isPremiumUser) {
+        window.location.href = 'premium-landing.html';
+        return;
+      }
+      loadProjects();
+    }
   });
 }
 
@@ -168,8 +179,8 @@ async function loadProjects() {
     if (window.DB && DB.fetchPremiumProjects) {
       allProjects = await DB.fetchPremiumProjects(50);
     } else {
-      // Fallback: query from collection directly
-      const snap = await firebase.firestore().collection('premium_projects').orderBy('created_at','desc').limit(50).get();
+      // Fallback: query from correct collection
+      const snap = await firebase.firestore().collection('ss_premium_projects').orderBy('postedAt','desc').limit(50).get();
       allProjects = snap.docs.map(d => ({id: d.id, ...d.data()}));
     }
     renderProjects();
@@ -204,29 +215,23 @@ function renderProjects() {
     const grad = gradients[i % gradients.length];
     const gated = !isPremiumUser;
 
-    return `<div class="pp-card">
+    return `<div class="pp-card" onclick="window.location.href='project-details.html?id=${p.id}'" style="cursor:pointer;">
       <div class="pp-card-thumb" style="background:${grad};">
         <div class="pp-card-thumb-title">${p.title}</div>
-        <span class="pp-card-pro">PRO</span>
+        <span class="pp-card-pro"><i class="bi bi-diamond-fill"></i> PREMIUM</span>
       </div>
       <div class="pp-card-body">
         <div class="pp-card-title">${p.title}</div>
-        <div class="pp-card-desc">${p.description||'A ready-made project for premium members.'}</div>
+        <div class="pp-card-desc">${p.description||'Full-scale production project for premium members.'}</div>
         <div class="pp-card-tags">${tags}</div>
       </div>
       <div class="pp-card-footer">
         ${gated ? `
-          <a href="../login.html" class="pp-btn-preview" style="flex:1;">Login for Access</a>
-          <a href="../login.html" class="pp-btn-download">🔒 Premium Only</a>
+          <a href="premium-landing.html" class="pp-btn-preview" style="flex:1;">Upgrade to Access</a>
         ` : `
-          ${p.preview_url ? `<a href="${p.preview_url}" target="_blank" class="pp-btn-preview">Preview</a>` : ''}
-          <a href="${p.download_url||'#'}" target="_blank" class="pp-btn-download">Download ↓</a>
+          <a href="project-details.html?id=${p.id}" class="pp-btn-preview" style="flex:1; background:var(--accent); color:#fff; border:none;">Explore Project →</a>
         `}
       </div>
-      ${gated ? `<div class="pp-gate-overlay">
-        <div class="pp-gate-text">🔒 Premium members only</div>
-        <a href="../login.html" class="pp-gate-cta">Upgrade to Premium</a>
-      </div>` : ''}
     </div>`;
   }).join('');
 }

@@ -408,7 +408,25 @@
       <form id="form-cs-info">
         <div class="form-grid">
           <div class="form-group"><label class="form-label">Title *</label><input type="text" id="cs-title" class="form-input" required placeholder="e.g. Python Cheatsheet"></div>
-          <div class="form-group"><label class="form-label">Domain</label><input type="text" id="cs-domain" class="form-input" placeholder="e.g. Python"></div>
+          <div class="form-group"><label class="form-label">Domain (Content Tag)</label>
+            <select id="cs-domain" class="form-select">
+              <option value="General">General</option>
+              <option value="Web Dev">Web Dev</option>
+              <option value="Frontend">Frontend</option>
+              <option value="Backend">Backend</option>
+              <option value="Fullstack">Fullstack</option>
+              <option value="App Dev">App Dev</option>
+              <option value="Cybersecurity">Cybersecurity</option>
+              <option value="Data Science">Data Science</option>
+              <option value="AI/ML">AI/ML</option>
+              <option value="Cloud Computing">Cloud Computing</option>
+              <option value="DevOps">DevOps</option>
+              <option value="UI/UX Design">UI/UX Design</option>
+              <option value="Game Dev">Game Dev</option>
+              <option value="Networking">Networking</option>
+              <option value="Blockchain">Blockchain</option>
+            </select>
+          </div>
           <div class="form-group"><label class="form-label">Icon Class</label><input type="text" id="cs-icon" class="form-input" placeholder="e.g. bi-file-code"></div>
           <div class="form-group"><label class="form-label">Download URL (PDF)</label><input type="url" id="cs-download" class="form-input" placeholder="https://..."></div>
           <div class="form-group full"><label class="form-label">Description</label><textarea id="cs-desc" class="form-textarea" rows="3" placeholder="What this cheatsheet covers..."></textarea></div>
@@ -443,7 +461,25 @@
               <option value="pdf">PDF</option><option value="cheatsheet">Cheatsheet</option><option value="guide">Guide</option><option value="course">Course</option><option value="other">Other</option>
             </select>
           </div>
-          <div class="form-group"><label class="form-label">Domain</label><input type="text" id="pdf-domain" class="form-input" placeholder="e.g. Web Dev"></div>
+          <div class="form-group"><label class="form-label">Domain (Content Tag)</label>
+            <select id="pdf-domain" class="form-select">
+              <option value="General">General</option>
+              <option value="Web Dev">Web Dev</option>
+              <option value="Frontend">Frontend</option>
+              <option value="Backend">Backend</option>
+              <option value="Fullstack">Fullstack</option>
+              <option value="App Dev">App Dev</option>
+              <option value="Cybersecurity">Cybersecurity</option>
+              <option value="Data Science">Data Science</option>
+              <option value="AI/ML">AI/ML</option>
+              <option value="Cloud Computing">Cloud Computing</option>
+              <option value="DevOps">DevOps</option>
+              <option value="UI/UX Design">UI/UX Design</option>
+              <option value="Game Dev">Game Dev</option>
+              <option value="Networking">Networking</option>
+              <option value="Blockchain">Blockchain</option>
+            </select>
+          </div>
           <div class="form-group"><label class="form-label">Access Level</label>
             <select id="pdf-access" class="form-select" onchange="togglePdfAccessField()">
               <option value="free">Free (Google Drive Link)</option>
@@ -475,12 +511,15 @@
               <option value="premium">Premium Only</option>
             </select>
           </div>
+          <div class="form-group full"><label class="form-label">Project README (Markdown Supported) *</label><textarea name="readme_markdown" class="form-textarea" rows="10" placeholder="# Project Overview\n\n## Getting Started..." required></textarea></div>
+          <div class="form-group full"><label class="form-label">Purpose of Project</label><textarea name="purpose" class="form-textarea" rows="3" placeholder="Why this project exists and what it solves..."></textarea></div>
+          <div class="form-group full"><label class="form-label">How to Run / Setup Instructions</label><textarea name="setup_instructions" class="form-textarea" rows="4" placeholder="1. clone\n2. npm install\n3. set env\n4. start..."></textarea></div>
+          <div class="form-group full"><label class="form-label">Key Concepts & Learning Goals</label><input type="text" name="key_concepts" class="form-input" placeholder="e.g. Server-side Rendering, JWT Auth, Database Design"></div>
+          <div class="form-group"><label class="form-label">Tech Stack (comma-separated) *</label><input type="text" name="tags" class="form-input" placeholder="React, Node.js, Firebase" required></div>
           <div class="form-group"><label class="form-label">Demo URL</label><input type="url" name="demo_link" class="form-input" placeholder="https://..."></div>
-          <div class="form-group"><label class="form-label">GitHub URL</label><input type="url" name="github_link" class="form-input" placeholder="https://github.com/..."></div>
-          <div class="form-group full"><label class="form-label">Cover Image URL *</label><input type="text" name="image_url" class="form-input" required></div>
-          <div class="form-group full"><label class="form-label">Description *</label><textarea name="description" class="form-textarea" rows="4" required></textarea></div>
-          <div class="form-group"><label class="form-label">Tags (comma-separated)</label><input type="text" name="tags" class="form-input" placeholder="react, node.js, fast"></div>
-          <div class="form-group"><label class="form-label">Features (comma-separated)</label><input type="text" name="features" class="form-input" placeholder="OAuth, Stripe"></div>
+          <div class="form-group"><label class="form-label">Source Code URL (Download Link) *</label><input type="url" name="github_link" class="form-input" placeholder="https://..." required></div>
+          <div class="form-group full"><label class="form-label">Short Description (for Grid) *</label><textarea name="description" class="form-textarea" rows="2" required></textarea></div>
+          <div class="form-group full" style="display:none"><label class="form-label">Cover Image URL</label><input type="text" name="image_url" class="form-input" value="default"></div>
         </div>
         <div style="margin-top:24px;display:flex;gap:12px">
           <button type="submit" class="opp-btn opp-btn-primary opp-btn-lg">✅ Publish Premium Project</button>

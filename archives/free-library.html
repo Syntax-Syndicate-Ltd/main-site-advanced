@@ -620,12 +620,8 @@
         <input type="text" class="search-box" placeholder="Search by title, domain, or keyword..." id="searchInput"
           oninput="filterPDFs()" />
       </div>
-      <div class="filter-scroll">
+      <div class="filter-scroll" id="filterContainer">
         <div class="filter-tag active" onclick="setFilter('all', this)">All</div>
-        <div class="filter-tag" onclick="setFilter('pdf', this)">PDFs</div>
-        <div class="filter-tag" onclick="setFilter('cheatsheet', this)">Cheatsheets</div>
-        <div class="filter-tag" onclick="setFilter('guide', this)">Guides</div>
-        <div class="filter-tag" onclick="setFilter('course', this)">Courses</div>
       </div>
     </div>
   </div>
@@ -673,6 +669,7 @@
           renderAds();
         } catch (e) { console.error('Ads fetch error:', e); }
 
+        renderFilters();
         renderPDFs();
       } catch (e) {
         console.error(e);
@@ -690,11 +687,21 @@
       }));
     }
 
+    function renderFilters() {
+      const domains = [...new Set(allPDFs.map(p => p.domain || 'General').filter(Boolean))];
+      const container = document.getElementById('filterContainer');
+      
+      container.innerHTML = `<div class="filter-tag ${currentFilter === 'all' ? 'active' : ''}" onclick="setFilter('all', this)">All</div>` + 
+        domains.map(d => {
+          return `<div class="filter-tag ${currentFilter === d ? 'active' : ''}" onclick="setFilter('${d}', this)">${d}</div>`;
+        }).join('');
+    }
+
     function renderPDFs() {
       const grid = document.getElementById('pdfGrid');
       let filtered = allPDFs;
       const query = document.getElementById('searchInput').value.toLowerCase();
-      if (currentFilter !== 'all') filtered = filtered.filter(p => p.type === currentFilter);
+      if (currentFilter !== 'all') filtered = filtered.filter(p => (p.domain || 'General') === currentFilter);
       if (query) filtered = filtered.filter(p => (p.title || '').toLowerCase().includes(query) || (p.domain || '').toLowerCase().includes(query) || (p.description || '').toLowerCase().includes(query));
 
       if (filtered.length === 0) {
@@ -741,8 +748,7 @@
         </div>
       </div>
       <div class="pdf-actions">
-        <a href="viewer.html?id=${p.id}" class="btn-premium btn-read">Read Now</a>
-        <a href="${p.url || '#'}" target="_blank" class="btn-premium btn-dl">Download</a>
+        <a href="viewer.html?id=${p.id}" class="btn-premium btn-read">Read Now →</a>
       </div>
     </div>`;
       }).join('');
