@@ -555,17 +555,20 @@ const DevHub = {
     const uid = Auth.getUser()?.uid;
     const isAdmin = Auth.isAdmin();
 
+    const comments = await DevHub.getComments('post', postId);
+
     if (comments.length === 0) {
       listEl.innerHTML = '<div style="text-align:center;padding:12px;color:var(--text-3);font-size:.8rem;">No comments yet — be the first!</div>';
     } else {
       listEl.innerHTML = comments.map(c => {
         const isOwner = uid === c.author_uid || isAdmin;
+        const profileLink = SS.getProfileLink({uid: c.author_uid, role: c.author_role});
         return `
           <div class="dh-comment" id="comment-${c.id}">
-            <span class="avatar">${SS.renderAvatar({ name: c.author_name, avatar_url: c.author_avatar_url, role: c.author_role }, 'sm circle')}</span>
+            <a href="${profileLink}" class="avatar">${SS.renderAvatar({ name: c.author_name, avatar_url: c.author_avatar_url, role: c.author_role }, 'sm circle')}</a>
             <div class="dh-comment-body">
               <div class="dh-comment-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
-                <div class="dh-comment-author">${SS.sanitizeHTML(c.author_name)}${SS.getRoleBadge(c.author_role || 'user')}${c.author_is_verified ? '<span class="verified-tick">✓</span>' : ''}</div>
+                <a href="${profileLink}" class="dh-comment-author">${SS.sanitizeHTML(c.author_name)}${SS.getRoleBadge(c.author_role || 'user')}${c.author_is_verified ? '<span class="verified-tick">✓</span>' : ''}</a>
                 ${isOwner ? `
                   <div class="dh-comment-actions" style="display:flex;gap:8px;">
                     <button onclick="DevHub._showEditCommentModal('${c.id}', '${SS.sanitizeHTML(c.text.replace(/'/g, "\\'")).replace(/"/g, '&quot;')}', '${postId}')" title="Edit" style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:0.75rem;padding:0;"><i class="bi bi-pencil"></i></button>

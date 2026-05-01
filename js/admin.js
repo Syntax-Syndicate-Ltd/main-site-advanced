@@ -1118,13 +1118,14 @@ function collectRoadmapData() {
     steps,
     posted_by: editingOriginalOwner || user?.uid || '',
     poster_name: editingOriginalPosterName || 'Syntax Syndicate',
-    poster_type: editingOriginalOwner ? 'company' : 'admin'
+    poster_type: editingOriginalPosterType || 'admin'
   };
 }
 
 let editingRoadmapId = null;
 let editingOriginalOwner = null;
 let editingOriginalPosterName = null;
+let editingOriginalPosterType = null;
 
 window.publishRoadmap = async function () {
   const data = collectRoadmapData();
@@ -1172,6 +1173,7 @@ window.editRoadmapAdmin = async function (id) {
     editingRoadmapId = id;
     editingOriginalOwner = rm.posted_by || rm.postedBy || null;
     editingOriginalPosterName = rm.poster_name || rm.company || rm.company_name || null;
+    editingOriginalPosterType = rm.poster_type || (rm.company || rm.company_name ? 'company' : 'admin');
 
     // Switch to add-roadmap section
     document.querySelector('[data-section="add-roadmap"]').click();
@@ -1333,13 +1335,14 @@ function collectCheatsheetData() {
     sections,
     posted_by: editingOriginalOwnerCS || user?.uid || '',
     poster_name: editingOriginalPosterNameCS || 'Syntax Syndicate',
-    poster_type: editingOriginalOwnerCS ? 'company' : 'admin'
+    poster_type: editingOriginalPosterTypeCS || 'admin'
   };
 }
 
 let editingCheatsheetId = null;
 let editingOriginalOwnerCS = null;
 let editingOriginalPosterNameCS = null;
+let editingOriginalPosterTypeCS = null;
 
 window.publishCheatsheet = async function () {
   const data = collectCheatsheetData();
@@ -1384,6 +1387,7 @@ window.editCheatsheetAdmin = async function (id) {
     editingCheatsheetId = id;
     editingOriginalOwnerCS = cs.posted_by || cs.postedBy || null;
     editingOriginalPosterNameCS = cs.poster_name || cs.company || cs.company_name || null;
+    editingOriginalPosterTypeCS = cs.poster_type || (cs.company || cs.company_name ? 'company' : 'admin');
 
     // Switch to add-cheatsheet section
     document.querySelector('[data-section="add-cheatsheet"]').click();

@@ -4051,13 +4051,17 @@
           }
         }
 
+        // Shuffle users to ensure they appear in random spots on the globe
+        users = users.sort(() => Math.random() - 0.5);
+
         if (users.length === 0) return;
 
-        const radius = 200;
+        const radius = 210; 
         const total = users.length;
         const goldenAngle = Math.PI * (3 - Math.sqrt(5));
 
         users.forEach((user, i) => {
+          // Use Fibonacci sphere for perfect, non-overlapping spacing
           const y = 1 - (i / (total - 1)) * 2;
           const r = Math.sqrt(1 - y * y);
           const theta = goldenAngle * i;
@@ -4066,7 +4070,7 @@
           const z = Math.sin(theta) * r;
 
           const tile = document.createElement('a');
-          tile.href = `devhub/profile.html?uid=${user.id}`;
+          tile.href = SS.getProfileLink(user);
           tile.className = 'user-tile';
           tile.setAttribute('draggable', 'false');
 
@@ -4074,7 +4078,7 @@
           tile.addEventListener('mouseleave', () => { isHovered = false; });
 
           const initials = user.name ? user.name.split(' ').map(n => n[0]).join('').slice(0, 2) : '?';
-          tile.innerHTML = user.avatar_url ? `<img src="${user.avatar_url}" alt="${user.name}" draggable="false" onerror="this.parentElement.innerHTML='<div class=\'user-tile-initials\'>${initials}</div>'">` : `<div class="user-tile-initials">${initials}</div>`;
+          tile.innerHTML = user.avatar_url ? `<img src="${user.avatar_url}" alt="${SS.sanitizeHTML(user.name)}" draggable="false" onerror="this.parentElement.innerHTML='<div class=\'user-tile-initials\'>${initials}</div>'">` : `<div class="user-tile-initials">${initials}</div>`;
 
           tile.dataset.x = x;
           tile.dataset.y = y;
@@ -4582,7 +4586,7 @@
         const renderCard = (m) => {
           const initials = m.name ? m.name.split(' ').map(n => n[0]).join('').slice(0, 2) : 'SS';
           const avatar = m.avatar_url ? `<img src="${m.avatar_url}" alt="${m.name}">` : initials;
-          const profileLink = `devhub/profile.html?uid=${m.id}`;
+          const profileLink = SS.getProfileLink(m);
 
           return `
             <a href="${profileLink}" class="team-card">

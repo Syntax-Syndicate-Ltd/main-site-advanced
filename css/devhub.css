@@ -292,9 +292,10 @@ body.dh-page {
 .dh-comments.open { display: block; }
 .dh-comment { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
 .dh-comment:last-of-type { border-bottom: none; }
-.dh-comment .avatar { width: 32px !important; height: 32px !important; font-size: .7rem !important; border-radius: 50% !important; }
+.dh-comment .avatar { width: 32px !important; height: 32px !important; font-size: .7rem !important; border-radius: 50% !important; text-decoration: none; }
 .dh-comment-body { flex: 1; min-width: 0; }
-.dh-comment-author { font-size: .85rem; font-weight: 600; color: var(--carbon-black); }
+.dh-comment-author { font-size: .85rem; font-weight: 600; color: var(--carbon-black); text-decoration: none; }
+.dh-comment-author:hover { color: var(--accent); }
 .dh-comment-text { font-size: .88rem; color: var(--text-2); line-height: 1.5; margin-top: 4px; }
 .dh-comment-time { font-size: .65rem; color: var(--text-3); font-family: var(--mono); margin-top: 6px; }
 .dh-comment-input { display: flex; gap: 10px; margin-top: 14px; }

@@ -277,12 +277,7 @@
         
         // Set public profile link
         if (publicProfile) {
-          const root = this.getRootPath();
-          if (profile.role === 'institute_admin') {
-            publicProfile.href = root + 'company/profile.html?uid=' + user.uid;
-          } else {
-            publicProfile.href = root + 'devhub/profile.html?uid=' + user.uid;
-          }
+          publicProfile.href = SS.getProfileLink(profile);
         }
 
         // Handle Admin Link visibility
