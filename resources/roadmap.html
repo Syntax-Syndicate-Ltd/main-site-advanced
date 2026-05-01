@@ -188,7 +188,7 @@ async function loadRoadmap() {
             <div class="rm-meta-item"><i class="bi bi-list-ol"></i> ${steps.length} steps</div>
             ${totalHours ? `<div class="rm-meta-item"><i class="bi bi-clock"></i> ~${totalHours} hours</div>` : ''}
             ${rm.estimated_time ? `<div class="rm-meta-item"><i class="bi bi-calendar3"></i> ${SS.sanitizeHTML(rm.estimated_time)}</div>` : ''}
-            <a href="${rm.poster_type === 'company' ? '../company/profile.html?uid=' + rm.posted_by : '#'}" class="rm-poster">
+            <a href="${SS.getProfileLink({uid: rm.posted_by, role: rm.poster_type || (rm.company_name ? 'company' : 'user')})}" class="rm-poster">
               <span class="rm-poster-badge">${rm.poster_type === 'company' ? '🏢' : '⚡'}</span>
               ${SS.sanitizeHTML(rm.poster_name || 'Syntax Syndicate')}
             </a>

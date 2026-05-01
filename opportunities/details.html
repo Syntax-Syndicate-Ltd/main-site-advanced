@@ -45,7 +45,9 @@
               <!-- Badges populated by JS -->
             </div>
             <h1 class="detail-title" id="detail-title">Loading Opportunity Title...</h1>
-            <div class="detail-company" id="detail-company">Organization Name</div>
+            <a id="detail-company-link" href="#" style="text-decoration:none; color:inherit;">
+              <div class="detail-company" id="detail-company">Organization Name</div>
+            </a>
 
             <div class="detail-meta-row" id="detail-meta">
               <!-- Meta items populated by JS -->
@@ -176,6 +178,7 @@
     badgeRow.innerHTML = `<span class="badge ${cfg.badgeClass}">${cfg.label}</span> <span style="font-size:11px; color:var(--opp-text3); font-weight:500;">${SS.formatDateRelative(post.postedAt)}</span>`;
     title.textContent = post.title;
     company.textContent = post.company || post.organizer || post.platform || 'Verified Partner';
+    document.getElementById('detail-company-link').href = SS.getProfileLink({ uid: post.posted_by, role: 'company' }); // Opportunities are almost always by companies/admins
     desc.textContent = post.description || 'No description available.';
 
     // Hero

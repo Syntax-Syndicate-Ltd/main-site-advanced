@@ -497,7 +497,7 @@ async function showFollowersModal() {
     }
     const profiles = await Promise.all(followers.map(f => DB.getUserProfile(f.follower_uid || f.uid).catch(() => null)));
     const html = profiles.filter(Boolean).map(p => `
-      <a href="profile.html?uid=${p.uid||p.id}" onclick="SS.closeModal()" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);text-decoration:none;color:inherit;">
+      <a href="${SS.getProfileLink(p)}" onclick="SS.closeModal()" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);text-decoration:none;color:inherit;">
         <div style="width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;">${SS.renderAvatar(p, 'sm circle')}</div>
         <div><div style="font-weight:700;font-size:0.88rem;">${SS.sanitizeHTML(p.name||'User')}</div><div style="font-size:0.72rem;color:var(--text-3);">${SS.sanitizeHTML(p.headline||'')}</div></div>
       </a>
@@ -516,7 +516,7 @@ async function showFollowingModal() {
     }
     const profiles = await Promise.all(following.map(f => DB.getUserProfile(f.following_uid || f.uid).catch(() => null)));
     const html = profiles.filter(Boolean).map(p => `
-      <a href="profile.html?uid=${p.uid||p.id}" onclick="SS.closeModal()" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);text-decoration:none;color:inherit;">
+      <a href="${SS.getProfileLink(p)}" onclick="SS.closeModal()" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);text-decoration:none;color:inherit;">
         <div style="width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;">${SS.renderAvatar(p, 'sm circle')}</div>
         <div><div style="font-weight:700;font-size:0.88rem;">${SS.sanitizeHTML(p.name||'User')}</div><div style="font-size:0.72rem;color:var(--text-3);">${SS.sanitizeHTML(p.headline||'')}</div></div>
       </a>

@@ -167,4 +167,21 @@ SS.scrollTo = (sel) => { const el = document.querySelector(sel); if (el) el.scro
 SS.getQueryParam = (param) => new URLSearchParams(window.location.search).get(param);
 SS.parseURL = (url) => { try { return new URL(url); } catch(e) { return null; } };
 
+SS.getRootPath = function() {
+  const path = window.location.pathname;
+  if (path.includes('/resources/') || path.includes('/opportunities/') || path.includes('/archives/') || path.includes('/devhub/') || path.includes('/company/')) {
+    return '../';
+  }
+  return '';
+};
+
+SS.getProfileLink = function(p) {
+  if (!p) return '#';
+  const uid = p.uid || p.id || p.author_uid || p.posted_by;
+  if (!uid) return '#';
+  const role = p.role || p.author_role || p.poster_type;
+  const isCompany = role === 'institute_admin' || role === 'company' || role === 'admin';
+  return `${SS.getRootPath()}${isCompany ? 'company' : 'devhub'}/profile.html?uid=${uid}`;
+};
+
 window.SS = SS;

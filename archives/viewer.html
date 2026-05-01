@@ -108,7 +108,9 @@ body{font-family:var(--font);background:var(--tint);color:var(--text);overflow-x
         <div id="pdfAuthorAvatar"></div>
         <div style="display:flex;flex-direction:column;">
           <span style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-3);font-weight:700;">Published By</span>
-          <strong style="color:var(--text-2);font-size:1rem;" id="pdfAuthor">Loading...</strong>
+          <a id="pdfAuthorLink" href="#" style="text-decoration:none; color:inherit;">
+            <strong style="color:var(--text-2);font-size:1rem;" id="pdfAuthor">Loading...</strong>
+          </a>
         </div>
       </div>
       <div class="meta-row">
@@ -216,6 +218,7 @@ async function init() {
   }
 
   document.getElementById('pdfAuthor').innerText = pName;
+  document.getElementById('pdfAuthorLink').href = SS.getProfileLink({ uid: pdf.posted_by, role: pdf.poster_role || (pdf.company_name ? 'company' : 'user') });
   document.getElementById('pdfAuthorAvatar').innerHTML = SS.renderAvatar({ name: pName, avatar_url: pAvatar }, 'md circle');
   document.getElementById('pdfDomain').innerText = pdf.domain || 'General';
   document.getElementById('pdfType').innerText = '📄 ' + (pdf.type || 'PDF').toUpperCase();

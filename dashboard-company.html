@@ -43,6 +43,7 @@
             <span class="badge-partner">PARTNER</span>
           </div>
           <div class="dash-company-email" id="dCompanyEmail">syntaxsyndicateltd@gmail.com</div>
+          <a href="#" id="viewPublicProfileLink" target="_blank" style="font-size:0.7rem; color:var(--accent); font-weight:700; text-decoration:none; margin-top:4px; display:inline-block;"><i class="bi bi-eye"></i> View Public Profile</a>
         </div>
         <div class="dash-verified-badge" id="dVerifyBadge">
           <i class="bi bi-patch-check-fill"></i> VERIFIED PARTNER
@@ -460,8 +461,10 @@
             <div class="dash-form-group dash-form-full"><label class="dash-form-label">Description</label><textarea
                 id="editDesc" class="dash-form-textarea" placeholder="Tell developers about your company..."></textarea>
             </div>
-            <div class="dash-form-full"><button type="submit" class="dash-btn dash-btn-primary"
-                style="padding:14px 32px;">Save Changes</button></div>
+            <div class="dash-form-full" style="display:flex; gap:12px; margin-top:10px;">
+              <button type="submit" class="dash-btn dash-btn-primary" style="padding:14px 32px;">Save Changes</button>
+              <a href="#" id="btnViewProfile" target="_blank" class="dash-btn dash-btn-outline" style="padding:14px 32px; text-decoration:none; display:inline-flex; align-items:center; gap:8px;"><i class="bi bi-box-arrow-up-right"></i> View Public Profile</a>
+            </div>
           </form>
         </div>
       </div>

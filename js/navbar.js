@@ -8,7 +8,7 @@
     // Determine path to root
     getRootPath: function() {
       const path = window.location.pathname;
-      if (path.includes('/resources/') || path.includes('/opportunities/') || path.includes('/archives/') || path.includes('/devhub/')) {
+      if (path.includes('/resources/') || path.includes('/opportunities/') || path.includes('/archives/') || path.includes('/devhub/') || path.includes('/company/')) {
         return '../';
       }
       return '';
@@ -276,7 +276,14 @@
         }
         
         // Set public profile link
-        if (publicProfile) publicProfile.href = this.getRootPath() + 'devhub/profile.html?uid=' + user.uid;
+        if (publicProfile) {
+          const root = this.getRootPath();
+          if (profile.role === 'institute_admin') {
+            publicProfile.href = root + 'company/profile.html?uid=' + user.uid;
+          } else {
+            publicProfile.href = root + 'devhub/profile.html?uid=' + user.uid;
+          }
+        }
 
         // Handle Admin Link visibility
         if (adminLink) {

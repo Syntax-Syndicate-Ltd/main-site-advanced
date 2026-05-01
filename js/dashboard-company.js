@@ -57,9 +57,12 @@ async function init() {
   // Opportunity Banner Init
   resetOppBanner();
 
-  // Public profile link
-  const linkEl = document.getElementById('publicProfileLink');
-  if (linkEl) linkEl.href = 'company/profile.html?uid=' + profile.id;
+  // Public profile links
+  const profileUrl = 'company/profile.html?uid=' + profile.id;
+  const linkEl = document.getElementById('viewPublicProfileLink');
+  if (linkEl) linkEl.href = profileUrl;
+  const btnEl = document.getElementById('btnViewProfile');
+  if (btnEl) btnEl.href = profileUrl;
 
   await loadData();
 }
@@ -513,6 +516,7 @@ document.getElementById('form-roadmap')?.addEventListener('submit', async (e) =>
     tags: document.getElementById('rm-tags').value.split(',').map(t => t.trim()).filter(Boolean),
     steps,
     posted_by: profile.id,
+    poster_type: 'company',
     company_name: profile.name || 'Verified Partner',
     target_collection: 'roadmaps',
     source_collection: editingCollection || null,
@@ -568,6 +572,7 @@ document.getElementById('form-cheatsheet')?.addEventListener('submit', async (e)
     tags: document.getElementById('cs-tags').value.split(',').map(t => t.trim()).filter(Boolean),
     sections,
     posted_by: profile.id,
+    poster_type: 'company',
     company_name: profile.name,
     target_collection: 'cheatsheets',
     source_collection: editingCollection || null,
@@ -609,6 +614,7 @@ document.getElementById('form-opportunity')?.addEventListener('submit', async (e
     description: document.getElementById('opp-desc').value,
     deadline: document.getElementById('opp-deadline').value,
     posted_by: profile.id,
+    poster_type: 'company',
     company_name: profile.name || 'Verified Partner',
     target_collection: colMap[type] || 'opportunities',
     source_collection: editingCollection || null,

@@ -152,7 +152,7 @@ async function loadCheatsheet() {
           <h1 class="cs-title"><i class="bi ${cs.icon || cs.cover_emoji || 'bi-file-earmark-code'}" style="margin-right:8px; color:var(--accent);"></i> ${SS.sanitizeHTML(cs.title)}</h1>
           ${cs.description ? `<p class="cs-desc">${SS.sanitizeHTML(cs.description)}</p>` : ''}
           <div class="cs-meta">
-            <a href="${cs.poster_type === 'company' ? '../company/profile.html?uid=' + cs.posted_by : '#'}" class="cs-poster">
+            <a href="${SS.getProfileLink({uid: cs.posted_by, role: cs.poster_type || (cs.company_name ? 'company' : 'user')})}" class="cs-poster">
               <span>${cs.poster_type === 'company' ? '🏢' : '⚡'}</span>
               ${SS.sanitizeHTML(cs.poster_name || 'Syntax Syndicate')}
             </a>

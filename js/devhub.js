@@ -355,9 +355,9 @@ const DevHub = {
     return `
     <div class="dh-post" id="post-${post.id}" data-id="${post.id}">
       <div class="dh-post-header">
-        <a href="profile.html?uid=${post.author_uid}" class="avatar">${avatar}</a>
+        <a href="${SS.getProfileLink({uid: post.author_uid, role: post.author_role})}" class="avatar">${avatar}</a>
         <div class="dh-post-meta">
-          <a href="profile.html?uid=${post.author_uid}" class="dh-post-author">${SS.sanitizeHTML(post.author_name)}${badge}${tick}</a>
+          <a href="${SS.getProfileLink({uid: post.author_uid, role: post.author_role})}" class="dh-post-author">${SS.sanitizeHTML(post.author_name)}${badge}${tick}</a>
           <div class="dh-post-time">${time}</div>
         </div>
         ${isOwner ? `<button class="dh-post-menu" onclick="DevHub._confirmDelete('post','${post.id}')" title="Delete post">
@@ -417,7 +417,7 @@ const DevHub = {
         <div class="dh-project-desc">${SS.sanitizeHTML(project.description)}</div>
         <div class="dh-project-tags">${tags}</div>
         <div class="dh-project-footer">
-          <a href="profile.html?uid=${project.author_uid}" class="dh-project-author">
+          <a href="${SS.getProfileLink({uid: project.author_uid, role: project.author_role})}" class="dh-project-author">
             <span class="avatar">${avatar}</span>
             ${SS.sanitizeHTML(project.author_name)}${SS.getRoleBadge(project.author_role || 'user')}${project.author_is_verified ? '<span class="verified-tick">✓</span>' : ''}
           </a>
@@ -458,7 +458,7 @@ const DevHub = {
         <pre>${escapedCode}</pre>
       </div>
       <div class="dh-snippet-footer">
-        <a href="profile.html?uid=${snippet.author_uid}" class="dh-snippet-author">
+        <a href="${SS.getProfileLink({uid: snippet.author_uid, role: snippet.author_role})}" class="dh-snippet-author">
           <span class="avatar">${avatar}</span>
           ${SS.sanitizeHTML(snippet.author_name)}${SS.getRoleBadge(snippet.author_role || 'user')}${snippet.author_is_verified ? '<span class="verified-tick">✓</span>' : ''} · ${time}
         </a>
@@ -497,7 +497,7 @@ const DevHub = {
         <div class="dh-idea-title">${SS.sanitizeHTML(idea.title)}</div>
         <div class="dh-idea-desc">${SS.sanitizeHTML(idea.description)}</div>
         <div class="dh-idea-meta">
-          <a href="profile.html?uid=${idea.author_uid}" class="dh-idea-author">
+          <a href="${SS.getProfileLink({uid: idea.author_uid, role: idea.author_role})}" class="dh-idea-author">
             ${SS.renderAvatar({ name: idea.author_name, avatar_url: idea.author_avatar_url, role: idea.author_role }, 'xs circle')}
             ${SS.sanitizeHTML(idea.author_name)}${SS.getRoleBadge(idea.author_role || 'user')}${idea.author_is_verified ? '<span class="verified-tick">✓</span>' : ''}
           </a>

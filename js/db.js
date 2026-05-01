@@ -340,11 +340,30 @@ const DB = {
   },
 
   async fetchCompanyRoadmaps(uid) {
-    return this.queryDocs('roadmaps', [['posted_by', '==', uid]], 'created_at', 'desc', 50);
+    try {
+      return await this.queryDocs('roadmaps', [['posted_by', '==', uid]], 'created_at', 'desc', 50);
+    } catch(e) {
+      const docs = await this.queryDocs('roadmaps', [['posted_by', '==', uid]], null, null, 100);
+      return docs.sort((a,b) => (b.created_at?.toMillis?.() || 0) - (a.created_at?.toMillis?.() || 0));
+    }
   },
 
   async fetchCompanyCheatsheets(uid) {
-    return this.queryDocs('cheatsheets', [['posted_by', '==', uid]], 'created_at', 'desc', 50);
+    try {
+      return await this.queryDocs('cheatsheets', [['posted_by', '==', uid]], 'created_at', 'desc', 50);
+    } catch(e) {
+      const docs = await this.queryDocs('cheatsheets', [['posted_by', '==', uid]], null, null, 100);
+      return docs.sort((a,b) => (b.created_at?.toMillis?.() || 0) - (a.created_at?.toMillis?.() || 0));
+    }
+  },
+
+  async fetchCompanyPdfs(uid) {
+    try {
+      return await this.queryDocs('pdfs', [['posted_by', '==', uid]], 'created_at', 'desc', 50);
+    } catch(e) {
+      const docs = await this.queryDocs('pdfs', [['posted_by', '==', uid]], null, null, 100);
+      return docs.sort((a,b) => (b.created_at?.toMillis?.() || 0) - (a.created_at?.toMillis?.() || 0));
+    }
   },
 
   async fetchCompanyOpportunities(uid) {
@@ -353,7 +372,13 @@ const DB = {
       try {
         const snap = await db.collection(col).where('posted_by', '==', uid).orderBy('postedAt', 'desc').limit(20).get();
         return snap.docs.map(d => ({ id: d.id, _collection: col, ...d.data() }));
-      } catch(e) { return []; }
+      } catch(e) { 
+        try {
+          const snap = await db.collection(col).where('posted_by', '==', uid).limit(50).get();
+          const docs = snap.docs.map(d => ({ id: d.id, _collection: col, ...d.data() }));
+          return docs.sort((a,b) => (b.postedAt?.toMillis?.() || 0) - (a.postedAt?.toMillis?.() || 0));
+        } catch(e2) { return []; }
+      }
     }));
     return results.flat();
   },
