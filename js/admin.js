@@ -1116,13 +1116,15 @@ function collectRoadmapData() {
     tags: (document.getElementById('rm-tags')?.value || '').split(',').map(t => t.trim()).filter(Boolean),
     is_featured: document.getElementById('rm-featured')?.checked || false,
     steps,
-    posted_by: user?.uid || '',
-    poster_name: 'Syntax Syndicate',
-    poster_type: 'admin'
+    posted_by: editingOriginalOwner || user?.uid || '',
+    poster_name: editingOriginalPosterName || 'Syntax Syndicate',
+    poster_type: editingOriginalOwner ? 'company' : 'admin'
   };
 }
 
 let editingRoadmapId = null;
+let editingOriginalOwner = null;
+let editingOriginalPosterName = null;
 
 window.publishRoadmap = async function () {
   const data = collectRoadmapData();
@@ -1155,6 +1157,8 @@ window.clearRoadmapForm = function () {
   document.getElementById('rm-steps-container').innerHTML = '';
   rmStepCounter = 0;
   editingRoadmapId = null;
+  editingOriginalOwner = null;
+  editingOriginalPosterName = null;
   const btn = document.querySelector('button[onclick="publishRoadmap()"]');
   if (btn) btn.innerHTML = '✅ Publish Roadmap';
   document.querySelector('#section-add-roadmap h1').textContent = 'Add Roadmap 🗺️';
@@ -1166,6 +1170,8 @@ window.editRoadmapAdmin = async function (id) {
     if (!rm) return showToast('Roadmap not found', 'error');
 
     editingRoadmapId = id;
+    editingOriginalOwner = rm.posted_by || rm.postedBy || null;
+    editingOriginalPosterName = rm.poster_name || rm.company || rm.company_name || null;
 
     // Switch to add-roadmap section
     document.querySelector('[data-section="add-roadmap"]').click();
@@ -1325,13 +1331,15 @@ function collectCheatsheetData() {
     tags: (document.getElementById('cs-tags')?.value || '').split(',').map(t => t.trim()).filter(Boolean),
     is_featured: document.getElementById('cs-featured')?.checked || false,
     sections,
-    posted_by: user?.uid || '',
-    poster_name: 'Syntax Syndicate',
-    poster_type: 'admin'
+    posted_by: editingOriginalOwnerCS || user?.uid || '',
+    poster_name: editingOriginalPosterNameCS || 'Syntax Syndicate',
+    poster_type: editingOriginalOwnerCS ? 'company' : 'admin'
   };
 }
 
 let editingCheatsheetId = null;
+let editingOriginalOwnerCS = null;
+let editingOriginalPosterNameCS = null;
 
 window.publishCheatsheet = async function () {
   const data = collectCheatsheetData();
@@ -1361,6 +1369,8 @@ window.clearCheatsheetForm = function () {
   document.getElementById('cs-sections-container').innerHTML = '';
   csSecCounter = 0;
   editingCheatsheetId = null;
+  editingOriginalOwnerCS = null;
+  editingOriginalPosterNameCS = null;
   const btn = document.querySelector('button[onclick="publishCheatsheet()"]');
   if (btn) btn.innerHTML = '✅ Publish Cheatsheet';
   document.querySelector('#section-add-cheatsheet h1').textContent = 'Add Cheatsheet 📋';
@@ -1372,6 +1382,8 @@ window.editCheatsheetAdmin = async function (id) {
     if (!cs) return showToast('Cheatsheet not found', 'error');
 
     editingCheatsheetId = id;
+    editingOriginalOwnerCS = cs.posted_by || cs.postedBy || null;
+    editingOriginalPosterNameCS = cs.poster_name || cs.company || cs.company_name || null;
 
     // Switch to add-cheatsheet section
     document.querySelector('[data-section="add-cheatsheet"]').click();
