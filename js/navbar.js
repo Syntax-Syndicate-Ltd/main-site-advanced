@@ -29,17 +29,17 @@
     <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
 
-  <!-- PDF Library -->
+  <!-- Libraries -->
   <div class="nav-item">
     <button class="nav-item-btn">
-      PDF Library
+      Libraries
       <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
     <div class="nav-dropdown">
       <div class="nav-dd-label">Library</div>
       <a href="${root}archives/free-library.html" class="nav-dd-link"><div class="nav-dd-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>Free Library</a>
       <a href="${root}archives/premium-library.html" class="nav-dd-link"><div class="nav-dd-icon"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>Premium Library <span style="font-size:.5rem;background:linear-gradient(135deg,#f9d423,#ff4e50);color:#fff;padding:1px 6px;border-radius:100px;margin-left:4px;">PRO</span></a>
-      <a href="${root}archives/premium-projects.html" class="nav-dd-link"><div class="nav-dd-icon"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>Premium Projects <span style="font-size:.5rem;background:linear-gradient(135deg,#f9d423,#ff4e50);color:#fff;padding:1px 6px;border-radius:100px;margin-left:4px;">PRO</span></a>
+      <a href="${root}archives/premium-projects.html" class="nav-dd-link"><div class="nav-dd-icon"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>Premium Project Library <span style="font-size:.5rem;background:linear-gradient(135deg,#f9d423,#ff4e50);color:#fff;padding:1px 6px;border-radius:100px;margin-left:4px;">PRO</span></a>
     </div>
   </div>
 

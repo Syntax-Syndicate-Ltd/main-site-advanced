@@ -436,6 +436,30 @@
       background: #e2e8f0;
     }
 
+    .btn-save-resource {
+      background: var(--tint-2);
+      color: var(--text-2);
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-save-resource:hover {
+      background: #fee2e2;
+      color: #ef4444;
+    }
+
+    .btn-save-resource.saved {
+      background: #fee2e2;
+      color: #ef4444;
+    }
+
     /* ── BUTTONS ── */
     .btn-hero {
       padding: 18px 40px;
@@ -603,7 +627,7 @@
     <p class="sh-sub">Curated PDFs, cheatsheets, and learning resources — hand-picked for the Syntax Syndicate
       community.</p>
     <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
-      <a href="../dashboard-user.html" class="btn-hero btn-primary">+ Contribute Resource</a>
+      <a href="../profile.html#share-resource" onclick="localStorage.setItem('ss_profile_tab', 'share-resource')" class="btn-hero btn-primary">+ Contribute Resource</a>
       <a href="#mainGrid" class="btn-hero btn-secondary">Browse Collection</a>
     </div>
   </div>
@@ -725,6 +749,7 @@
         const profile = userCache[p.posted_by] || {};
         const uploaderName = profile.name || p.poster_name || 'Syntax Syndicate';
         const uploaderAvatar = profile.avatar_url || p.poster_avatar_url || '../img/default-avatar.png';
+        const isSaved = (Auth.getProfile()?.saved_resources || []).includes(p.id);
 
         return `<div class="pdf-card">
       <div class="pdf-thumb" style="background:${grad};">
@@ -749,6 +774,9 @@
       </div>
       <div class="pdf-actions">
         <a href="viewer.html?id=${p.id}" class="btn-premium btn-read">Read Now →</a>
+        <button class="btn-save-resource ${isSaved ? 'saved' : ''}" onclick="toggleSave('${p.id}', this)" title="${isSaved ? 'Remove from saved' : 'Save resource'}">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="${isSaved ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+        </button>
       </div>
     </div>`;
       }).join('');
@@ -778,6 +806,37 @@
       `;
       const ab = document.getElementById('ad-banner');
       if (ab) { ab.innerHTML = html; ab.classList.remove('hidden'); }
+    }
+
+    async function toggleSave(id, btn) {
+      const user = firebase.auth().currentUser;
+      if (!user) {
+        SS.showToast('Please login to save resources', 'info');
+        return;
+      }
+      const profile = Auth.getProfile();
+      const saved = profile.saved_resources || [];
+      const isSaved = saved.includes(id);
+
+      try {
+        if (isSaved) {
+          await DB.unsaveResource(user.uid, id);
+          btn.classList.remove('saved');
+          btn.querySelector('svg').setAttribute('fill', 'none');
+          SS.showToast('Removed from saved', 'info');
+          // Update local profile cache
+          profile.saved_resources = saved.filter(sid => sid !== id);
+        } else {
+          await DB.saveResource(user.uid, id);
+          btn.classList.add('saved');
+          btn.querySelector('svg').setAttribute('fill', 'currentColor');
+          SS.showToast('Resource saved!', 'success');
+          // Update local profile cache
+          profile.saved_resources = [...saved, id];
+        }
+      } catch (e) {
+        SS.showToast('Failed to save resource', 'error');
+      }
     }
 
     init();

@@ -367,21 +367,22 @@ function getFieldsForCollection(col) {
     case COLLECTIONS.JOBS:
     case COLLECTIONS.INTERNSHIPS:
       return [...common,
-      { name: 'company', label: 'Company' }, { name: 'location', label: 'Location' },
+      { name: 'company', label: 'Company', required: true }, 
+      { name: 'location', label: 'Location' },
       { name: 'experienceLevel', label: 'Experience Level', type: 'select', options: ['', 'Entry Level', 'Junior', 'Mid Level', 'Senior', 'Lead'] },
       { name: 'requirements', label: 'Requirements', type: 'textarea', full: true },
       { name: 'benefits', label: 'Benefits', type: 'textarea', full: true },
       ...(col === COLLECTIONS.INTERNSHIPS ? [{ name: 'duration', label: 'Duration' }] : [])];
     case COLLECTIONS.HACKATHONS:
       return [...common,
-      { name: 'organizer', label: 'Organizer' },
+      { name: 'organizer', label: 'Organizer', required: true },
       { name: 'mode', label: 'Mode', type: 'select', options: ['Online', 'Offline', 'Hybrid'] },
       { name: 'prizePool', label: 'Prize Pool' },
       { name: 'deadline', label: 'Deadline', type: 'date' }];
     case COLLECTIONS.TECH_EVENTS:
     case COLLECTIONS.SEMINARS:
       return [...common,
-      { name: 'speaker', label: 'Speaker' }, { name: 'venue', label: 'Venue' },
+      { name: 'speaker', label: 'Speaker' }, { name: 'venue', label: 'Venue', required: true },
       { name: 'eventDate', label: 'Event Date', type: 'date' }];
     case COLLECTIONS.COURSES:
       return [
@@ -392,6 +393,18 @@ function getFieldsForCollection(col) {
         { name: 'description', label: 'Description', type: 'textarea', full: true },
         { name: 'imagePath', label: 'Image URL', full: true },
         { name: 'applyLink', label: 'Enroll Link', full: true, required: true }
+      ];
+    case COLLECTIONS.PREMIUM_PROJECTS:
+      return [
+        { name: 'title', label: 'Project Title', required: true },
+        { name: 'readme_markdown', label: 'README (Markdown)', type: 'textarea', full: true, required: true },
+        { name: 'purpose', label: 'Purpose', type: 'textarea', full: true },
+        { name: 'setup_instructions', label: 'Setup Instructions', type: 'textarea', full: true },
+        { name: 'key_concepts', label: 'Key Concepts', full: true },
+        { name: 'tags', label: 'Tech Stack (comma-separated)', required: true },
+        { name: 'demo_link', label: 'Demo URL' },
+        { name: 'github_link', label: 'Source Code / Download URL', required: true },
+        { name: 'description', label: 'Short Description', type: 'textarea', full: true, required: true }
       ];
     case COLLECTIONS.ADS:
       return [
@@ -1736,7 +1749,7 @@ window.deleteMsg = async function (id) {
    ══════════════════════════════════════════════ */
 window.loadPdfAnalytics = async function () {
   try {
-    const pdfs = await DB.fetchAllPdfs(200);
+    const pdfs = await DB.fetchAllPdfs(500); // Increased limit to include more content
 
     // Stats
     const total = pdfs.length;
@@ -1744,34 +1757,87 @@ window.loadPdfAnalytics = async function () {
     const avgAll = rated.length ? (rated.reduce((s, p) => s + p.avg_rating, 0) / rated.length).toFixed(1) : '—';
     const totalReads = pdfs.reduce((s, p) => s + (p.read_count || 0), 0);
     const totalReviews = pdfs.reduce((s, p) => s + (p.review_count || 0), 0);
+    const totalSaves = pdfs.reduce((s, p) => s + (p.save_count || 0), 0);
 
     document.getElementById('pa-total').textContent = total;
     document.getElementById('pa-avg').textContent = avgAll;
     document.getElementById('pa-reads').textContent = totalReads;
     document.getElementById('pa-reviews').textContent = totalReviews;
+    document.getElementById('pa-saves').textContent = totalSaves;
 
-    // Sort by rating desc for top
-    const withRating = pdfs.filter(p => p.avg_rating && p.review_count);
-    const topRated = [...withRating].sort((a, b) => b.avg_rating - a.avg_rating).slice(0, 5);
-    const bottomRated = [...withRating].sort((a, b) => a.avg_rating - b.avg_rating).slice(0, 5);
-
-    const renderRow = (arr, tbody) => {
-      const el = document.getElementById(tbody);
+    // Leaderboards
+    const renderTable = (arr, tbodyId) => {
+      const el = document.getElementById(tbodyId);
+      if (!el) return;
       if (!arr.length) {
-        el.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--opp-text3)">No rated resources yet</td></tr>';
+        el.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--opp-text3)">No data available</td></tr>';
         return;
       }
-      el.innerHTML = arr.map((p, i) => `<tr>
-        <td style="font-weight:700;color:var(--opp-text)">${i + 1}</td>
-        <td style="font-weight:600">${p.title || 'Untitled'}</td>
-        <td><span style="color:#e6a817;font-weight:700">★ ${p.avg_rating.toFixed(1)}</span></td>
-        <td>${p.review_count || 0}</td>
+      el.innerHTML = arr.map(p => `<tr>
+        <td><a href="../archives/viewer.html?id=${p.id}" target="_blank" style="font-weight:700; color:var(--opp-primary); text-decoration:none;">${SS.truncateText(p.title || 'Untitled', 35)}</a></td>
+        <td><span style="color:#e6a817;font-weight:700">★ ${(p.avg_rating || 0).toFixed(1)}</span></td>
+        <td>${p.save_count || 0}</td>
         <td>${p.read_count || 0}</td>
       </tr>`).join('');
     };
 
-    renderRow(topRated, 'pa-top-tbody');
-    renderRow(bottomRated, 'pa-bottom-tbody');
+    // Top 10 (Leaderboard) - High Rating + High Engagement
+    const topRated = [...pdfs].sort((a, b) => {
+      const scoreA = (a.avg_rating || 0) * 10 + (a.read_count || 0) / 10;
+      const scoreB = (b.avg_rating || 0) * 10 + (b.read_count || 0) / 10;
+      return scoreB - scoreA;
+    }).slice(0, 10);
+    renderTable(topRated, 'pa-top-tbody');
+
+    // Bottom 10 (Needs Improvement) - Low Rating + Low Engagement
+    // We include all but prioritize those that have at least some reads or ratings so we don't just show new content
+    const bottomRated = [...pdfs].sort((a, b) => {
+      const scoreA = (a.avg_rating || 0) * 10 + (a.read_count || 0) / 10;
+      const scoreB = (b.avg_rating || 0) * 10 + (b.read_count || 0) / 10;
+      return scoreA - scoreB;
+    }).slice(0, 10);
+    renderTable(bottomRated, 'pa-bottom-tbody');
+
+    // Review Feed (Recent Comments)
+    const feedContainer = document.getElementById('pa-reviews-feed');
+    if (feedContainer) {
+      const reviewsSnap = await db.collection('reviews').orderBy('created_at', 'desc').limit(20).get();
+      
+      if (reviewsSnap.empty) {
+        feedContainer.innerHTML = '<div style="text-align:center;padding:40px;color:var(--opp-text3)">No recent reviews found.</div>';
+      } else {
+        feedContainer.innerHTML = reviewsSnap.docs.map(doc => {
+          const r = doc.data();
+          const pdf = pdfs.find(p => p.id === r.pdf_id) || { title: 'Deleted Resource' };
+          const initials = r.user_name ? r.user_name.split(' ').map(n => n[0]).join('').toUpperCase() : '?';
+          
+          return `
+            <div style="background:var(--opp-bg); padding:16px; border-radius:12px; border:1px solid var(--opp-border); display:flex; gap:16px;">
+              <div style="width:40px; height:40px; border-radius:50%; background:var(--opp-primary-light); color:var(--opp-primary); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.8rem; flex-shrink:0;">
+                ${initials}
+              </div>
+              <div style="flex:1;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px;">
+                  <div style="font-weight:700; color:var(--opp-text); font-size:0.9rem;">${r.user_name || 'Anonymous User'}</div>
+                  <div style="font-size:0.75rem; color:var(--opp-text3);">${timeAgo(r.created_at)}</div>
+                </div>
+                <div style="font-size:0.8rem; color:var(--opp-text2); margin-bottom:8px; line-height:1.5;">
+                  ${r.comment || 'No comment provided.'}
+                </div>
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <div style="color:#e6a817; font-weight:800; font-size:0.8rem;">★ ${r.rating || 0}</div>
+                  <div style="width:1px; height:12px; background:var(--opp-border);"></div>
+                  <a href="../archives/viewer.html?id=${r.pdf_id}" target="_blank" style="font-size:0.75rem; color:var(--opp-primary); font-weight:600; text-decoration:none;">
+                    on ${SS.truncateText(pdf.title, 40)}
+                  </a>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
   } catch (e) {
     console.error('Analytics error:', e);
   }

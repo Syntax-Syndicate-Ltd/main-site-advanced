@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>User Dashboard - Syntax Syndicate</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <link rel="stylesheet" href="css/global.css"/>
 
 <style>
@@ -65,8 +66,8 @@ body { font-family:var(--font); background:var(--tint); color:var(--text); line-
     <div style="margin-top:24px;">
       <a href="#" class="menu-item active" onclick="switchTab('overview', this); return false;">Overview</a>
       <a href="#" class="menu-item" onclick="switchTab('share', this); return false;">Share Resource</a>
-      <a href="#" class="menu-item">Saved Resources</a>
-      <a href="#" class="menu-item">Settings</a>
+      <a href="#" class="menu-item" onclick="switchTab('saved', this); return false;">Saved Resources</a>
+      <a href="#" class="menu-item" onclick="switchTab('settings', this); return false;">Settings</a>
     </div>
   </div>
   
@@ -118,39 +119,80 @@ body { font-family:var(--font); background:var(--tint); color:var(--text); line-
     
   <!-- SHARE TAB -->
   <div class="card" id="tab-share" style="display:none">
-    <div class="card-title">Share a Resource 📄</div>
-    <p style="font-size:0.85rem;color:var(--text-2);margin-bottom:16px;">Contribute to the free library. Resources are subject to admin review.</p>
-    <div style="display:grid;gap:16px;">
+    <div class="card-title">Share a Resource 🚀</div>
+    <div style="background: var(--tint); padding: 16px; border-radius: 12px; margin-bottom: 24px; border: 1px dashed var(--accent);">
+      <p style="font-size:0.85rem;color:var(--text-2);line-height:1.5;">
+        <strong>Become a Contributor!</strong><br>
+        Share valuable PDFs, cheatsheets, or guides with the community. Once approved, your resource will be featured in the Free Library and credited to your profile.
+      </p>
+    </div>
+    
+    <div style="display:grid; gap:20px;">
       <div class="form-group">
-        <label class="form-label">Title *</label>
-        <input type="text" class="form-input" id="shareTitle" placeholder="e.g. Master React in 10 Days" />
+        <label class="form-label">Resource Title</label>
+        <input type="text" class="form-input" id="shareTitle" placeholder="e.g. Advanced JavaScript Patterns" />
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
         <div class="form-group">
-          <label class="form-label">Type</label>
+          <label class="form-label">Category</label>
           <select id="shareType" class="form-input">
-            <option value="pdf">PDF</option>
+            <option value="pdf">PDF Document</option>
             <option value="cheatsheet">Cheatsheet</option>
-            <option value="guide">Guide</option>
-            <option value="course">Course</option>
-            <option value="other">Other</option>
+            <option value="guide">Step-by-Step Guide</option>
+            <option value="course">Free Course</option>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Domain</label>
-          <input type="text" class="form-input" id="shareDomain" placeholder="e.g. Web Dev" />
+          <label class="form-label">Domain / Topic</label>
+          <input type="text" class="form-input" id="shareDomain" placeholder="e.g. Web Development" />
         </div>
       </div>
+
       <div class="form-group">
-        <label class="form-label">Google Drive Link *</label>
-        <input type="url" class="form-input" id="shareUrl" placeholder="https://drive.google.com/..." />
+        <label class="form-label">Direct Link (Google Drive / GitHub / URL)</label>
+        <div style="position:relative;">
+          <input type="url" class="form-input" id="shareUrl" style="padding-left:40px;" placeholder="https://..." />
+          <div style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--text-3);"><i class="bi bi-link-45deg"></i></div>
+        </div>
+        <small style="font-size:0.7rem; color:var(--text-3); margin-top:4px; display:block;">Ensure the link is publicly accessible.</small>
       </div>
+
       <div class="form-group">
-        <label class="form-label">Description</label>
-        <textarea class="form-input" id="shareDesc" rows="3" placeholder="Resource description..."></textarea>
+        <label class="form-label">Short Description</label>
+        <textarea class="form-input" id="shareDesc" rows="3" placeholder="What will people learn from this?"></textarea>
       </div>
     </div>
-    <button class="btn-save" id="btnShare" onclick="submitSharedResource()">Submit for Approval</button>
+    
+    <div style="margin-top:12px; padding:12px; background:#fff8eb; border-radius:10px; border:1px solid #ffeeba; display:flex; gap:10px; align-items:start;">
+      <div style="color:#b45309;"><i class="bi bi-info-circle-fill"></i></div>
+      <p style="font-size:0.75rem; color:#92400e;">Resources are manually reviewed by our team. Please ensure high quality and relevant content.</p>
+    </div>
+
+    <button class="btn-save" id="btnShare" style="width:100%; margin-top:24px; padding:16px;" onclick="submitSharedResource()">
+      <i class="bi bi-send-fill" style="margin-right:8px;"></i> Submit for Approval
+    </button>
+  </div>
+
+  <!-- SAVED RESOURCES TAB -->
+  <div id="tab-saved" style="display:none;">
+    <div class="card">
+      <div class="card-title">Saved Resources 🔖</div>
+      <div id="saved-grid" style="display:grid; grid-template-columns: 1fr; gap:16px;">
+        <div style="text-align:center; padding:40px; color:var(--text-3);">
+          <i class="bi bi-bookmark-star" style="font-size:2rem; display:block; margin-bottom:12px; opacity:0.3;"></i>
+          Loading your saved resources...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS TAB -->
+  <div id="tab-settings" style="display:none;">
+    <div class="card">
+      <div class="card-title">Account Settings ⚙️</div>
+      <p style="color:var(--text-3); font-size:0.9rem;">Account settings and preferences will appear here soon.</p>
+    </div>
   </div>
   
   </div>
@@ -230,6 +272,61 @@ body { font-family:var(--font); background:var(--tint); color:var(--text); line-
       document.querySelector('.main-content').children[1].style.display = 'block';
     } else if(tab === 'share') {
       document.getElementById('tab-share').style.display = 'block';
+    } else if(tab === 'saved') {
+      document.getElementById('tab-saved').style.display = 'block';
+      loadSavedResources();
+    } else if(tab === 'settings') {
+      document.getElementById('tab-settings').style.display = 'block';
+    }
+  }
+
+  async function loadSavedResources() {
+    const grid = document.getElementById('saved-grid');
+    if (!currentUser.saved_resources || currentUser.saved_resources.length === 0) {
+      grid.innerHTML = `
+        <div style="text-align:center; padding:40px; color:var(--text-3);">
+          <i class="bi bi-bookmark-x" style="font-size:2rem; display:block; margin-bottom:12px; opacity:0.3;"></i>
+          No saved resources yet. Explore the <a href="archives/free-library.html" style="color:var(--accent); font-weight:600;">Free Library</a> to save some!
+        </div>
+      `;
+      return;
+    }
+
+    try {
+      const resources = await DB.fetchSavedResources(currentUser.saved_resources);
+      if (resources.length === 0) {
+        grid.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-3);">Resources not found.</div>';
+        return;
+      }
+
+      grid.innerHTML = resources.map(r => `
+        <div style="display:flex; align-items:center; gap:16px; padding:16px; border:1px solid var(--border); border-radius:12px; background:var(--tint); transition:transform 0.2s; cursor:pointer;" onclick="window.location.href='archives/viewer.html?id=${r.id}'">
+          <div style="width:48px; height:48px; border-radius:10px; background:var(--accent); color:white; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+            <i class="bi bi-file-earmark-pdf"></i>
+          </div>
+          <div style="flex:1;">
+            <div style="font-weight:700; color:var(--carbon-black); font-size:0.95rem;">${r.title}</div>
+            <div style="font-size:0.75rem; color:var(--text-2);">${r.domain || 'General'} • ${r.type || 'PDF'}</div>
+          </div>
+          <button onclick="event.stopPropagation(); removeSaved('${r.id}')" style="background:none; border:none; color:var(--text-3); cursor:pointer; padding:8px;" title="Remove">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      `).join('');
+    } catch (e) {
+      grid.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-3);">Error loading resources.</div>';
+    }
+  }
+
+  async function removeSaved(id) {
+    if(!confirm('Remove from saved?')) return;
+    try {
+      await DB.unsaveResource(firebase.auth().currentUser.uid, id);
+      currentUser.saved_resources = currentUser.saved_resources.filter(rid => rid !== id);
+      loadSavedResources();
+      SS.showToast('Resource removed', 'info');
+    } catch(e) {
+      SS.showToast('Error removing resource', 'error');
     }
   }
 

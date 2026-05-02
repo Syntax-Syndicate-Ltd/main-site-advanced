@@ -340,15 +340,41 @@ const DevHub = {
       const sc = post.shared_content;
       const typeIcons = { project: '<i class="bi bi-rocket-takeoff"></i>', snippet: '<i class="bi bi-file-earmark-code"></i>', pdf: '<i class="bi bi-file-earmark-pdf"></i>' };
       const typeLabels = { project: 'Project', snippet: 'Snippet', pdf: 'Resource' };
-      const linkMap = { project: `projects.html`, snippet: `snippets.html`, pdf: `../archives/viewer.html?id=${sc.id}` };
-      sharedHTML = `<a href="${linkMap[sc.type] || '#'}" class="dh-shared-card" target="_blank">
-        <div class="dh-shared-icon" style="color:var(--accent);">${typeIcons[sc.type] || '📎'}</div>
-        <div class="dh-shared-info">
-          <div class="dh-shared-label">${typeLabels[sc.type] || 'Content'}</div>
-          <div class="dh-shared-title">${SS.sanitizeHTML(sc.title || 'Untitled')}</div>
-          ${sc.description ? `<div class="dh-shared-desc">${SS.sanitizeHTML(SS.truncateText(sc.description, 80))}</div>` : ''}
-        </div>
-        <div class="dh-shared-arrow"><i class="bi bi-chevron-right"></i></div>
+      const linkMap = { project: `projects.html`, snippet: `snippet-details.html?id=${sc.id}`, pdf: `../archives/viewer.html?id=${sc.id}` };
+      
+      const isAchievement = sc.type === 'snippet' || sc.type === 'project';
+      const achievementStyle = isAchievement ? `
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #fff;
+        padding: 24px;
+        border-radius: 20px;
+        border: 1px solid rgba(255,255,255,0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 12px;
+        position: relative;
+        overflow: hidden;
+      ` : '';
+
+      sharedHTML = `<a href="${linkMap[sc.type] || '#'}" class="dh-shared-card" ${isAchievement ? `style="${achievementStyle}"` : ''} target="_blank">
+        ${isAchievement ? `
+          <div style="position:absolute; top:-20px; right:-20px; width:100px; height:100px; background:rgba(65,105,225,0.2); filter:blur(40px); border-radius:50%;"></div>
+          <div style="font-size:2.5rem; margin-bottom:8px;">${typeIcons[sc.type] || '🏆'}</div>
+          <div style="font-family:var(--mono); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.6);">${typeLabels[sc.type] || 'Achievement'} Shared</div>
+          <div style="font-size:1.15rem; font-weight:800; color:#fff; line-height:1.3;">${SS.sanitizeHTML(sc.title || 'Untitled')}</div>
+          ${sc.description ? `<div style="font-size:0.85rem; color:rgba(255,255,255,0.7); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${SS.sanitizeHTML(sc.description)}</div>` : ''}
+          <div style="margin-top:12px; padding:8px 20px; background:rgba(255,255,255,0.1); border-radius:100px; font-size:0.75rem; font-weight:700;">View Snippet <i class="bi bi-arrow-right"></i></div>
+        ` : `
+          <div class="dh-shared-icon" style="color:var(--accent);">${typeIcons[sc.type] || '📎'}</div>
+          <div class="dh-shared-info">
+            <div class="dh-shared-label">${typeLabels[sc.type] || 'Content'}</div>
+            <div class="dh-shared-title">${SS.sanitizeHTML(sc.title || 'Untitled')}</div>
+            ${sc.description ? `<div class="dh-shared-desc">${SS.sanitizeHTML(SS.truncateText(sc.description, 80))}</div>` : ''}
+          </div>
+          <div class="dh-shared-arrow"><i class="bi bi-chevron-right"></i></div>
+        `}
       </a>`;
     }
 
@@ -452,16 +478,24 @@ const DevHub = {
           <i class="bi bi-trash3" style="font-size:0.85rem;"></i>
         </button>` : ''}
       </div>
-      ${snippet.description ? `<div style="padding:0 20px 10px;font-size:.82rem;color:var(--text-2);">${SS.sanitizeHTML(snippet.description)}</div>` : ''}
+      ${snippet.description ? `<div style="padding:0 24px 12px; font-size:.85rem; color:var(--text-2); line-height:1.5;">${SS.sanitizeHTML(snippet.description)}</div>` : ''}
       <div class="dh-snippet-code">
-        <button class="dh-snippet-copy" onclick="DevHub.copySnippet(${JSON.stringify(snippet.code || '').replace(/</g,'\\x3c')})">Copy</button>
+        <button class="dh-snippet-copy" onclick="DevHub.copySnippet(this.nextElementSibling.innerText)">Copy</button>
         <pre>${escapedCode}</pre>
       </div>
       <div class="dh-snippet-footer">
-        <a href="${SS.getProfileLink({uid: snippet.author_uid, role: snippet.author_role})}" class="dh-snippet-author">
-          <span class="avatar">${avatar}</span>
-          ${SS.sanitizeHTML(snippet.author_name)}${SS.getRoleBadge(snippet.author_role || 'user')}${snippet.author_is_verified ? '<span class="verified-tick">✓</span>' : ''} · ${time}
-        </a>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <a href="${SS.getProfileLink({uid: snippet.author_uid, role: snippet.author_role})}" class="dh-snippet-author">
+            <span class="avatar">${avatar}</span>
+            ${SS.sanitizeHTML(snippet.author_name)}${SS.getRoleBadge(snippet.author_role || 'user')}${snippet.author_is_verified ? '<span class="verified-tick">✓</span>' : ''}
+          </a>
+          <div style="font-size:0.7rem; color:var(--text-3); margin-left:34px; display:flex; align-items:center; gap:8px;">
+            ${time} 
+            <a href="snippet-details.html?id=${snippet.id}" class="dh-snippet-view-btn">
+              View Details <i class="bi bi-arrow-right-short"></i>
+            </a>
+          </div>
+        </div>
         <button class="dh-action-btn ${liked ? 'liked' : ''}" onclick="DevHub._handleLike('snippets','${snippet.id}', this)" style="padding:4px 10px;">
           <i class="bi ${liked ? 'bi-heart-fill' : 'bi-heart'}" style="font-size:0.85rem;"></i>
           <span>${likeCount}</span>
@@ -782,44 +816,76 @@ const DevHub = {
      ═══════════════════════════════════ */
   _showShareAsPostPrompt(type, contentId, title, description) {
     const typeLabels = { project: 'Project', snippet: 'Snippet', pdf: 'Resource' };
-    const typeIcons = { project: '🖥️', snippet: '📝', pdf: '📄' };
+    const typeIcons = { project: '🚀', snippet: '⚡', pdf: '📄' };
+    
+    const safeTitle = (title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    const safeDesc = (description || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    
     setTimeout(() => {
       SS.showModal(`
-        <div style="text-align:center;padding:8px 0 16px;">
-          <div style="font-size:2.5rem;margin-bottom:12px;">🎉</div>
-          <p style="font-size:1rem;font-weight:600;color:var(--carbon-black);margin-bottom:6px;">Your ${typeLabels[type] || 'content'} is live!</p>
-          <p style="font-size:.88rem;color:var(--text-2);margin-bottom:20px;">Would you like to share it as a post so the community can discover it?</p>
-          <div style="background:var(--tint);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:left;margin-bottom:20px;">
-            <div style="display:flex;align-items:center;gap:10px;">
-              <span style="font-size:1.5rem;">${typeIcons[type] || '📎'}</span>
-              <div>
-                <div style="font-weight:700;font-size:.92rem;color:var(--carbon-black);">${SS.sanitizeHTML(title || 'Untitled')}</div>
-                ${description ? `<div style="font-size:.8rem;color:var(--text-2);margin-top:2px;">${SS.sanitizeHTML(SS.truncateText(description, 80))}</div>` : ''}
-              </div>
+        <div style="text-align:center; padding: 10px 0;">
+
+          <div style="width: 80px; height: 80px; background: rgba(65, 105, 225, 0.1); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2.5rem; animation: bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+            ${typeIcons[type] || '🎉'}
+          </div>
+          
+          <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; letter-spacing: -0.02em;">Your ${typeLabels[type]} is live!</h2>
+          <p style="font-size: 0.95rem; color: #64748b; margin-bottom: 24px; line-height: 1.5;">Would you like to share it as a post? The community would love to see what you've built.</p>
+          
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 20px; padding: 20px; text-align: left; margin-bottom: 28px; display: flex; align-items: center; gap: 16px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+            <div style="width: 48px; height: 48px; border-radius: 12px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); flex-shrink: 0;">
+              ${typeIcons[type] || '📎'}
+            </div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-weight: 800; font-size: 0.95rem; color: #0f172a; margin-bottom: 2px;">${SS.sanitizeHTML(title || 'Untitled')}</div>
+              ${description ? `<div style="font-size: 0.82rem; color: #64748b; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">${SS.sanitizeHTML(description)}</div>` : ''}
             </div>
           </div>
-          <div style="display:flex;gap:10px;justify-content:center;">
-            <button class="btn" onclick="SS.closeModal()" style="padding:10px 24px;">Skip</button>
-            <button class="btn btn-primary" onclick="DevHub._executeShareAsPost('${type}','${contentId}',${JSON.stringify(title||'').replace(/'/g,"\\'")},${JSON.stringify(description||'').replace(/'/g,"\\'")}); SS.closeModal();" style="padding:10px 24px;background:var(--accent);border-color:var(--accent);">Share as Post 🚀</button>
+
+          <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 12px;">
+            <button class="btn" onclick="SS.closeModal()" style="padding: 14px; border-radius: 14px; font-weight: 700; color: #64748b; border: 1px solid #e2e8f0; background: #fff;">Later</button>
+            <button class="btn" onclick="DevHub._executeShareAsPost('${type}','${contentId}','${safeTitle}','${safeDesc}'); SS.closeModal();" 
+              style="padding: 14px; border-radius: 14px; font-weight: 700; background: linear-gradient(135deg, #4169e1, #6366f1); color: #fff; border: none; box-shadow: 0 10px 20px rgba(65, 105, 225, 0.25); transition: 0.3s;">
+              Share as Post 🚀
+            </button>
           </div>
         </div>
+        <style>
+          @keyframes bounceIn {
+            0% { opacity: 0; transform: scale(0.3); }
+            50% { opacity: 0.9; transform: scale(1.1); }
+            80% { opacity: 1; transform: scale(0.89); }
+            100% { opacity: 1; transform: scale(1); }
+          }
+        </style>
       `, { title: 'Share with Community', closeable: true });
     }, 400);
   },
 
   async _executeShareAsPost(type, contentId, title, description) {
     const typeLabels = { project: 'project', snippet: 'snippet', pdf: 'resource' };
-    const content = `Check out my new ${typeLabels[type] || 'content'}: ${title || 'Untitled'}${description ? '\n\n' + SS.truncateText(description, 120) : ''}`;
+    
+    // Nice high-fidelity images for snippet/project shares
+    const shareImages = {
+      snippet: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&q=80&w=1200',
+      project: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=1200',
+      pdf: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&q=80&w=1200'
+    };
+
+    const content = `Check out my new ${typeLabels[type] || 'content'}: ${title || 'Untitled'}\n\n${description ? SS.truncateText(description, 180) : 'I just shared this with the community! Check it out and let me know what you think.'}`;
     const user = Auth.getUser();
     const profile = Auth.getProfile();
     if (!user || !profile) return;
+
     try {
       const data = {
         author_uid: user.uid,
         author_name: profile.name || user.displayName || 'Anonymous',
         author_avatar_url: profile.avatar_url || '',
+        author_role: profile.role || 'user',
+        author_is_verified: profile.is_verified || false,
         content: content.trim(),
-        image_url: '',
+        image_url: type === 'snippet' ? '' : (shareImages[type] || ''),
         link_url: '',
         shared_content: { type, id: contentId, title: title || 'Untitled', description: description || '' },
         likes: [],
@@ -827,9 +893,10 @@ const DevHub = {
         created_at: firebase.firestore.FieldValue.serverTimestamp()
       };
       await DB.addDoc('devhub_posts', data);
-      SS.showToast('Shared as post!', 'success');
+      SS.showToast('Shared successfully! Check the feed.', 'success');
     } catch(e) {
-      SS.showToast('Error sharing post', 'error');
+      console.error('Share error:', e);
+      SS.showToast('Failed to share post', 'error');
     }
   }
 };

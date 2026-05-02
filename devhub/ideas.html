@@ -49,23 +49,18 @@
   </div>
 
   <!-- FILTERS -->
-  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:24px;">
+  <div style="display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:24px;">
     <div class="dh-filter-bar" id="catFilters">
       <button class="dh-filter-tab active" onclick="filterByCat('all', this)">All</button>
-      <button class="dh-filter-tab" onclick="filterByCat('project', this)">🖥️ Project</button>
-      <button class="dh-filter-tab" onclick="filterByCat('feature', this)">⚡ Feature</button>
-      <button class="dh-filter-tab" onclick="filterByCat('tool', this)">🔧 Tool</button>
+      <button class="dh-filter-tab" onclick="filterByCat('project', this)"><i class="bi bi-laptop"></i> Project</button>
+      <button class="dh-filter-tab" onclick="filterByCat('feature', this)"><i class="bi bi-lightning-charge"></i> Feature</button>
+      <button class="dh-filter-tab" onclick="filterByCat('tool', this)"><i class="bi bi-tools"></i> Tool</button>
     </div>
-    <div class="dh-filter-bar" id="statusFilters">
-      <button class="dh-filter-tab active" onclick="filterByStatus('all', this)">All</button>
-      <button class="dh-filter-tab" onclick="filterByStatus('open', this)">Open</button>
-      <button class="dh-filter-tab" onclick="filterByStatus('in_progress', this)">In Progress</button>
-      <button class="dh-filter-tab" onclick="filterByStatus('completed', this)">Done</button>
-    </div>
+
     <div class="dh-filter-bar" id="sortBar">
-      <button class="dh-filter-tab active" onclick="sortIdeas('hot', this)">🔥 Hot</button>
-      <button class="dh-filter-tab" onclick="sortIdeas('new', this)">New</button>
-      <button class="dh-filter-tab" onclick="sortIdeas('top', this)">Top</button>
+      <button class="dh-filter-tab active" onclick="sortIdeas('hot', this)"><i class="bi bi-fire"></i> Hot</button>
+      <button class="dh-filter-tab" onclick="sortIdeas('new', this)"><i class="bi bi-clock"></i> New</button>
+      <button class="dh-filter-tab" onclick="sortIdeas('top', this)"><i class="bi bi-graph-up-arrow"></i> Top</button>
     </div>
   </div>
 

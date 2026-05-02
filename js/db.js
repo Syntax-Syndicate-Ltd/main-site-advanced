@@ -458,6 +458,35 @@ const DB = {
   },
   async publishPortfolio(uid, flag) {
     await db.collection('portfolios').doc(uid).update({ is_published: flag });
+  },
+
+  /* ── SAVED RESOURCES ── */
+  async saveResource(uid, resourceId) {
+    await this.addToArray(`users/${uid}`, 'saved_resources', resourceId);
+    await db.collection('pdfs').doc(resourceId).update({
+      save_count: firebase.firestore.FieldValue.increment(1)
+    }).catch(e => console.warn('Increment save_count failed:', e));
+  },
+
+  async unsaveResource(uid, resourceId) {
+    await this.removeFromArray(`users/${uid}`, 'saved_resources', resourceId);
+    await db.collection('pdfs').doc(resourceId).update({
+      save_count: firebase.firestore.FieldValue.increment(-1)
+    }).catch(e => console.warn('Decrement save_count failed:', e));
+  },
+
+  async fetchSavedResources(resourceIds) {
+    if (!resourceIds || resourceIds.length === 0) return [];
+    // Firestore in query limit is 30
+    const chunks = [];
+    for (let i = 0; i < resourceIds.length; i += 30) {
+      chunks.push(resourceIds.slice(i, i + 30));
+    }
+    const results = await Promise.all(chunks.map(async chunk => {
+      const snap = await db.collection('pdfs').where(firebase.firestore.FieldPath.documentId(), 'in', chunk).get();
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    }));
+    return results.flat();
   }
 };
 

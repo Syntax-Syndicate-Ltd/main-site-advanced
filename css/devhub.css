@@ -387,6 +387,25 @@ body.dh-page {
 .dh-snippet-footer { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; }
 .dh-snippet-author { display: flex; align-items: center; gap: 10px; font-size: .85rem; color: var(--text-3); text-decoration: none; }
 .dh-snippet-author:hover { color: var(--accent); }
+.dh-snippet-view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  background: rgba(65, 105, 225, 0.06);
+  color: var(--accent);
+  border-radius: 100px;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 0.65rem;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(65, 105, 225, 0.1);
+}
+.dh-snippet-view-btn:hover {
+  background: var(--accent);
+  color: #fff;
+  transform: translateX(2px);
+}
 .dh-snippet-author .avatar { width: 30px !important; height: 30px !important; font-size: .6rem !important; border-radius: 50% !important; }
 
 /* ══════════════════════════════════════
@@ -533,7 +552,7 @@ body.dh-page {
 @media (max-width: 768px) {
   .dh-hero h1 { font-size: 2.5rem; }
   .dh-subnav { max-width: calc(100% - 32px); }
-  .dh-subnav-inner { overflow-x: auto; -webkit-overflow-scrolling: touch; justify-content: flex-start; padding: 4px; }
+  .dh-subnav-inner { overflow-x: auto; -webkit-overflow-scrolling: touch; justify-content: center; padding: 4px; }
   .dh-subnav-link { flex: none; padding: 8px 20px; white-space: nowrap; }
 }
 

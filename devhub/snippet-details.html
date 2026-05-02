@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snippet Details — Syntax Syndicate</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/devhub.css">
+  <style>
+    .snippet-detail-page { padding: 120px 20px 100px; max-width: 1000px; margin: 0 auto; }
+    .snippet-header-box { margin-bottom: 32px; }
+    .snippet-title-lg { font-size: 2.5rem; font-weight: 900; color: var(--carbon-black); letter-spacing: -0.04em; margin-bottom: 12px; }
+    .snippet-meta-lg { display: flex; align-items: center; gap: 20px; color: var(--text-3); font-size: 0.95rem; font-weight: 600; }
+    .snippet-code-card { 
+      background: #0d1117; border-radius: 24px; overflow: hidden; 
+      box-shadow: 0 30px 60px -12px rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1);
+      position: relative;
+    }
+    .code-card-header { 
+      background: #161b22; padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .code-lang-pill { 
+      background: rgba(65, 105, 225, 0.15); color: #4169e1; 
+      padding: 6px 16px; border-radius: 100px; font-family: var(--mono); 
+      font-size: 0.72rem; font-weight: 800; text-transform: uppercase; 
+    }
+    .code-content { padding: 32px; overflow-x: auto; }
+    .code-content pre { margin: 0; font-family: 'DM Mono', 'Fira Code', monospace; font-size: 1rem; line-height: 1.7; color: #e6edf3; }
+    
+    .snippet-actions-bar { 
+      margin-top: 32px; display: flex; gap: 16px; align-items: center; 
+      padding: 24px; background: #fff; border: 1px solid var(--border); border-radius: 20px;
+    }
+    .copy-btn-lg { 
+      padding: 12px 32px; border-radius: 12px; font-weight: 700; 
+      background: var(--accent); color: #fff; border: none; cursor: pointer;
+      display: flex; align-items: center; gap: 10px; transition: 0.3s;
+    }
+    .copy-btn-lg:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(65,105,225,0.2); }
+
+    .author-card-lg { 
+      margin-top: 48px; padding: 32px; background: #fff; border: 1px solid var(--border); border-radius: 24px;
+      display: flex; align-items: center; gap: 24px;
+    }
+    .author-avatar-lg { width: 80px; height: 80px; border-radius: 50%; overflow: hidden; }
+    .author-info-lg h3 { font-size: 1.25rem; font-weight: 800; color: #0f172a; margin-bottom: 4px; }
+    .author-info-lg p { color: #64748b; font-size: 0.9rem; }
+  </style>
+</head>
+<body class="dh-page">
+  <div id="navbar-placeholder" data-type="main"></div>
+
+  <main class="snippet-detail-page">
+    <div id="snippetLoader" style="text-align:center; padding: 100px 0;">
+      <div class="cp-spinner" style="width:50px; height:50px; border:4px solid #f1f5f9; border-top-color:#4169e1; border-radius:50%; animation:spin 1s linear infinite; margin: 0 auto 20px;"></div>
+      <p style="color:#64748b; font-weight:600;">Loading Snippet...</p>
+    </div>
+
+    <div id="snippetContent" style="display:none;">
+      <div class="snippet-header-box">
+        <h1 class="snippet-title-lg" id="snippetTitle"></h1>
+        <div class="snippet-meta-lg">
+          <span id="snippetDate"></span>
+          <span style="color:#e2e8f0;">|</span>
+          <span id="snippetStats"></span>
+        </div>
+      </div>
+
+      <div class="snippet-code-card">
+        <div class="code-card-header">
+          <span class="code-lang-pill" id="snippetLang"></span>
+          <button onclick="copySnippet()" class="dh-snippet-copy" style="position:static;">Copy Code</button>
+        </div>
+        <div class="code-content">
+          <pre id="snippetCode"></pre>
+        </div>
+      </div>
+
+      <div id="snippetDesc" style="margin-top: 32px; font-size: 1.1rem; color: #475569; line-height: 1.8; white-space: pre-wrap;"></div>
+
+      <div class="snippet-actions-bar">
+        <button class="copy-btn-lg" onclick="copySnippet()">
+          <i class="bi bi-clipboard"></i> Copy Snippet
+        </button>
+        <button id="shareBtn" class="btn" onclick="shareSnippet()" style="padding:12px 24px; border-radius:12px; border:1px solid #e2e8f0; font-weight:700; color:#64748b; display:none; align-items:center; gap:8px;">
+          <i class="bi bi-share"></i> Share Post
+        </button>
+      </div>
+
+      <div class="author-card-lg" id="authorCard">
+        <!-- Author info injected here -->
+      </div>
+    </div>
+  </main>
+
+  <div id="footer-placeholder"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/db.js"></script>
+  <script src="../js/devhub.js"></script>
+  <script src="../js/navbar.js"></script>
+  <script src="../js/footer.js"></script>
+  <script>
+    const id = SS.getQueryParam('id');
+    let snippetData = null;
+
+    async function init() {
+      if (!id) { window.location.href = 'snippets.html'; return; }
+      
+      try {
+        snippetData = await DB.getDoc(`snippets/${id}`);
+        if (!snippetData) {
+          document.querySelector('.snippet-detail-page').innerHTML = '<div style="text-align:center;padding:100px 0;"><h1>Snippet Not Found</h1><a href="snippets.html" class="btn btn-primary" style="margin-top:20px;">Back to Snippets</a></div>';
+          return;
+        }
+
+        renderSnippet(snippetData);
+      } catch (e) {
+        console.error(e);
+        SS.showToast('Error loading snippet', 'error');
+      }
+    }
+
+    function renderSnippet(s) {
+      document.title = `${s.title} — Snippet — Syntax Syndicate`;
+      document.getElementById('snippetTitle').innerText = s.title;
+      document.getElementById('snippetDate').innerText = SS.formatDateRelative(s.created_at);
+      document.getElementById('snippetLang').innerText = s.language || 'other';
+      document.getElementById('snippetCode').innerText = s.code;
+      document.getElementById('snippetDesc').innerText = s.description || '';
+      document.getElementById('snippetStats').innerHTML = `<i class="bi bi-heart-fill" style="color:#ef4444;"></i> ${(s.likes || []).length} likes`;
+
+      // Only show share button if owner
+      const currentUser = Auth.getUser();
+      if (currentUser && s.author_uid === currentUser.uid) {
+        document.getElementById('shareBtn').style.display = 'inline-flex';
+      }
+
+      const authorLink = SS.getProfileLink({uid: s.author_uid, role: s.author_role});
+      document.getElementById('authorCard').innerHTML = `
+        <a href="${authorLink}" class="author-avatar-lg">
+          ${SS.renderAvatar({ name: s.author_name, avatar_url: s.author_avatar_url, role: s.author_role }, 'lg circle')}
+        </a>
+        <div class="author-info-lg">
+          <p style="text-transform:uppercase; font-size:0.7rem; font-weight:800; letter-spacing:0.05em; margin-bottom:4px; color:var(--accent);">Shared By</p>
+          <a href="${authorLink}" style="text-decoration:none;"><h3>${SS.sanitizeHTML(s.author_name)} ${SS.getRoleBadge(s.author_role || 'user')}</h3></a>
+        </div>
+      `;
+
+      document.getElementById('snippetLoader').style.display = 'none';
+      document.getElementById('snippetContent').style.display = 'block';
+    }
+
+    function copySnippet() {
+      if (snippetData) {
+        SS.copyToClipboard(snippetData.code);
+        SS.showToast('Code copied to clipboard!', 'success');
+      }
+    }
+
+    function shareSnippet() {
+      if (snippetData) {
+        DevHub._showShareAsPostPrompt('snippet', id, snippetData.title, snippetData.description);
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

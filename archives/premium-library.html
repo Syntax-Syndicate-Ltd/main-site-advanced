@@ -17,7 +17,7 @@
   --pale-slate:#d0d7e8;--pale-slate-2:#b8c2d8;--platinum:#f0f4ff;
   --gold:#f59e0b;--gold-bg:rgba(245,158,11,0.08);--gold-border:rgba(245,158,11,0.25);
   --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
-  --max:1100px;--pad:max(40px,calc((100vw - 1100px)/2));
+  --max:1280px;--pad:max(40px,calc((100vw - 1280px)/2));
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
@@ -51,12 +51,11 @@ body{font-family:var(--font);background:var(--white);color:var(--text);overflow-
 .filter-tag:hover,.filter-tag.active{background:var(--carbon-black);color:#fff;border-color:var(--carbon-black);}
 
 /* ── PDF GRID ── */
-/* ── PDF GRID ── */
 .lib-content { max-width: var(--max); margin: 0 auto; padding: 40px var(--pad) 80px; }
 .pdf-grid { 
   display: grid; 
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-  gap: 32px; 
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
+  gap: 24px; 
   justify-content: center;
 }
 

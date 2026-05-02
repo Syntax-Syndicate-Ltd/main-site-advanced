@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="css/global.css"/>
 <link rel="stylesheet" href="css/components.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
 <style>
 :root {
@@ -90,7 +91,7 @@ body {
 /* ── MAIN ── */
 .main{display:flex;flex-direction:column;gap:40px;}
 /* Section wrappers need gaps too */
-#section-overview, #section-edit, #section-share, #section-content { display: flex; flex-direction: column; gap: 40px; }
+#section-overview, #section-edit, #section-share, #section-content, #section-saved, #section-share-resource { display: flex; flex-direction: column; gap: 40px; }
 .card{
   background: var(--white-solid);
   border: 1px solid rgba(0,0,0,0.05);
@@ -173,6 +174,14 @@ body {
       <a href="#" class="menu-item" onclick="showSection('edit')">
         <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         Edit Profile
+      </a>
+      <a href="#" class="menu-item" onclick="showSection('saved')">
+        <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+        Saved Resources
+      </a>
+      <a href="#" class="menu-item" onclick="showSection('share-resource')">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>
+        Contribute Resource
       </a>
       <a href="#" class="menu-item" onclick="showSection('share')">
         <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
@@ -403,6 +412,73 @@ body {
       </div>
     </div>
 
+    <!-- SAVED RESOURCES SECTION -->
+    <div id="section-saved" style="display:none;">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Saved Resources 🔖</div>
+        </div>
+        <div id="saved-grid" style="display:grid; grid-template-columns: 1fr; gap:16px;">
+          <div style="text-align:center; padding:40px; color:var(--text-3);">
+            Loading your saved resources...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHARE RESOURCE (CONTRIBUTOR) SECTION -->
+    <div id="section-share-resource" style="display:none;">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Share a Resource 🚀</div>
+        </div>
+        <div style="background: var(--accent-bg); padding: 24px; border-radius: 20px; margin-bottom: 32px; border: 1px dashed var(--accent);">
+          <p style="font-size:0.9rem;color:var(--text-2);line-height:1.6;">
+            <strong>Become a Contributor!</strong><br>
+            Share valuable PDFs, cheatsheets, or guides with the community. Once approved, your resource will be featured in the Free Library and credited to your profile.
+          </p>
+        </div>
+        
+        <div style="display:grid; gap:24px;">
+          <div class="form-group">
+            <label class="form-label">Resource Title</label>
+            <input type="text" class="form-input" id="shareTitle" placeholder="e.g. Advanced JavaScript Patterns" />
+          </div>
+          
+          <div class="form-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:24px;">
+            <div class="form-group">
+              <label class="form-label">Category</label>
+              <select id="shareType" class="form-select">
+                <option value="pdf">PDF Document</option>
+                <option value="cheatsheet">Cheatsheet</option>
+                <option value="guide">Step-by-Step Guide</option>
+                <option value="course">Free Course</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Domain / Topic</label>
+              <input type="text" class="form-input" id="shareDomain" placeholder="e.g. Web Development" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Direct Link (Google Drive / GitHub / URL)</label>
+            <input type="url" class="form-input" id="shareUrlInput" placeholder="https://..." />
+            <small style="font-size:0.75rem; color:var(--text-3); margin-top:6px; display:block;">Ensure the link is publicly accessible.</small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Short Description</label>
+            <textarea class="form-input" id="shareDesc" rows="4" placeholder="What will people learn from this?"></textarea>
+          </div>
+        </div>
+        
+        <button class="btn btn-primary" id="btnShare" style="width:100%; margin-top:32px; padding:16px;" onclick="submitSharedResource()">
+          Submit for Approval
+        </button>
+      </div>
+    </div>
+
     <!-- MANAGE CONTENT SECTION -->
     <div id="section-content" style="display:none;">
       <div class="card" style="margin-bottom:20px;">
@@ -508,6 +584,16 @@ async function init() {
     // Suggestions
     loadSuggestions();
 
+    // Deep link or saved tab
+    const hash = window.location.hash.replace('#', '');
+    const savedTab = localStorage.getItem('ss_profile_tab');
+    if (hash && ['overview', 'edit', 'saved', 'share-resource', 'share', 'content'].includes(hash)) {
+      showSection(hash);
+    } else if (savedTab && ['overview', 'edit', 'saved', 'share-resource', 'share', 'content'].includes(savedTab)) {
+      showSection(savedTab);
+      localStorage.removeItem('ss_profile_tab');
+    }
+
   } catch(e) { console.error(e); }
 }
 
@@ -574,13 +660,109 @@ async function loadSuggestions() {
 }
 
 function showSection(name) {
-  ['overview', 'edit', 'share', 'content'].forEach(s => {
-    document.getElementById('section-' + s).style.display = s === name ? 'block' : 'none';
+  const sections = ['overview', 'edit', 'saved', 'share-resource', 'share', 'content'];
+  sections.forEach(s => {
+    const el = document.getElementById('section-' + s);
+    if (el) el.style.display = (s === name) ? 'flex' : 'none';
   });
-  document.querySelectorAll('.menu-item').forEach((el, i) => {
-    el.classList.toggle('active', i === ['overview', 'edit', 'share', 'content'].indexOf(name));
+
+  document.querySelectorAll('.nav-menu .menu-item').forEach(btn => {
+    const onclick = btn.getAttribute('onclick') || '';
+    btn.classList.toggle('active', onclick.includes(`'${name}'`));
   });
+
   if (name === 'content') loadManageContent();
+  if (name === 'saved') loadSavedResources();
+}
+
+async function loadSavedResources() {
+  const grid = document.getElementById('saved-grid');
+  if (!profile.saved_resources || profile.saved_resources.length === 0) {
+    grid.innerHTML = `
+      <div style="text-align:center; padding:40px; color:var(--text-3);">
+        No saved resources yet. Explore the <a href="archives/free-library.html" style="color:var(--accent); font-weight:600;">Free Library</a> to save some!
+      </div>
+    `;
+    return;
+  }
+
+  try {
+    const resources = await DB.fetchSavedResources(profile.saved_resources);
+    if (resources.length === 0) {
+      grid.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-3);">Resources not found.</div>';
+      return;
+    }
+
+    grid.innerHTML = resources.map(r => `
+      <div style="display:flex; align-items:center; gap:20px; padding:20px; border:1px solid var(--border); border-radius:20px; background:var(--glass-bg); transition:transform 0.2s; cursor:pointer;" onclick="window.location.href='archives/viewer.html?id=${r.id}'">
+        <div style="width:56px; height:56px; border-radius:14px; background:var(--accent-bg); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-weight:800; color:var(--text); font-size:1rem; margin-bottom:4px;">${r.title}</div>
+          <div style="font-size:0.8rem; color:var(--text-3); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">${r.domain || 'General'} • ${r.type || 'PDF'}</div>
+        </div>
+        <button onclick="event.stopPropagation(); removeSaved('${r.id}')" style="background:none; border:none; color:var(--text-3); cursor:pointer; padding:10px; border-radius:10px; transition:all 0.2s;" onmouseover="this.style.color='#ef4444'; this.style.background='rgba(239,68,68,0.1)';" onmouseout="this.style.color='var(--text-3)'; this.style.background='none';">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
+      </div>
+    `).join('');
+  } catch (e) {
+    grid.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-3);">Error loading resources.</div>';
+  }
+}
+
+async function removeSaved(id) {
+  if(!confirm('Remove from saved?')) return;
+  try {
+    await DB.unsaveResource(profile.id, id);
+    profile.saved_resources = profile.saved_resources.filter(rid => rid !== id);
+    loadSavedResources();
+    SS.showToast('Resource removed', 'info');
+  } catch(e) {
+    SS.showToast('Error removing resource', 'error');
+  }
+}
+
+async function submitSharedResource() {
+  const title = document.getElementById('shareTitle').value.trim();
+  const url = document.getElementById('shareUrlInput').value.trim();
+  if(!title || !url) return SS.showToast('Title and URL are required', 'warning');
+  
+  const btn = document.getElementById('btnShare');
+  const originalText = btn.innerText;
+  btn.innerText = "Submitting...";
+  btn.disabled = true;
+  
+  try {
+    await db.collection('pending_content').add({
+      status: 'pending',
+      type: 'library_resource',
+      target_collection: 'pdfs',
+      data: {
+        title,
+        type: document.getElementById('shareType').value,
+        domain: document.getElementById('shareDomain').value.trim(),
+        access: 'free',
+        url: url,
+        description: document.getElementById('shareDesc').value.trim()
+      },
+      poster_name: profile.name || 'Anonymous User',
+      poster_avatar_url: profile.avatar_url || '',
+      company_name: 'Community User',
+      posted_by: profile.id,
+      created_at: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    SS.showToast('Resource submitted for review! Thank you.', 'success');
+    document.getElementById('shareTitle').value = '';
+    document.getElementById('shareUrlInput').value = '';
+    document.getElementById('shareDesc').value = '';
+    showSection('overview');
+  } catch(e) {
+    SS.showToast('Error: ' + e.message, 'error');
+  }
+  btn.innerText = originalText;
+  btn.disabled = false;
 }
 
 document.getElementById('editForm').addEventListener('submit', async (e) => {

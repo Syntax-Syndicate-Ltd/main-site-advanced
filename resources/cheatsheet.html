@@ -38,7 +38,7 @@ body{font-family:var(--font);background:var(--tint);color:var(--text);line-heigh
 .cs-layout{max-width:var(--max);margin:0 auto;padding:40px 24px 80px;display:grid;grid-template-columns:260px 1fr;gap:48px;align-items:start}
 
 /* TOC Sidebar */
-.cs-toc{position:sticky;top:100px}
+.cs-toc{position:sticky;top:100px;min-width:0}
 .cs-toc-inner{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:0 4px 20px rgba(10,14,26,.04)}
 .cs-toc-title{font-family:var(--mono);font-size:.62rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:12px;padding:0 4px}
 .cs-toc-link{display:block;padding:8px 10px;border-radius:7px;font-size:.8rem;font-weight:500;color:var(--text-2);text-decoration:none;transition:all .15s}
@@ -46,14 +46,14 @@ body{font-family:var(--font);background:var(--tint);color:var(--text);line-heigh
 .cs-toc-link.active{background:var(--accent-bg);color:var(--accent);font-weight:600}
 
 /* Sections */
-.cs-sections{display:flex;flex-direction:column;gap:28px}
-.cs-section{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color .2s}
+.cs-sections{display:flex;flex-direction:column;gap:28px;min-width:0}
+.cs-section{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color .2s;overflow-wrap:break-word}
 .cs-section:hover{border-color:rgba(65,105,225,.25)}
 .cs-section-header{padding:22px 28px 0;display:flex;align-items:center;gap:14px}
 .cs-section-num{width:32px;height:32px;border-radius:9px;background:rgba(40,200,64,.08);border:1px solid rgba(40,200,64,.25);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.7rem;font-weight:700;color:#1e7a42;flex-shrink:0}
 .cs-section-heading{font-size:1rem;font-weight:700;color:var(--carbon-black)}
 .cs-section-body{padding:16px 28px 24px}
-.cs-section-content{font-size:.88rem;color:var(--text-2);line-height:1.75;margin-bottom:16px;white-space:pre-wrap}
+.cs-section-content{font-size:.88rem;color:var(--text-2);line-height:1.75;margin-bottom:16px;white-space:pre-wrap;overflow-wrap:break-word}
 
 /* Code Snippets */
 .cs-code-block{margin-bottom:14px;border:1px solid var(--border);border-radius:10px;overflow:hidden}
@@ -75,15 +75,18 @@ body{font-family:var(--font);background:var(--tint);color:var(--text);line-heigh
 @keyframes spin{to{transform:rotate(360deg)}}
 
 @media(max-width:860px){
-  .cs-layout{grid-template-columns:1fr;gap:20px}
-  .cs-toc{position:static;order:-1}
+  .cs-layout{grid-template-columns:1fr;gap:24px}
+  .cs-toc{position:static;order:1;min-width:100%}
+  .cs-sections{order:2}
   .cs-toc-inner{display:flex;gap:4px;overflow-x:auto;padding:10px}
   .cs-toc-title{display:none}
   .cs-toc-link{white-space:nowrap}
   .cs-section-header{padding:16px 18px 0}
   .cs-section-body{padding:14px 18px 20px}
 }
-@media(max-width:600px){.cs-hero{padding:100px 20px 36px}}
+@media(max-width:600px){
+  .cs-hero{padding:30px 20px 36px}
+}
 </style>
 </head>
 <body>
