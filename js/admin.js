@@ -465,6 +465,7 @@ function renderUsersTable(users) {
       roleSelect = isSuper ? `<span style="color:var(--opp-primary);font-weight:700">${u.role}</span>` : `<span style="font-weight:600">${u.role || 'user'}</span>`;
     }
 
+    const profileLink = SS.getProfileLink(u);
     return `<tr>
       <td style="font-weight:600;color:var(--opp-text)">${u.name || '—'}${SS.getRoleBadge(u.role)}</td>
       <td>${u.email || '—'}</td>
@@ -472,7 +473,7 @@ function renderUsersTable(users) {
       <td>${u.apply_clicks || 0}</td>
       <td>${joined}</td>
       <td>
-        <button class="opp-btn opp-btn-sm" style="background:var(--tint);border-color:var(--border);color:var(--opp-text)" onclick="viewUserActivity('${u.id}')">👁️ View</button>
+        <a href="${profileLink}" target="_blank" class="opp-btn opp-btn-sm" style="background:var(--tint);border-color:var(--border);color:var(--opp-text);text-decoration:none;">👁️ View</a>
       </td>
     </tr>`;
   }).join('');
@@ -512,7 +513,7 @@ window.viewUserActivity = function (userId) {
       <p><em>Note: Real-time event tracking logs will be integrated here in future updates.</em></p>
     </div>
   `;
-  document.getElementById('edit-modal').classList.add('visible');
+  document.getElementById('edit-modal').classList.add('active');
 };
 
 function filterUsersTable() {

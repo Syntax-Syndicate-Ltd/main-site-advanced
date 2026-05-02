@@ -143,7 +143,10 @@
     <div class="nav-dropdown notif-dropdown-desktop" style="right:0;left:auto; width: 340px; padding: 0;">
       <div style="padding: 12px 14px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
         <div class="nav-dd-label" style="padding:0;">Notifications</div>
-        <button onclick="markAllNotifsRead()" style="background:none; border:none; color:var(--accent); font-size:11px; font-weight:600; cursor:pointer;">Mark all as read</button>
+        <div style="display: flex; gap: 8px;">
+          <button onclick="markAllNotifsRead()" style="background:none; border:none; color:var(--accent); font-size:11px; font-weight:600; cursor:pointer;">Mark all as read</button>
+          <button onclick="deleteAllReadNotifs()" style="background:none; border:none; color:#ef4444; font-size:11px; font-weight:600; cursor:pointer;">Delete read</button>
+        </div>
       </div>
       <div class="notif-list-container" style="max-height: 400px; overflow-y: auto; padding: 4px 0;">
         <div style="padding:20px;text-align:center;color:var(--text-3);font-size:12px;">Loading notifications...</div>
@@ -192,8 +195,9 @@
       <h3>Notifications</h3>
       <button onclick="toggleNotifs()" class="notif-popup-close">✕</button>
     </div>
-    <div class="notif-popup-actions">
+    <div class="notif-popup-actions" style="display: flex; justify-content: flex-end; gap: 12px;">
       <button onclick="markAllNotifsRead()" style="color:var(--accent); background:none; border:none; font-weight:600; font-size:12px;">Mark all as read</button>
+      <button onclick="deleteAllReadNotifs()" style="color:#ef4444; background:none; border:none; font-weight:600; font-size:12px;">Delete read</button>
     </div>
     <div class="notif-list-container mobile-list">
       <div style="padding:40px;text-align:center;color:var(--text-3);font-size:14px;">Loading notifications...</div>
@@ -327,11 +331,19 @@
     if (!containers.length) return;
 
     try {
-      const notifs = await DB.fetchUserNotifications(user.uid, 20);
+      const allNotifs = await DB.fetchUserNotifications(user.uid, 40);
+      const deletedIds = JSON.parse(localStorage.getItem('ss_deleted_notifs') || '[]');
+      const notifs = allNotifs.filter(n => !deletedIds.includes(n.id)).slice(0, 20);
+
       if (!notifs.length) {
         containers.forEach(c => c.innerHTML = `
           <div style="padding:48px 20px;text-align:center;">
-            <div style="font-size:2.5rem;margin-bottom:12px;">🔕</div>
+            <div style="margin-bottom:16px; display:flex; justify-content:center;">
+              <div style="position:relative; width:64px; height:64px; background:var(--tint); border-radius:16px; display:flex; align-items:center; justify-content:center;">
+                <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-3); opacity:0.6;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <div style="position:absolute; width:100%; height:2px; background:linear-gradient(90deg, transparent, var(--text-3), transparent); transform:rotate(-45deg); opacity: 0.4;"></div>
+              </div>
+            </div>
             <div style="font-size:.95rem;font-weight:600;color:var(--carbon-black);margin-bottom:4px;">No notifications yet</div>
             <div style="font-size:.82rem;color:var(--text-3);">You're all caught up!</div>
           </div>`);
@@ -353,14 +365,20 @@
           return Math.floor(diff/86400) + 'd ago';
         })() : '';
 
-        return `<a href="${link}" onclick="markNotifRead('${n.id}'); if(window.innerWidth < 850) toggleNotifs();" class="notif-modal-item ${isRead ? '' : 'unread'}">
-          <div class="notif-modal-dot ${isRead ? '' : 'active'}"></div>
-          <div class="notif-modal-content">
-            <div class="notif-modal-title">${n.title || 'Notification'}</div>
-            <div class="notif-modal-msg">${n.message || ''}</div>
-            <div class="notif-modal-time">${timeStr}</div>
-          </div>
-        </a>`;
+        return `
+        <div class="notif-modal-item ${isRead ? '' : 'unread'}">
+          <a href="${link}" onclick="markNotifRead('${n.id}'); if(window.innerWidth < 850) toggleNotifs();" class="notif-modal-link">
+            <div class="notif-modal-dot ${isRead ? '' : 'active'}"></div>
+            <div class="notif-modal-content">
+              <div class="notif-modal-title">${n.title || 'Notification'}</div>
+              <div class="notif-modal-msg">${n.message || ''}</div>
+              <div class="notif-modal-time">${timeStr}</div>
+            </div>
+          </a>
+          <button class="notif-item-delete" onclick="deleteNotif('${n.id}', event)" title="Delete">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          </button>
+        </div>`;
       }).join('');
       containers.forEach(c => c.innerHTML = html);
     } catch(e) {
@@ -400,9 +418,13 @@
     if (!badge) return;
 
     try {
-      const notifs = await DB.fetchUserNotifications(user.uid, 15);
+      const allNotifs = await DB.fetchUserNotifications(user.uid, 25);
       const readIds = JSON.parse(localStorage.getItem('ss_read_notifs') || '[]');
-      const unread = notifs.filter(n => !readIds.includes(n.id)).length;
+      const deletedIds = JSON.parse(localStorage.getItem('ss_deleted_notifs') || '[]');
+      
+      const activeNotifs = allNotifs.filter(n => !deletedIds.includes(n.id));
+      const unread = activeNotifs.filter(n => !readIds.includes(n.id)).length;
+      
       if (unread > 0) {
         badge.style.display = 'flex';
         badge.textContent = unread > 9 ? '9+' : unread;
@@ -429,15 +451,50 @@
       item.classList.remove('unread');
       const dot = item.querySelector('.notif-modal-dot');
       if (dot) dot.classList.remove('active');
-      // Extract id from onclick
-      const onclick = item.getAttribute('onclick') || '';
-      const match = onclick.match(/markNotifRead\('([^']+)'\)/);
-      if (match && !readIds.includes(match[1])) readIds.push(match[1]);
+      // Extract id from delete button or link
+      const delBtn = item.querySelector('.notif-item-delete');
+      if (delBtn) {
+        const onclick = delBtn.getAttribute('onclick') || '';
+        const match = onclick.match(/deleteNotif\('([^']+)'/);
+        if (match && !readIds.includes(match[1])) readIds.push(match[1]);
+      }
     });
     localStorage.setItem('ss_read_notifs', JSON.stringify(readIds));
     const badge = document.getElementById('notifBadge');
     if (badge) badge.style.display = 'none';
     SS.showToast('All notifications marked as read', 'success');
+  };
+
+  window.deleteNotif = function(id, event) {
+    if (event) event.stopPropagation();
+    const deletedIds = JSON.parse(localStorage.getItem('ss_deleted_notifs') || '[]');
+    if (!deletedIds.includes(id)) {
+      deletedIds.push(id);
+      localStorage.setItem('ss_deleted_notifs', JSON.stringify(deletedIds));
+    }
+    loadNavNotifications();
+    SS.showToast('Notification deleted', 'info');
+  };
+
+  window.deleteAllReadNotifs = function() {
+    const readIds = JSON.parse(localStorage.getItem('ss_read_notifs') || '[]');
+    const deletedIds = JSON.parse(localStorage.getItem('ss_deleted_notifs') || '[]');
+    
+    let added = 0;
+    readIds.forEach(id => {
+      if (!deletedIds.includes(id)) {
+        deletedIds.push(id);
+        added++;
+      }
+    });
+    
+    if (added > 0) {
+      localStorage.setItem('ss_deleted_notifs', JSON.stringify(deletedIds));
+      loadNavNotifications();
+      SS.showToast(`${added} read notifications deleted`, 'success');
+    } else {
+      SS.showToast('No read notifications to delete', 'info');
+    }
   };
 
   // Auto-init based on placeholder attribute

@@ -242,8 +242,12 @@ async function init() {
       document.getElementById('openExternal').href = pdf.url;
     }
   } else if (pdf.file_path) {
-    document.getElementById('viewerBody').innerHTML = `<iframe src="${pdf.file_path}"></iframe>`;
-    document.getElementById('openExternal').href = pdf.file_path;
+    let finalPath = pdf.file_path;
+    if (finalPath.startsWith('/')) finalPath = finalPath.substring(1);
+    finalPath = SS.getRootPath() + finalPath;
+    
+    document.getElementById('viewerBody').innerHTML = `<iframe src="${finalPath}"></iframe>`;
+    document.getElementById('openExternal').href = finalPath;
   } else {
     document.getElementById('viewerBody').innerHTML = '<div style="padding:60px;text-align:center;color:var(--text-3);">No preview available for this resource.</div>';
   }
